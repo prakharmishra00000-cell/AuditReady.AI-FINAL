@@ -1,0 +1,2359 @@
+﻿/* ==========================================================================
+   AUDITREADY.AI - INTERACTIVE STATE & APP ENGINE
+   ========================================================================== */
+
+(function initAppEngine() {
+    // Initialize Lucide Icons
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    // --- State Variables ---
+    let currentFramework = "SOC 2";
+    let currentProvider = "gdrive";
+    let isAnnualBilling = false;
+
+    // Default File Database
+    const defaultFiles = [
+        { id: 1, name: "Acme_Vendor_Agrmt.pdf", type: "pdf", size: "1.4 MB", originalStatus: "Failed", currentStatus: "Failed", issue: "Missing Data Indemnity Clause", risk: "High", actionLabel: "Generate Amendment", clauseType: "indemnity" },
+        { id: 2, name: "HR_Onboarding_Log.csv", type: "csv", size: "142 KB", originalStatus: "Passed", currentStatus: "Passed", issue: "All 15 employees background checked", risk: "Low", actionLabel: "None", clauseType: "none" },
+        { id: 3, name: "AWS_IAM_Access_Policy.json", type: "json", size: "4.2 KB", originalStatus: "Failed", currentStatus: "Failed", issue: "Wildcard administrator privileges", risk: "Critical", actionLabel: "Restrict Policy", clauseType: "iam" },
+        { id: 4, name: "GDPR_Privacy_Policy_v2.docx", type: "docx", size: "850 KB", originalStatus: "Passed", currentStatus: "Passed", issue: "Data retention clauses validated", risk: "Low", actionLabel: "None", clauseType: "none" }
+    ];
+
+    let activeFiles = [...defaultFiles];
+    let activeRemediationRow = null;
+
+    // --- Ingestion Logs Library (Contextualized by Framework) ---
+    const logsLibrary = {
+        "SOC 2": [
+            { text: "Connecting to secure document ingestion node...", type: "info" },
+            { text: "Decrypting metadata structures and scanning files...", type: "info" },
+            { text: "Mapping files to SOC 2 Trust Services Criteria v2017...", type: "scan" },
+            { text: "Auditing Acme_Vendor_Agrmt.pdf against Criteria CC7.1 (Vulnerability Management)...", type: "scan" },
+            { text: "WARNING: Missing Data Indemnity Clause in Acme_Vendor_Agrmt.pdf.", type: "warn" },
+            { text: "Auditing HR_Onboarding_Log.csv against Criteria CC6.3 (Employee Background Checks)...", type: "scan" },
+            { text: "SUCCESS: Verified all 15 onboarding background check records.", type: "ok" },
+            { text: "Auditing AWS_IAM_Access_Policy.json against Criteria CC6.1 (Access Authorization)...", type: "scan" },
+            { text: "CRITICAL: Wildcard administrator permission detected in IAM statement.", type: "danger" },
+            { text: "Auditing GDPR_Privacy_Policy_v2.docx against Criteria CC6.5 (Data Transmission)...", type: "scan" },
+            { text: "SUCCESS: TLS 1.3 enforced, data retention terms matched.", type: "ok" },
+            { text: "Preparing RAG alignment matrices and final compliance score...", type: "info" }
+        ],
+        "GDPR": [
+            { text: "Connecting to secure document ingestion node...", type: "info" },
+            { text: "Scanning elements for Personally Identifiable Information (PII)...", type: "info" },
+            { text: "Mapping files to GDPR Articles 5, 28, and 32...", type: "scan" },
+            { text: "Auditing Acme_Vendor_Agrmt.pdf against Article 28 (Data Processor Contract Requirements)...", type: "scan" },
+            { text: "WARNING: Missing Clause stating processor must indemnify controller for data leaks.", type: "warn" },
+            { text: "Auditing HR_Onboarding_Log.csv against Article 5 (Lawfulness & Transparency of Employee Data)...", type: "scan" },
+            { text: "SUCCESS: Employee consent records signed off.", type: "ok" },
+            { text: "Auditing AWS_IAM_Access_Policy.json against Article 32 (Security of Processing)...", type: "scan" },
+            { text: "CRITICAL: Publicly accessible admin rules violate GDPR core security safeguards.", type: "danger" },
+            { text: "Auditing GDPR_Privacy_Policy_v2.docx against Article 13 (Information to be provided)...", type: "scan" },
+            { text: "SUCCESS: Right to erasure and data protection officer details found.", type: "ok" },
+            { text: "Validating cross-border transfers and standard contractual clauses...", type: "info" }
+        ],
+        "ISO 27001": [
+            { text: "Connecting to secure document ingestion node...", type: "info" },
+            { text: "Loading ISO 27001:2022 Control Mapping Schema...", type: "info" },
+            { text: "Scanning files against Annex A Security Controls...", type: "scan" },
+            { text: "Auditing Acme_Vendor_Agrmt.pdf against Annex A.5.19 (Information Security in Supplier Relationships)...", type: "scan" },
+            { text: "WARNING: Missing liability indemnity for subcontractor breaches.", type: "warn" },
+            { text: "Auditing HR_Onboarding_Log.csv against Annex A.6.1 (Screening of Employees)...", type: "scan" },
+            { text: "SUCCESS: Background verifications validated for target staff.", type: "ok" },
+            { text: "Auditing AWS_IAM_Access_Policy.json against Annex A.8.2 (Privileged Access Rights)...", type: "scan" },
+            { text: "CRITICAL: Excessive administrative permissions violate A.8.2 least-privilege control.", type: "danger" },
+            { text: "Auditing GDPR_Privacy_Policy_v2.docx against Annex A.8.10 (Information Deletion)...", type: "scan" },
+            { text: "SUCCESS: Asset disposal and data destruction timelines present.", type: "ok" },
+            { text: "Aggregating Annex A control evidence package...", type: "info" }
+        ],
+        "HIPAA": [
+            { text: "Initialising HIPAA/HITECH compliance scanning engine...", type: "info" },
+            { text: "Loading ePHI detection models and 164 rule mappings...", type: "info" },
+            { text: "Scanning for Protected Health Information (PHI) markers in documents...", type: "scan" },
+            { text: "Auditing Acme_Vendor_Agrmt.pdf against 164.314 (Business Associate Agreements)...", type: "scan" },
+            { text: "WARNING: No BAA provisions found. Vendor must sign a compliant Business Associate Agreement.", type: "warn" },
+            { text: "Auditing HR_Onboarding_Log.csv against 164.530 (Workforce Training Requirements)...", type: "scan" },
+            { text: "SUCCESS: Training completion records found for all 15 workforce members.", type: "ok" },
+            { text: "Auditing AWS_IAM_Access_Policy.json against 164.312 (Technical Safeguards)...", type: "scan" },
+            { text: "CRITICAL: Wildcard IAM role allows unrestricted access to ePHI storage. Violates minimum-necessary standard.", type: "danger" },
+            { text: "Auditing GDPR_Privacy_Policy_v2.docx against 164.308 (Administrative Safeguards)...", type: "scan" },
+            { text: "SUCCESS: Risk analysis and contingency plan references validated.", type: "ok" },
+            { text: "Compiling HIPAA compliance evidence package for HHS submission...", type: "info" }
+        ],
+        "PCI DSS": [
+            { text: "Initialising PCI DSS v4.0 scanning engine...", type: "info" },
+            { text: "Loading cardholder data environment (CDE) boundary rules...", type: "info" },
+            { text: "Scanning documents for PAN exposure and cryptographic control gaps...", type: "scan" },
+            { text: "Auditing Acme_Vendor_Agrmt.pdf against Requirement 12 (Information Security Policy)...", type: "scan" },
+            { text: "WARNING: Vendor agreement lacks explicit reference to PCI DSS scope and annual policy review obligations.", type: "warn" },
+            { text: "Auditing HR_Onboarding_Log.csv against Requirement 7 (Restrict Access by Need to Know)...", type: "scan" },
+            { text: "SUCCESS: Role-based access assignments documented and auditable.", type: "ok" },
+            { text: "Auditing AWS_IAM_Access_Policy.json against Requirement 7 (Least Privilege Enforcement)...", type: "scan" },
+            { text: "CRITICAL: Wildcard admin IAM policy violates PCI DSS Requirement 7 least-privilege mandate.", type: "danger" },
+            { text: "Auditing GDPR_Privacy_Policy_v2.docx against Requirement 3 (Protect Stored Cardholder Data)...", type: "scan" },
+            { text: "SUCCESS: AES-256 encryption and tokenisation controls referenced.", type: "ok" },
+            { text: "Generating PCI DSS Report on Compliance (ROC) evidence bundle...", type: "info" }
+        ],
+        "NIST": [
+            { text: "Initialising NIST CSF 2.0 scanning engine...", type: "info" },
+            { text: "Loading IdentifyÃ¢â†’'ProtectÃ¢â†’'DetectÃ¢â†’'RespondÃ¢â†’'Recover function mappings...", type: "info" },
+            { text: "Performing asset discovery and exposure surface analysis...", type: "scan" },
+            { text: "Auditing Acme_Vendor_Agrmt.pdf against ID.GV (Governance & Supply Chain Risk)...", type: "scan" },
+            { text: "WARNING: Vendor risk profile not documented. Fails NIST ID.SC-2 supply chain risk management.", type: "warn" },
+            { text: "Auditing HR_Onboarding_Log.csv against PR.AT (Awareness and Training)...", type: "scan" },
+            { text: "SUCCESS: Security awareness training records validated for all personnel.", type: "ok" },
+            { text: "Auditing AWS_IAM_Access_Policy.json against PR.AC (Identity & Access Management)...", type: "scan" },
+            { text: "CRITICAL: Privilege escalation path detected. IAM wildcard violates PR.AC-4 least-privilege baseline.", type: "danger" },
+            { text: "Auditing GDPR_Privacy_Policy_v2.docx against DE.CM (Continuous Monitoring)...", type: "scan" },
+            { text: "SUCCESS: Data monitoring and anomaly detection policies referenced.", type: "ok" },
+            { text: "Aggregating NIST CSF Tier 3 readiness score and improvement roadmap...", type: "info" }
+        ]
+    };
+
+    // --- AI Generated Remediation Clauses ---
+    const remediationClauses = {
+        "indemnity": `/* ADDENDUM A: DATA PROTECTION AND INDEMNIFICATION CLAUSE */
+SECTION 12. DATA SECURITY INDEMNITY.
+The Supplier shall defend, indemnify, and hold harmless the Customer, its affiliates, and respective directors, officers, employees, and agents ("Customer Indemnitees") from and against any and all claims, liabilities, losses, damages, costs, and expenses (including reasonable attorneys' fees) arising out of, or resulting from, any security incident, unauthorized access, acquisition, alteration, or disclosure of Customer Personal Data caused by the Supplier, its employees, or sub-processors. This obligation shall survive the expiration or termination of the Agreement.`,
+
+        "iam": `{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EnforceLeastPrivilegeS3ReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::audit-evidence-bucket",
+        "arn:aws:s3:::audit-evidence-bucket/*"
+      ]
+    },
+    {
+      "Sid": "DenyUnsecureTransport",
+      "Effect": "Deny",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::audit-evidence-bucket/*",
+      "Condition": {
+        "Bool": {
+          "aws:SecureTransport": "false"
+        }
+      }
+    }
+  ]
+}`,
+        "hipaa_baa": `/* BUSINESS ASSOCIATE AGREEMENT (BAA)  - ADDENDUM */
+SECTION 5. HIPAA BUSINESS ASSOCIATE OBLIGATIONS.
+The Supplier ("Business Associate") agrees to: (a) not use or disclose Protected Health Information (PHI) other than as permitted by this Agreement or required by law; (b) implement appropriate safeguards to prevent unauthorized use or disclosure of PHI, including administrative (164.308), physical (164.310), and technical safeguards (164.312); (c) report to the Covered Entity any use or disclosure of PHI not provided for by this Agreement within 60 days of discovery; (d) ensure all sub-contractors agree to the same restrictions; and (e) make PHI available for access and amendment as required under 45 CFR 164.524 and 164.526. This BAA shall remain in effect for the term of the underlying Agreement.`,
+        "pci_policy": `/* PCI DSS v4.0  - VENDOR INFORMATION SECURITY POLICY ADDENDUM */
+SECTION 8. PCI DSS COMPLIANCE OBLIGATIONS.
+Vendor warrants that it: (a) maintains and annually reviews an Information Security Policy aligned to PCI DSS v4.0 Requirement 12; (b) restricts access to cardholder data to only those individuals whose role requires such access (Requirement 7); (c) encrypts all stored and transmitted cardholder data using AES-256 or TLS 1.3 (Requirement 3 & 4); (d) logs all access to cardholder systems and retains logs for a minimum of 12 months (Requirement 10); (e) undergoes an annual PCI DSS assessment (SAQ or QSA-led ROC) and provides the Covered Entity with a copy of the resulting Attestation of Compliance (AoC) upon request.`,
+        "nist_vendor": `/* NIST CSF 2.0  - SUPPLY CHAIN RISK MANAGEMENT ADDENDUM */
+SECTION 9. CYBERSECURITY SUPPLY CHAIN RISK.
+In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), the Supplier shall: (a) maintain a documented cybersecurity risk profile and provide it to the Covered Entity upon request; (b) implement security controls aligned to NIST SP 800-53 Rev 5 or equivalent; (c) notify the Covered Entity of any identified cybersecurity incidents or supply chain disruptions within 72 hours; (d) undergo an annual third-party cybersecurity assessment and share results with the Covered Entity; and (e) participate in the Covered Entity's annual vendor risk review programme.`
+    };
+
+    // --- DOM Elements ---
+    const appRoot = document.getElementById("app-root");
+    const landingView = document.getElementById("landing-view");
+    const simulatorView = document.getElementById("simulator-view");
+    const siteFooter = document.getElementById("site-footer");
+
+    // Views Trigger Buttons
+    const triggerSimBtns = document.querySelectorAll(".trigger-simulator-btn");
+    const backToLandingBtn = document.getElementById("back-to-landing-btn");
+    const logoLink = document.getElementById("logo-link");
+
+    // Pricing elements
+    const pricingToggle = document.getElementById("pricing-toggle-checkbox");
+    const billingMonthlyLabel = document.getElementById("billing-monthly");
+    const billingAnnualLabel = document.getElementById("billing-annual");
+    const priceVals = document.querySelectorAll(".price-val");
+
+    // Simulator view steps
+    const simStepConnect    = document.getElementById("sim-step-connect");
+    const simStepScan       = document.getElementById("sim-step-scan");
+    const simStepDashboard  = document.getElementById("sim-step-dashboard");
+    const simStepFrameworks = document.getElementById("sim-step-frameworks");
+    const simStepSettings   = document.getElementById("sim-step-settings");
+    const simStepShadow     = document.getElementById("sim-step-shadow");
+    const simStepAuditor    = document.getElementById("sim-step-auditor");
+    const simStepCCM        = document.getElementById("sim-step-ccm");
+
+    // Ingestion Configuration
+    const fwCards = document.querySelectorAll(".fw-card");
+    const providerBtns = document.querySelectorAll(".provider-btn");
+    const fileListContainer = document.getElementById("sim-file-list-container");
+    const dropZone = document.getElementById("drop-zone");
+    const fileInput = document.getElementById("file-input");
+    const resetFilesBtn = document.getElementById("reset-files-btn");
+    const startAuditScanBtn = document.getElementById("start-audit-scan-btn");
+
+    // Scanning terminal console
+    const terminalConsole = document.getElementById("terminal-console-logs");
+    const terminalCurrentFile = document.getElementById("terminal-current-file");
+    const terminalPercentText = document.getElementById("terminal-percent-text");
+    const terminalProgressFill = document.getElementById("terminal-progress-fill");
+
+    // Audit Dashboard
+    const reportFrameworkName = document.getElementById("report-framework-name");
+    const reportTableBody = document.getElementById("report-table-body");
+    const statFailedText = document.getElementById("dash-stat-failed");
+    const statPassedText = document.getElementById("dash-stat-passed");
+    const statScoreText = document.getElementById("dash-stat-score");
+    const restartAuditBtn = document.getElementById("restart-audit-btn");
+    const downloadReportBtn = document.getElementById("download-report-btn");
+
+    // Remediation Modal
+    const remediationModal = document.getElementById("remediation-modal");
+    const modalDocName = document.getElementById("modal-doc-name");
+    const modalMetric = document.getElementById("modal-metric");
+    const modalRisk = document.getElementById("modal-risk");
+    const modalGapDesc = document.getElementById("modal-gap-desc");
+    const modalRemediationClause = document.getElementById("modal-remediation-clause");
+    const closeModalBtn = document.getElementById("close-modal-btn");
+    const cancelRemediationBtn = document.getElementById("cancel-remediation-btn");
+    const applyRemediationBtn = document.getElementById("apply-remediation-btn");
+    const copyClauseBtn = document.getElementById("copy-clause-btn");
+
+    // Toast
+    const toast = document.getElementById("toast-notification");
+
+    // --- Routing Functions ---
+    function showSimulator() {
+        landingView.classList.remove("view-active");
+        landingView.classList.add("view-inactive");
+        siteFooter.style.display = "none";
+        
+        simulatorView.classList.remove("view-inactive");
+        simulatorView.classList.add("view-active");
+        
+        // Always reset simulator to Connect screen when launching demo
+        showSimStep("connect");
+        renderFileList();
+        window.scrollTo(0, 0);
+    }
+
+    function showLandingPage() {
+        simulatorView.classList.remove("view-active");
+        simulatorView.classList.add("view-inactive");
+        siteFooter.style.display = "block";
+        
+        landingView.classList.remove("view-inactive");
+        landingView.classList.add("view-active");
+        window.scrollTo(0, 0);
+    }
+
+
+    function setActiveNavItem(id) {
+        document.querySelectorAll(".sim-nav-item").forEach(el => el.classList.remove("active"));
+        const item = document.getElementById(id);
+        if (item) item.classList.add("active");
+    }
+
+    function showSimStep(stepName) {
+        [simStepConnect, simStepScan, simStepDashboard,
+         simStepFrameworks, simStepSettings,
+         simStepShadow, simStepAuditor, simStepCCM
+        ].forEach(el => el && el.classList.remove("active"));
+
+        if (stepName === "connect") {
+            simStepConnect.classList.add("active");
+            setActiveNavItem("sim-menu-scan");
+        } else if (stepName === "scan") {
+            simStepScan.classList.add("active");
+            setActiveNavItem("sim-menu-scan");
+        } else if (stepName === "dashboard") {
+            simStepDashboard.classList.add("active");
+            setActiveNavItem("sim-menu-scan");
+        } else if (stepName === "frameworks") {
+            simStepFrameworks.classList.add("active");
+            setActiveNavItem("sim-menu-frameworks");
+        } else if (stepName === "settings") {
+            simStepSettings.classList.add("active");
+            setActiveNavItem("sim-menu-settings");
+        } else if (stepName === "shadow") {
+            simStepShadow.classList.add("active");
+            setActiveNavItem("sim-menu-shadow");
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+        } else if (stepName === "auditor") {
+            simStepAuditor.classList.add("active");
+            setActiveNavItem("sim-menu-auditor");
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+        } else if (stepName === "ccm") {
+            simStepCCM.classList.add("active");
+            setActiveNavItem("sim-menu-ccm");
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+        }
+    }
+
+    // Scoped tab switching  - each tab group works independently
+    document.querySelectorAll(".fw-tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+            // Find the parent container of this tab row
+            const tabRow = tab.parentElement;
+            // Deactivate all tabs in the same group
+            tabRow.querySelectorAll(".fw-tab").forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+            // Deactivate all content panels that are siblings of the tab row's parent
+            const contentParent = tabRow.parentElement;
+            contentParent.querySelectorAll(".fw-tab-content").forEach(c => c.classList.remove("active"));
+            const target = document.getElementById(tab.getAttribute("data-target"));
+            if (target) target.classList.add("active");
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+        });
+    });
+
+    // Generate API Key mock
+    const generateApiKeyBtn = document.getElementById("generate-api-key-btn");
+    if (generateApiKeyBtn) {
+        generateApiKeyBtn.addEventListener("click", () => {
+            const randKey = "ar_live_" + Math.random().toString(36).slice(2, 10) + "_sk_" + Date.now().toString().slice(-4);
+            const list = document.querySelector(".api-key-list");
+            if (list) {
+                const newItem = document.createElement("div");
+                newItem.className = "api-key-item";
+                newItem.innerHTML = `
+                    <div class="api-key-info">
+                        <span class="api-key-name">New API Key</span>
+                        <code class="api-key-val">${randKey}</code>
+                        <span class="api-created">Created just now</span>
+                    </div>
+                    <div class="api-key-actions">
+                        <button class="btn btn-secondary btn-sm rotate-key-btn">Rotate</button>
+                        <button class="btn btn-secondary btn-sm text-red revoke-key-btn">Revoke</button>
+                    </div>`;
+                list.appendChild(newItem);
+                bindKeyButtons(newItem);
+                (typeof lucide!=='undefined'&&lucide.createIcons());
+            }
+            showToast("New API key generated and stored securely!");
+        });
+    }
+
+    function bindKeyButtons(scope) {
+        scope.querySelectorAll(".rotate-key-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const keyEl = btn.closest(".api-key-item").querySelector(".api-key-val");
+                if (keyEl) keyEl.textContent = "ar_live_" + Math.random().toString(36).slice(2,10) + "_sk_rotated";
+                showToast("API key rotated successfully. Update your integrations!");
+            });
+        });
+        scope.querySelectorAll(".revoke-key-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const item = btn.closest(".api-key-item");
+                if (item) item.remove();
+                showToast("API key revoked and invalidated.");
+            });
+        });
+    }
+
+    // Bind existing key buttons in credentials panel
+    const apiKeyList = document.querySelector(".api-key-list");
+    if (apiKeyList) bindKeyButtons(apiKeyList);
+
+    // Integration Connect / Revoke buttons in Credentials panel
+    document.querySelectorAll(".integration-item .btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const intItem   = btn.closest(".integration-item");
+            const intName   = intItem.querySelector("h4") ? intItem.querySelector("h4").innerText : "Service";
+            const isRevoke  = btn.innerText.trim() === "Revoke" || btn.innerText.trim() === "Edit";
+            const isConnect = btn.innerText.trim() === "Connect";
+
+            if (isConnect) {
+                // Simulate OAuth flow
+                btn.innerText = "Connecting...";
+                btn.disabled = true;
+                setTimeout(() => {
+                    intItem.classList.add("connected");
+                    const rightDiv = intItem.querySelector(".int-right");
+                    rightDiv.innerHTML = `
+                        <span class="int-status connected-badge">Connected</span>
+                        <button class="btn btn-secondary btn-sm">Revoke</button>`;
+                    // Re-bind revoke on this new button
+                    rightDiv.querySelector(".btn").addEventListener("click", () => {
+                        intItem.classList.remove("connected");
+                        rightDiv.innerHTML = `<button class="btn btn-primary btn-sm btn-glow">Connect</button>`;
+                        rightDiv.querySelector(".btn").addEventListener("click", () => {
+                            showToast(`${intName}: Re-open OAuth flow to reconnect.`, true);
+                        });
+                        showToast(`${intName} disconnected and credentials revoked.`);
+                    });
+                    (typeof lucide!=='undefined'&&lucide.createIcons());
+                    showToast(`${intName} connected successfully! Documents are now accessible.`);
+                }, 1500);
+            } else if (isRevoke) {
+                intItem.classList.remove("connected");
+                const rightDiv = intItem.querySelector(".int-right");
+                rightDiv.innerHTML = `<button class="btn btn-primary btn-sm btn-glow">Connect</button>`;
+                // Re-attach connect listener
+                document.querySelectorAll(".integration-item .btn").forEach(b => {
+                    if (b.innerText.trim() === "Connect" && b.closest(".integration-item") === intItem) {
+                        b.addEventListener("click", () => showToast(`${intName}: Click to start OAuth connection flow.`));
+                    }
+                });
+                (typeof lucide!=='undefined'&&lucide.createIcons());
+                showToast(`${intName} credentials revoked successfully.`);
+            }
+        });
+    });
+
+    // Bind navigation buttons
+    triggerSimBtns.forEach(btn => btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        showSimulator();
+    }));
+
+    backToLandingBtn.addEventListener("click", showLandingPage);
+    logoLink.addEventListener("click", showLandingPage);
+
+    // Sidebar nav clicks
+    document.getElementById("sim-menu-scan").addEventListener("click", (e) => {
+        e.preventDefault();
+        showSimStep("connect");
+    });
+    document.getElementById("sim-menu-frameworks").addEventListener("click", (e) => {
+        e.preventDefault();
+        showSimStep("frameworks");
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+    });
+    document.getElementById("sim-menu-settings").addEventListener("click", (e) => {
+        e.preventDefault();
+        showSimStep("settings");
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+    });
+
+    // Enterprise nav bindings
+    document.getElementById("sim-menu-shadow").addEventListener("click", (e) => {
+        e.preventDefault();
+        showSimStep("shadow");
+    });
+    document.getElementById("sim-menu-auditor").addEventListener("click", (e) => {
+        e.preventDefault();
+        showSimStep("auditor");
+    });
+    document.getElementById("sim-menu-ccm").addEventListener("click", (e) => {
+        e.preventDefault();
+        showSimStep("ccm");
+    });
+
+    // Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬
+    // SHADOW DATA  - Animated Scan
+    // Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬
+    const shadowScanBtn    = document.getElementById("shadow-scan-btn");
+    const shadowScanStatus = document.getElementById("shadow-scan-status");
+    const shadowResultsCard= document.getElementById("shadow-results-card");
+
+    const SHADOW_SOURCES = ["slack","jira","notion","s3","gdrive","local"];
+    const SHADOW_FLAGS   = { slack:"flagged", jira:"flagged", s3:"flagged", notion:"flagged", gdrive:"done", local:"done" };
+
+    if (shadowScanBtn) {
+        shadowScanBtn.addEventListener("click", () => {
+            if (shadowScanBtn.disabled) return;
+            shadowScanBtn.disabled = true;
+            shadowScanBtn.querySelector("span").textContent = "Scanning...";
+            shadowResultsCard.style.display = "none";
+            shadowScanStatus.textContent = "Initialising scan across 6 sources...";
+
+            // Reset all cards to scanning state
+            SHADOW_SOURCES.forEach(src => {
+                const card = document.querySelector(`.shadow-source-card[data-source="${src}"]`);
+                if (!card) return;
+                card.classList.remove("done");
+                const statusEl = card.querySelector(".source-status");
+                statusEl.className = "source-status scanning";
+                statusEl.innerHTML = `<span class="pulse-dot"></span> Scanning`;
+            });
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+
+            // Animate cards one by one
+            let delay = 600;
+            SHADOW_SOURCES.forEach((src, idx) => {
+                setTimeout(() => {
+                    const card = document.querySelector(`.shadow-source-card[data-source="${src}"]`);
+                    if (!card) return;
+                    const statusEl = card.querySelector(".source-status");
+                    const flag = SHADOW_FLAGS[src];
+                    if (flag === "flagged") {
+                        statusEl.className = "source-status flagged";
+                        statusEl.innerHTML = "Ã¢Å¡Â Ã¯ Issues Found";
+                    } else {
+                        card.classList.add("done");
+                        statusEl.className = "source-status done";
+                        statusEl.innerHTML = "Ã¢Å“... Clean";
+                    }
+                    shadowScanStatus.textContent = `Scanned ${idx + 1} / 6 sources...`;
+
+                    // When all done, show results
+                    if (idx === SHADOW_SOURCES.length - 1) {
+                        setTimeout(() => {
+                            shadowScanStatus.textContent = "Ã¢Å“... Scan complete - 7 critical issues detected across 4 sources";
+                            shadowResultsCard.style.display = "block";
+                            shadowScanBtn.disabled = false;
+                            shadowScanBtn.querySelector("span").textContent = "Re-Scan Sources";
+                            (typeof lucide!=='undefined'&&lucide.createIcons());
+
+                            // Wire action buttons in results
+                            shadowResultsCard.querySelectorAll(".btn").forEach(btn => {
+                                btn.addEventListener("click", () => {
+                                    const action = btn.textContent.trim();
+                                    const row = btn.closest("tr");
+                                    if (row) {
+                                        row.style.opacity = "0.4";
+                                        row.style.transition = "opacity 0.5s";
+                                    }
+                                    showToast(`${action} action initiated  - Security team notified via Slack & Email.`);
+                                });
+                            });
+                        }, 500);
+                    }
+                }, delay * (idx + 1));
+            });
+        });
+    }
+
+    // Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬
+    // AUDITOR MODE  - Portal Generation
+    // Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬
+    const generatePortalBtn = document.getElementById("generate-portal-btn");
+    const portalResult      = document.getElementById("portal-result");
+    const portalLinkUrl     = document.getElementById("portal-link-url");
+    const portalHash        = document.getElementById("portal-hash");
+    const copyPortalBtn     = document.getElementById("copy-portal-btn");
+    const previewFirmName   = document.getElementById("preview-firm-name");
+
+    function randomHex(len) {
+        const chars = "0123456789abcdef";
+        return Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+    }
+
+    if (generatePortalBtn) {
+        generatePortalBtn.addEventListener("click", () => {
+            const firm  = document.getElementById("auditor-firm")?.value.trim() || "External Auditor";
+            const email = document.getElementById("auditor-email")?.value.trim();
+            const scope = document.getElementById("auditor-scope")?.value || "SOC 2 Type II";
+
+            if (email && !email.includes("@")) {
+                showToast("Please enter a valid auditor email address.", true);
+                return;
+            }
+
+            generatePortalBtn.querySelector("span").textContent = "Generating...";
+            generatePortalBtn.disabled = true;
+
+            setTimeout(() => {
+                const token   = randomHex(12);
+                const hash    = randomHex(8) + "..." + randomHex(4);
+                const url     = `https://auditready.ai/portal/${token}`;
+
+                portalLinkUrl.textContent = url;
+                portalHash.textContent    = hash;
+                portalResult.style.display = "flex";
+                if (previewFirmName) previewFirmName.textContent = firm + " - " + scope;
+
+                generatePortalBtn.querySelector("span").textContent = "Re-Generate Portal";
+                generatePortalBtn.disabled = false;
+                (typeof lucide!=='undefined'&&lucide.createIcons());
+                showToast(`Secure portal generated for ${firm}. Invitation email sent!`);
+            }, 1400);
+        });
+    }
+
+    if (copyPortalBtn) {
+        copyPortalBtn.addEventListener("click", () => {
+            const url = portalLinkUrl?.textContent || "";
+            navigator.clipboard.writeText(url).then(() => {
+                copyPortalBtn.textContent = "Copied!";
+                setTimeout(() => { copyPortalBtn.textContent = "Copy"; }, 2000);
+            }).catch(() => {
+                showToast("Copy failed  - please select and copy the URL manually.");
+            });
+        });
+    }
+
+    // Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬
+    // CCM MONITOR  - Manual Trigger
+    // Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬
+    const ccmTriggerBtn = document.getElementById("ccm-trigger-btn");
+    const ccmTimeline   = document.getElementById("ccm-timeline");
+
+    if (ccmTriggerBtn) {
+        ccmTriggerBtn.addEventListener("click", () => {
+            ccmTriggerBtn.disabled = true;
+            ccmTriggerBtn.querySelector("span").textContent = "Running scan...";
+
+            setTimeout(() => {
+                // Inject a new event at top of timeline
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit" });
+                const newEvent = document.createElement("div");
+                newEvent.className = "ccm-event ok";
+                newEvent.style.animation = "fade-in 0.4s ease";
+                newEvent.innerHTML = `
+                    <div class="event-dot ok-dot"></div>
+                    <div class="event-body">
+                        <p class="event-title">Ã¢Å“... Manual Scan Complete  - All Controls Checked</p>
+                        <p class="event-detail">47 controls evaluated. 2 gaps remain open (Vendor NDA, Background Check). No new gaps detected since last scan.</p>
+                        <span class="event-time">Just now, ${timeStr} IST</span>
+                    </div>`;
+                ccmTimeline.insertBefore(newEvent, ccmTimeline.firstChild);
+
+                ccmTriggerBtn.disabled = false;
+                ccmTriggerBtn.querySelector("span").textContent = "Trigger Manual Scan Now";
+                showToast("Manual CCM scan complete  - 45/47 controls passed. Results logged.");
+            }, 2200);
+        });
+    }
+
+
+    pricingToggle.addEventListener("change", () => {
+        isAnnualBilling = pricingToggle.checked;
+        if (isAnnualBilling) {
+            billingMonthlyLabel.classList.remove("active");
+            billingAnnualLabel.classList.add("active");
+        } else {
+            billingAnnualLabel.classList.remove("active");
+            billingMonthlyLabel.classList.add("active");
+        }
+
+        priceVals.forEach(val => {
+            const planMonthly = val.getAttribute("data-monthly");
+            const planAnnual = val.getAttribute("data-annual");
+            val.innerText = isAnnualBilling ? planAnnual : planMonthly;
+        });
+    });
+
+    // --- Simulator Ingestion Config ---
+    fwCards.forEach(card => {
+        card.addEventListener("click", () => {
+            fwCards.forEach(c => c.classList.remove("active"));
+            card.classList.add("active");
+            currentFramework = card.getAttribute("data-framework");
+        });
+    });
+
+    providerBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            providerBtns.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            currentProvider = btn.getAttribute("data-provider");
+            showToast(`Storage provider switched to ${btn.innerText.trim()}`);
+        });
+    });
+
+    // --- Ingestion File Manager ---
+    function renderFileList() {
+        fileListContainer.innerHTML = "";
+        activeFiles.forEach(file => {
+            const item = document.createElement("div");
+            item.className = "file-item";
+            item.innerHTML = `
+                <div class="file-item-left">
+                    <i data-lucide="file-${file.type === 'pdf' ? 'text' : (file.type === 'csv' ? 'table' : 'code')}"></i>
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-size">${file.size}</span>
+                </div>
+                <div class="remove-file-btn" data-id="${file.id}">
+                    <i data-lucide="trash-2"></i>
+                </div>
+            `;
+            fileListContainer.appendChild(item);
+        });
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+
+        // Bind delete triggers
+        document.querySelectorAll(".remove-file-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const fileId = parseInt(btn.getAttribute("data-id"));
+                activeFiles = activeFiles.filter(f => f.id !== fileId);
+                renderFileList();
+                showToast("File removed from audit list");
+            });
+        });
+    }
+
+    // File Drag & Drop Simulation
+    dropZone.addEventListener("click", () => fileInput.click());
+    
+    fileInput.addEventListener("change", () => {
+        handleMockFiles(fileInput.files);
+    });
+
+    dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("drag-over");
+    });
+
+    dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("drag-over");
+    });
+
+    dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("drag-over");
+        handleMockFiles(e.dataTransfer.files);
+    });
+
+    function handleMockFiles(files) {
+        if (!files.length) return;
+        
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const extension = file.name.split('.').pop().toLowerCase();
+            const mockSize = (file.size / (1024 * 1024)).toFixed(1);
+            
+            // Randomize pass/fail on newly uploaded file
+            const randPassed = Math.random() > 0.4;
+            const newFile = {
+                id: Date.now() + i,
+                name: file.name,
+                type: ['pdf', 'csv', 'json', 'docx'].includes(extension) ? extension : 'pdf',
+                size: mockSize > 0.1 ? `${mockSize} MB` : `${(file.size / 1024).toFixed(0)} KB`,
+                originalStatus: 'Pending',
+                currentStatus:  'Pending',
+                issue: 'Awaiting AI scan',
+                risk: 'Unknown',
+                actionLabel: 'None',
+                clauseType: 'indemnity',
+                _fileRef: file  // keep reference for real AI scan
+            };
+            
+            activeFiles.push(newFile);
+        }
+        
+        renderFileList();
+        const gemKey = window.AR_getActiveGeminiKey ? window.AR_getActiveGeminiKey() : '';
+        if (gemKey) {
+            validateDocumentRelevance(files, gemKey);
+        } else {
+            showToast(`${files.length} file${files.length > 1 ? 's' : ''} uploaded successfully! Ready to scan.`);
+        }
+    }
+
+    // Validate that uploaded files are compliance-relevant using Gemini
+    async function validateDocumentRelevance(files, apiKey) {
+        const irrelevant = [];
+        for (let i = 0; i < Math.min(files.length, 3); i++) {  // Check up to 3 files
+            const file = files[i];
+            const ext  = file.name.split('.').pop().toLowerCase();
+            const allowed = ['pdf','doc','docx','csv','json','txt','xlsx','xls'];
+            if (!allowed.includes(ext)) {
+                irrelevant.push(file.name);
+                continue;
+            }
+            // Read first 2KB of text for quick relevance check
+            try {
+                const snippet = await readFileSnippet(file, 2000);
+                if (!snippet || snippet.trim().length < 50) continue;
+                const prompt = `You are a compliance document classifier. Given the first part of a document, determine if it is relevant for a compliance audit (e.g. contracts, policies, IAM configs, privacy policies, security reports, vendor agreements, HR records, data processing agreements). Reply with exactly one word: RELEVANT or IRRELEVANT.\n\nDocument name: ${file.name}\nContent snippet:\n${snippet}`;
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({contents:[{parts:[{text: prompt}]}]})
+                });
+                if (!res.ok) continue;
+                const data = await res.json();
+                const answer = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim().toUpperCase();
+                if (answer.includes('IRRELEVANT')) irrelevant.push(file.name);
+            } catch { /* network error â€” skip check, allow file */ }
+        }
+        if (irrelevant.length > 0) {
+            // Remove irrelevant files from activeFiles
+            irrelevant.forEach(name => {
+                const idx = activeFiles.findIndex(f => f.name === name);
+                if (idx !== -1) activeFiles.splice(idx, 1);
+            });
+            renderFileList();
+            const names = irrelevant.join(', ');
+            showToast(`âš ï¸ Please upload relevant compliance documents. Not accepted: ${names}`, true);
+        } else {
+            showToast(`${files.length} file${files.length > 1 ? 's' : ''} uploaded. Ready to scan.`);
+        }
+    }
+
+    // Read first N characters from a file
+    function readFileSnippet(file, maxChars) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const text = e.target?.result || '';
+                resolve(typeof text === 'string' ? text.slice(0, maxChars) : '');
+            };
+            reader.onerror = () => resolve('');
+            // Read as text for txt/csv/json; for others read first bytes
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (['txt','csv','json'].includes(ext)) {
+                reader.readAsText(file.slice(0, maxChars * 2));
+            } else {
+                reader.readAsText(file.slice(0, maxChars * 3));
+            }
+        });
+    }
+
+    resetFilesBtn.addEventListener("click", () => {
+        // Deep clone defaults
+        activeFiles = defaultFiles.map(f => ({ ...f }));
+        renderFileList();
+        showToast("File list reset to default contracts");
+    });
+
+    // --- Plan limits config ---
+    const PLAN_LIMITS = {
+        free:       { scansPerMonth: 3,  frameworks: ['SOC 2'],                                    downloadReport: false, docusign: false },
+        pro:        { scansPerMonth: 999, frameworks: ['SOC 2','GDPR','ISO 27001','HIPAA','PCI DSS','NIST'], downloadReport: true,  docusign: false },
+        enterprise: { scansPerMonth: 999, frameworks: ['SOC 2','GDPR','ISO 27001','HIPAA','PCI DSS','NIST'], downloadReport: true,  docusign: true  },
+    };
+
+    function getCurrentPlan() {
+        try {
+            const session = JSON.parse(localStorage.getItem('ar_session') || 'null');
+            if (!session) return 'free';
+            const raw = localStorage.getItem('ar_plan_' + session.email.toLowerCase());
+            if (!raw) return 'free';
+            const p = JSON.parse(raw);
+            if (Date.now() > p.expiry) {
+                localStorage.removeItem('ar_plan_' + session.email.toLowerCase());
+                return 'free';
+            }
+            return (p.plan || 'free').toLowerCase();
+        } catch { return 'free'; }
+    }
+
+    function getScanUsageKey() {
+        const now = new Date();
+        const session = JSON.parse(localStorage.getItem('ar_session') || 'null');
+        const user = session ? session.email : 'guest';
+        return `ar_usage_${user}_${now.getFullYear()}_${now.getMonth() + 1}`;
+    }
+
+    function getScanCount() {
+        return parseInt(localStorage.getItem(getScanUsageKey()) || '0');
+    }
+
+    function incrementScanCount() {
+        const key = getScanUsageKey();
+        localStorage.setItem(key, String(getScanCount() + 1));
+    }
+
+    function addTerminalLog(text, type) {
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+        const logRow = document.createElement('div');
+        logRow.className = 'console-log-row';
+        logRow.innerHTML = `<span class="console-time">${timeStr}</span><span class="console-status-badge status-badge-${type}">[${type.toUpperCase()}]</span><span>${text}</span>`;
+        terminalConsole.appendChild(logRow);
+        terminalConsole.scrollTop = terminalConsole.scrollHeight;
+    }
+
+    function setTerminalProgress(pct, label) {
+        terminalProgressFill.style.width = pct + '%';
+        terminalPercentText.innerText = pct + '%';
+        if (label) terminalCurrentFile.innerText = label;
+    }
+
+    // --- Scanning Console --- Real AI + Simulation fallback ---
+    startAuditScanBtn.addEventListener('click', async () => {
+        if (activeFiles.length === 0) { showToast('Please add at least one document to audit.', true); return; }
+
+        // --- Plan gate: check framework access ---
+        const plan     = getCurrentPlan();
+        const limits   = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+        if (!limits.frameworks.includes(currentFramework)) {
+            showToast(`âš ï¸ ${currentFramework} is available on Pro & Enterprise plans. Upgrade to scan this framework.`, true);
+            const session = JSON.parse(localStorage.getItem('ar_session') || 'null');
+            if (!session) { window.AR_openSignIn && AR_openSignIn(); }
+            return;
+        }
+
+        // --- Plan gate: scan count limit ---
+        const scanCount = getScanCount();
+        if (scanCount >= limits.scansPerMonth) {
+            showToast(`âš ï¸ You've used all ${limits.scansPerMonth} free scans this month. Upgrade to Pro for unlimited scans.`, true);
+            return;
+        }
+
+        showSimStep('scan');
+        terminalConsole.innerHTML = '';
+        setTerminalProgress(0, 'Initializing...');
+        incrementScanCount();
+
+        const gemKey = window.AR_getActiveGeminiKey ? window.AR_getActiveGeminiKey() : '';
+
+        if (gemKey && activeFiles.some(f => f._fileRef)) {
+            // â•â•â• REAL GEMINI AI SCAN â•â•â•
+            await runGeminiScan(gemKey);
+        } else {
+            // â•â•â• SIMULATION FALLBACK (no key or default demo files) â•â•â•
+            runSimulatedScan();
+        }
+    });
+
+    // Real Gemini AI scan
+    async function runGeminiScan(apiKey) {
+        addTerminalLog('Connecting to Gemini AI compliance engine...', 'info');
+        addTerminalLog(`Mapping documents to ${currentFramework} standard...`, 'scan');
+        setTerminalProgress(5, 'Reading documents...');
+
+        const filesToScan = activeFiles.filter(f => f._fileRef);
+        const total = filesToScan.length;
+
+        for (let i = 0; i < total; i++) {
+            const file = filesToScan[i];
+            const pct = Math.round(((i + 0.5) / total) * 85) + 5;
+            setTerminalProgress(pct, `Analyzing: ${file.name}`);
+            addTerminalLog(`Auditing ${file.name} against ${currentFramework}...`, 'scan');
+
+            try {
+                const snippet = await readFileSnippet(file._fileRef, 4000);
+                const prompt = buildGeminiScanPrompt(file.name, snippet, currentFramework);
+
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                if (!res.ok) throw new Error('API error ' + res.status);
+                const data = await res.json();
+                const raw  = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+                // Parse Gemini JSON response
+                const parsed = parseGeminiResult(raw);
+                file.currentStatus  = parsed.status;
+                file.originalStatus = parsed.status;
+                file.issue          = parsed.issue;
+                file.risk           = parsed.risk;
+                file.actionLabel    = parsed.status === 'Passed' ? 'None' : 'Generate Amendment';
+                file.clauseType     = parsed.clauseType || 'indemnity';
+
+                const logType = parsed.status === 'Passed' ? 'ok' : (parsed.risk === 'Critical' ? 'danger' : 'warn');
+                addTerminalLog(`${parsed.status === 'Passed' ? 'PASS' : 'FAIL'}: ${file.name} â€” ${parsed.issue}`, logType);
+
+                if (window.AR_rotateGeminiKey) AR_rotateGeminiKey();
+            } catch (err) {
+                addTerminalLog(`ERROR scanning ${file.name}: ${err.message}. Using cached analysis.`, 'warn');
+            }
+            await new Promise(r => setTimeout(r, 300));
+        }
+
+        setTerminalProgress(100, 'Analysis complete.');
+        addTerminalLog('Gemini compliance analysis complete. Generating report...', 'info');
+        setTimeout(() => { renderDashboardReport(); showSimStep('dashboard'); }, 900);
+    }
+
+    function buildGeminiScanPrompt(fileName, content, framework) {
+        return `You are an expert compliance auditor AI. Analyze this document for ${framework} compliance.
+
+Document name: ${fileName}
+Document content (first 4000 chars):
+${content}
+
+Respond in this EXACT JSON format (no markdown, no code blocks):
+{
+  "status": "Passed" or "Failed",
+  "risk": "Low" or "Medium" or "High" or "Critical",
+  "issue": "one sentence describing the compliance finding",
+  "recommendation": "one sentence on how to fix it",
+  "clauseType": "indemnity" or "iam" or "hipaa_baa" or "pci_policy" or "nist_vendor" or "none"
+}
+
+Rules:
+- If the document clearly meets ${framework} requirements â†’ status: Passed, risk: Low, clauseType: none
+- If missing required clauses or has violations â†’ status: Failed with specific issue
+- Be specific to the document content, not generic
+- clauseType should match the type of fix needed`;
+    }
+
+    function parseGeminiResult(raw) {
+        try {
+            const clean = raw.replace(/```json|```/g, '').trim();
+            const start = clean.indexOf('{');
+            const end   = clean.lastIndexOf('}');
+            if (start !== -1 && end !== -1) {
+                const parsed = JSON.parse(clean.slice(start, end + 1));
+                return {
+                    status:     ['Passed','Failed'].includes(parsed.status) ? parsed.status : 'Failed',
+                    risk:       ['Low','Medium','High','Critical'].includes(parsed.risk) ? parsed.risk : 'Medium',
+                    issue:      parsed.issue || 'Compliance review required',
+                    recommendation: parsed.recommendation || '',
+                    clauseType: parsed.clauseType || 'indemnity'
+                };
+            }
+        } catch {}
+        return { status: 'Failed', risk: 'Medium', issue: 'Could not parse AI response â€” manual review required', clauseType: 'indemnity' };
+    }
+
+    // Simulation fallback (used when no Gemini key or demo files)
+    function runSimulatedScan() {
+        const logs = logsLibrary[currentFramework] || logsLibrary['SOC 2'];
+        let logIndex = 0;
+        const intervalId = setInterval(() => {
+            if (logIndex < logs.length) {
+                const log = logs[logIndex];
+                addTerminalLog(log.text, log.type);
+                const progress = Math.min(Math.floor((logIndex + 1) / logs.length * 100), 100);
+                setTerminalProgress(progress, log.text.includes('Auditing') ? ('Analyzing: ' + (log.text.match(/Auditing\s+(\S+)/)?.[1] || '')) : terminalCurrentFile.innerText);
+                logIndex++;
+            } else {
+                clearInterval(intervalId);
+                setTimeout(() => { renderDashboardReport(); showSimStep('dashboard'); }, 800);
+            }
+        }, 400 + Math.random() * 200);
+    }
+
+    // --- Dashboard Report Renderer (Step 3) ---
+    function renderDashboardReport() {
+        reportFrameworkName.innerText = currentFramework + " Type II Standard";
+        reportTableBody.innerHTML = "";
+        
+        let passedCount = 0;
+        let failedCount = 0;
+
+        activeFiles.forEach(file => {
+            // Contextualize rules per framework if they are default files
+            let displayIssue = file.issue;
+            let displayAction = file.actionLabel;
+            
+            if (file.currentStatus === "Failed") {
+                failedCount++;
+            } else {
+                passedCount++;
+            }
+
+            // Framework specific wording swaps
+            if (currentFramework === "GDPR") {
+                if (file.id === 1) displayIssue = "Missing Article 28 Processor indemnity clause";
+                if (file.id === 3) displayIssue = "Unrestricted admin dashboard exposure (violates Art. 32)";
+            } else if (currentFramework === "ISO 27001") {
+                if (file.id === 1) displayIssue = "Missing A.5.19 subcontractor liability protection";
+                if (file.id === 3) displayIssue = "Wildcard root privilege assignment violates A.8.2";
+            } else if (currentFramework === "HIPAA") {
+                if (file.id === 1) displayIssue = "No Business Associate Agreement (BAA) clauses found";
+                if (file.id === 3) displayIssue = "IAM wildcard exposes ePHI  - violates 164.312 minimum-necessary rule";
+            } else if (currentFramework === "PCI DSS") {
+                if (file.id === 1) displayIssue = "Vendor policy review obligations missing (Req. 12)";
+                if (file.id === 3) displayIssue = "Wildcard IAM violates PCI DSS Requirement 7 least-privilege";
+            } else if (currentFramework === "NIST") {
+                if (file.id === 1) displayIssue = "Vendor risk profile absent  - fails NIST ID.SC-2";
+                if (file.id === 3) displayIssue = "Privilege escalation path violates NIST PR.AC-4";
+            }
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>
+                    <div class="file-item-left">
+                        <i data-lucide="file-${file.type === 'pdf' ? 'text' : (file.type === 'csv' ? 'table' : 'code')}"></i>
+                        <span class="file-name">${file.name}</span>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge-status ${file.currentStatus === 'Passed' ? 'status-pass' : 'status-fail'}">
+                        <i data-lucide="${file.currentStatus === 'Passed' ? 'check' : 'alert-circle'}"></i>
+                        <span>${file.currentStatus}</span>
+                    </span>
+                </td>
+                <td style="color: ${file.currentStatus === 'Failed' ? '#fca5a5' : 'var(--text-secondary)'};">
+                    ${displayIssue}
+                </td>
+                <td>
+                    <span class="badge-risk badge-${file.risk.toLowerCase()}">${file.risk}</span>
+                </td>
+                <td>
+                    ${file.currentStatus === 'Failed' ? 
+                        `<button class="btn btn-primary btn-sm btn-glow apply-fix-trigger" data-id="${file.id}">
+                            <i data-lucide="sparkles"></i>
+                            <span>${displayAction}</span>
+                         </button>` : 
+                        `<span class="badge-status status-pass"><i data-lucide="check"></i> Resolved</span>`
+                    }
+                </td>
+            `;
+            reportTableBody.appendChild(tr);
+        });
+
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+
+        // Calculate summary metrics
+        const totalFiles = activeFiles.length;
+        const scorePercent = totalFiles > 0 ? Math.round((passedCount / totalFiles) * 100) : 100;
+
+        statFailedText.innerText = failedCount;
+        statPassedText.innerText = passedCount;
+        statScoreText.innerText = `${scorePercent}%`;
+        
+        if (scorePercent === 100) {
+            statScoreText.style.color = "var(--success)";
+        } else {
+            statScoreText.style.color = "var(--cyan)";
+        }
+
+        // Bind interactive fix buttons
+        document.querySelectorAll(".apply-fix-trigger").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const fileId = parseInt(btn.getAttribute("data-id"));
+                openRemediationModal(fileId);
+            });
+        });
+    }
+
+    // --- Interactive Remediation Modal Flows ---
+    function openRemediationModal(fileId) {
+        activeRemediationRow = activeFiles.find(f => f.id === fileId);
+        if (!activeRemediationRow) return;
+
+        modalDocName.innerText = activeRemediationRow.name;
+        modalRisk.innerText = activeRemediationRow.risk;
+        modalRisk.className = `info-val badge-risk badge-${activeRemediationRow.risk.toLowerCase()}`;
+        
+        // Customize text depending on selected framework
+        let metricTitle = "SOC 2 Section CC7.1";
+        let gapExplanation = activeRemediationRow.issue;
+        let clauseKey = activeRemediationRow.clauseType;
+
+        if (currentFramework === "GDPR") {
+            metricTitle = activeRemediationRow.id === 3 ? "GDPR Article 32 (Security)" : "GDPR Article 28 (Contracts)";
+            gapExplanation = activeRemediationRow.id === 3 ?
+                "Wildcard public administrative controls mapped in config. AWS policy permits full wildcard permission root access (*:*)." :
+                "Missing Processor Indemnity rules ensuring vendor guarantees indemnity against direct or indirect privacy breach events.";
+        } else if (currentFramework === "ISO 27001") {
+            metricTitle = activeRemediationRow.id === 3 ? "ISO Annex A.8.2 (Access Controls)" : "ISO Annex A.5.19 (Supplier Relationships)";
+            gapExplanation = activeRemediationRow.id === 3 ?
+                "Identity Access Policy configuration violates least-privilege standards. Wildcard admin rule detected." :
+                "Supplier liability caps are too low or absent; fails A.5.19 protection specifications.";
+        } else if (currentFramework === "HIPAA") {
+            metricTitle = activeRemediationRow.id === 3 ? "HIPAA 164.312 (Technical Safeguards)" : "HIPAA 164.314 (BAA Requirements)";
+            gapExplanation = activeRemediationRow.id === 3 ?
+                "Wildcard IAM role grants unrestricted access to storage containing ePHI. Violates HIPAA minimum-necessary standard." :
+                "No Business Associate Agreement provisions found in vendor contract. BAA is mandatory under HIPAA 164.314.";
+            if (activeRemediationRow.id === 1) clauseKey = "hipaa_baa";
+        } else if (currentFramework === "PCI DSS") {
+            metricTitle = activeRemediationRow.id === 3 ? "PCI DSS Requirement 7 (Access Control)" : "PCI DSS Requirement 12 (Security Policy)";
+            gapExplanation = activeRemediationRow.id === 3 ?
+                "AWS IAM policy grants wildcard (*) admin actions. PCI DSS Req 7 mandates access restricted strictly to those who need it." :
+                "Vendor agreement missing annual Information Security Policy review obligations required by PCI DSS Requirement 12.";
+            if (activeRemediationRow.id === 1) clauseKey = "pci_policy";
+        } else if (currentFramework === "NIST") {
+            metricTitle = activeRemediationRow.id === 3 ? "NIST PR.AC-4 (Least Privilege)" : "NIST ID.SC-2 (Supply Chain Risk)";
+            gapExplanation = activeRemediationRow.id === 3 ?
+                "Privilege escalation path detected in IAM policy. Violates NIST CSF PR.AC-4 least-privilege and separation of duties." :
+                "Vendor cybersecurity risk profile not documented. NIST ID.SC-2 requires all third-party risks to be formally assessed.";
+            if (activeRemediationRow.id === 1) clauseKey = "nist_vendor";
+        }
+        
+        modalMetric.innerText = metricTitle;
+        modalGapDesc.innerText = gapExplanation;
+
+        // Ingest correct AI code amendment text
+        const codeText = remediationClauses[clauseKey] || remediationClauses[activeRemediationRow.clauseType] || `// AI Amendment clause generator\nApproved contract amendment added to resolve compliance vulnerabilities.`;
+        modalRemediationClause.textContent = codeText;
+
+        remediationModal.classList.add("active");
+    }
+
+    function closeRemediationModal() {
+        remediationModal.classList.remove("active");
+        activeRemediationRow = null;
+    }
+
+    closeModalBtn.addEventListener("click", closeRemediationModal);
+    cancelRemediationBtn.addEventListener("click", closeRemediationModal);
+
+    // Apply Remediation Fix
+    applyRemediationBtn.addEventListener("click", () => {
+        if (!activeRemediationRow) return;
+        
+        // Find row in files database and update status to passed
+        activeRemediationRow.currentStatus = "Passed";
+        activeRemediationRow.issue = activeRemediationRow.id === 3 ? "Administrative controls restricted to S3 bucket read" : "Indemnity clauses successfully injected into Section 12";
+        
+        closeRemediationModal();
+        renderDashboardReport();
+        showToast("Remediation amendment applied! Document status updated to Passed.");
+    });
+
+    // Copy to clipboard simulation
+    copyClauseBtn.addEventListener("click", () => {
+        const textToCopy = modalRemediationClause.textContent;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            showToast("AI clause copied to clipboard!");
+        }).catch(err => {
+            console.error("Copy failed", err);
+        });
+    });
+
+    // Send via DocuSign  - simulated workflow
+    const docusignSendBtn = document.getElementById("docusign-send-btn");
+    if (docusignSendBtn) {
+        docusignSendBtn.addEventListener("click", () => {
+            if (!activeRemediationRow) return;
+            const docName = activeRemediationRow.name || "vendor contract";
+            docusignSendBtn.querySelector("span").textContent = "Sending envelope...";
+            docusignSendBtn.disabled = true;
+
+            setTimeout(() => {
+                docusignSendBtn.querySelector("span").textContent = "Ã¢Å“Ã¯ Sent to DocuSign!";
+                docusignSendBtn.style.color = "#22c55e";
+                docusignSendBtn.style.borderColor = "rgba(34,197,94,0.4)";
+
+                setTimeout(() => {
+                    closeRemediationModal();
+                    showToast(`DocuSign envelope created for "${docName}"  - vendor notified to sign the amendment.`);
+                    docusignSendBtn.querySelector("span").textContent = "Send via DocuSign";
+                    docusignSendBtn.style.color = "";
+                    docusignSendBtn.style.borderColor = "";
+                    docusignSendBtn.disabled = false;
+                }, 1200);
+            }, 1800);
+        });
+    }
+
+    // --- Action Button footers in dashboard ---
+    restartAuditBtn.addEventListener("click", () => {
+        // Reset file statuses back to original so they can run scans again
+        activeFiles.forEach(f => f.currentStatus = f.originalStatus);
+        showSimStep("connect");
+        showToast("Audit simulator reset successfully.");
+    });
+
+    downloadReportBtn.addEventListener("click", function() {
+        var plan   = getCurrentPlan();
+        var limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+        if (!limits.downloadReport) {
+            showToast("Report download is available on Pro & Enterprise plans. Upgrade to access.", true);
+            return;
+        }
+        var session = null;
+        try { session = JSON.parse(localStorage.getItem("ar_session") || "null"); } catch {}
+        var user = session ? session.email : "Guest";
+        var lines = [
+            "AUDITREADY.AI - COMPLIANCE ASSESSMENT REPORT",
+            "================================================================",
+            "Generated  : " + new Date().toLocaleString("en-IN"),
+            "Framework  : " + currentFramework,
+            "Cloud Layer: " + currentProvider.toUpperCase(),
+            "Plan       : " + plan.charAt(0).toUpperCase() + plan.slice(1),
+            "User       : " + user,
+            "",
+            "EXECUTIVE SUMMARY",
+            "----------------------------------------------------------------",
+            "Total Files Scanned  : " + activeFiles.length,
+            "Compliance Gaps Found: " + statFailedText.innerText,
+            "Passed Audits        : " + statPassedText.innerText,
+            "Compliance Score     : " + statScoreText.innerText,
+            "",
+            "DETAILED FILE RESULTS",
+            "----------------------------------------------------------------"
+        ];
+        activeFiles.forEach(function(f) {
+            lines.push("* " + f.name);
+            lines.push("  Status     : " + f.currentStatus);
+            lines.push("  Risk Level : " + f.risk);
+            lines.push("  Finding    : " + f.issue);
+            lines.push("  Action     : " + (f.actionLabel !== "None" ? f.actionLabel : "No action required"));
+            lines.push("");
+        });
+        var failed = activeFiles.filter(function(f) { return f.currentStatus === "Failed"; });
+        lines.push("REMEDIATION SUMMARY");
+        lines.push("----------------------------------------------------------------");
+        if (failed.length) { failed.forEach(function(f) { lines.push("- " + f.name + ": " + f.issue); }); }
+        else { lines.push("No remediation required. All documents are compliant."); }
+        lines.push(""); lines.push("================================================================");
+        lines.push("AuditReady.AI | Powered by Google Gemini AI | " + new Date().toISOString());
+        var blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+        var url  = URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.href  = url;
+        link.download = "AuditReady_" + currentFramework.replace(/\s+/g, "_") + "_Report_" + Date.now() + ".txt";
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast("Compliance report downloaded successfully!");
+    });
+
+    // --- Toast Controller ---
+    function showToast(message, isError = false) {
+        const toastIcon = toast.querySelector(".toast-icon");
+        const toastMsg = toast.querySelector(".toast-message");
+        
+        toastMsg.innerText = message;
+        
+        if (isError) {
+            toast.style.borderColor = "var(--danger)";
+            toastIcon.setAttribute("data-lucide", "alert-triangle");
+            toastIcon.style.color = "var(--danger)";
+        } else {
+            toast.style.borderColor = "var(--success)";
+            toastIcon.setAttribute("data-lucide", "check");
+            toastIcon.style.color = "var(--success)";
+        }
+        
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+        toast.classList.add("active");
+        
+        setTimeout(() => {
+            toast.classList.remove("active");
+        }, 3000);
+    }
+
+    // --- Legal Modals (Privacy, Terms, Security) ---
+    function openLegalModal(id) {
+        document.getElementById(id).classList.add("active");
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+    }
+
+    function closeLegalModal(id) {
+        document.getElementById(id).classList.remove("active");
+    }
+
+    // Open buttons in footer
+    const privacyBtn = document.getElementById("open-privacy-btn");
+    const termsBtn   = document.getElementById("open-terms-btn");
+    const securityBtn = document.getElementById("open-security-btn");
+
+    if (privacyBtn)  privacyBtn.addEventListener("click",  (e) => { e.preventDefault(); openLegalModal("privacy-modal"); });
+    if (termsBtn)    termsBtn.addEventListener("click",    (e) => { e.preventDefault(); openLegalModal("terms-modal"); });
+    if (securityBtn) securityBtn.addEventListener("click", (e) => { e.preventDefault(); openLegalModal("security-modal"); });
+
+    // Open Full User Guide button (landing page "How It Works" section)
+    const openManualBtn = document.getElementById("open-manual-btn");
+    if (openManualBtn) {
+        openManualBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            openLegalModal("user-manual-modal");
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+        });
+    }
+
+    // Close buttons  - delegated so it works for support modal added after script tag
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest(".legal-close-btn");
+        if (btn) {
+            const target = btn.getAttribute("data-target");
+            if (target) closeLegalModal(target);
+        }
+    });
+
+    // Click outside any modal overlay to close  - delegated
+    document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("modal-overlay") && e.target.classList.contains("legal-modal")) {
+            e.target.classList.remove("active");
+        }
+    });
+
+
+    if (openLoginBtn) {
+        openLoginBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            openLegalModal("login-modal");
+        });
+    }
+
+    if (loginSubmitBtn) {
+        loginSubmitBtn.addEventListener("click", () => {
+            if (!email || !email.includes("@")) {
+                showToast("Please enter a valid email address.", true);
+                return;
+            }
+            if (password.length < 6) {
+                showToast("Password must be at least 6 characters.", true);
+                return;
+            }
+            // Simulate sign-in success
+            closeLegalModal("login-modal");
+            showToast("Welcome back! Redirecting to your dashboard...");
+            setTimeout(() => { showSimulator(); }, 1200);
+        });
+    }
+
+    if (loginGoogleBtn) {
+        loginGoogleBtn.addEventListener("click", () => {
+            closeLegalModal("login-modal");
+            showToast("Google Sign-In connected! Loading your dashboard...");
+            setTimeout(() => { showSimulator(); }, 1000);
+        });
+    }
+
+    if (loginToDemoBtn) {
+        loginToDemoBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            closeLegalModal("login-modal");
+            showSimulator();
+        });
+    }
+
+// Run immediately â€” DOM already ready at this point
+})();
+
+/* ============================================================
+   HELP & SUPPORT  - Brevo Email via Cloudflare Worker
+   300 emails/DAY free (vs old EmailJS: 200/month)
+   Worker URL: https://auditready-support.yoursubdomain.workers.dev
+   See: complete_credentials_guide.md Ã¢â†’' Cloudflare Worker section
+   ============================================================ */
+window.addEventListener("load", function initSupportForm() {
+    // Worker URL reads from Admin â†’ System Setup â†’ ar_credentials (key: CLOUDFLARE_WORKER_URL)
+    let _creds = {};
+    try { _creds = JSON.parse(localStorage.getItem('ar_credentials') || '{}'); } catch {}
+    const WORKER_URL  = _creds.CLOUDFLARE_WORKER_URL || _creds.WORKER_URL || '';  // Both keys supported
+    const ADMIN_EMAIL = _creds.ADMIN_EMAIL || 'prakharmishra00000@gmail.com';
+
+
+    let supportFiles = [];  // Stores File objects selected by user
+
+    const openSupportBtn   = document.getElementById("open-support-btn");
+    const navSupportLink   = document.getElementById("nav-support-link");
+    const supportModal     = document.getElementById("support-modal");
+    const attachBtn        = document.getElementById("support-attach-btn");
+    const fileInput        = document.getElementById("support-file-input");
+    const fileList         = document.getElementById("support-file-list");
+    const sendBtn          = document.getElementById("support-send-btn");
+
+    // Open modal via floating button
+    if (openSupportBtn) {
+        openSupportBtn.addEventListener("click", () => {
+            supportModal.classList.add("active");
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+        });
+    }
+
+    // Open modal via nav link
+    if (navSupportLink) {
+        navSupportLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            supportModal.classList.add("active");
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+        });
+    }
+
+    // ---- File Attachment Logic ----
+    if (attachBtn && fileInput) {
+        attachBtn.addEventListener("click", () => {
+            if (supportFiles.length >= 5) {
+                alert("Maximum 5 attachments allowed.");
+                return;
+            }
+            fileInput.click();
+        });
+
+        fileInput.addEventListener("change", () => {
+            const newFiles = Array.from(fileInput.files);
+            for (const f of newFiles) {
+                if (supportFiles.length >= 5) break;
+                const isDupe = supportFiles.some(x => x.name === f.name && x.size === f.size);
+                if (!isDupe) supportFiles.push(f);
+            }
+            fileInput.value ="";
+            renderFileChips();
+        });
+    }
+
+    function getFileIcon(filename) {
+        const ext = filename.split(".").pop().toLowerCase();
+        if (["png","jpg","jpeg","gif","webp"].includes(ext)) return "image";
+        if (ext === "pdf") return "file-text";
+        if (["doc","docx"].includes(ext)) return "file-text";
+        if (ext === "csv") return "table";
+        if (["json","js","ts"].includes(ext)) return "file-code";
+        return "paperclip";
+    }
+
+    function renderFileChips() {
+        fileList.innerHTML = "";
+        supportFiles.forEach((file, index) => {
+            const chip = document.createElement("div");
+            chip.className = "support-file-chip";
+            chip.innerHTML = `
+                <i data-lucide="${getFileIcon(file.name)}" class="chip-icon"></i>
+                <span class="chip-name" title="${file.name}">${file.name}</span>
+                <button class="chip-remove" data-index="${index}" title="Remove"><i data-lucide="x"></i></button>
+            `;
+            fileList.appendChild(chip);
+        });
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+
+        fileList.querySelectorAll(".chip-remove").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const i = parseInt(btn.getAttribute("data-index"));
+                supportFiles.splice(i, 1);
+                renderFileChips();
+            });
+        });
+    }
+
+    // ---- Send Query Logic  - Brevo via Cloudflare Worker ----
+    if (sendBtn) {
+        sendBtn.addEventListener("click", async () => {
+            const name    = (document.getElementById("support-name")?.value || "").trim();
+            const email   = (document.getElementById("support-email")?.value || "").trim();
+            const subject = (document.getElementById("support-subject")?.value || "general");
+            const message = (document.getElementById("support-message")?.value || "").trim();
+
+            if (!email || !email.includes("@")) {
+                alert("Please enter a valid email address so we can reply to you.");
+                return;
+            }
+            if (!message) {
+                alert("Please describe your issue or question before sending.");
+                return;
+            }
+
+            const fileNames = supportFiles.length
+                ? supportFiles.map(f => `" ${f.name} (${(f.size/1024).toFixed(1)} KB)`).join("\n")
+                : "None";
+
+            sendBtn.disabled = true;
+            sendBtn.querySelector("span").textContent = "Sending...";
+
+            const payload = {
+                from_name:   name || "Anonymous",
+                from_email:  email,
+                subject:     subject.charAt(0).toUpperCase() + subject.slice(1),
+                message:     message,
+                attachments: fileNames
+            };
+
+            try {
+                if (WORKER_URL) {
+                    // Production path â€” Brevo via Cloudflare Worker (300 emails/day free)
+                    const res = await fetch(WORKER_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!res.ok) throw new Error(`Worker returned ${res.status}`);
+                } else {
+                    // " Demo mode  - simulates success until Worker URL is configured
+                    await new Promise(res => setTimeout(res, 1500));
+                    console.log("Demo mode  - configure WORKER_URL to enable real email sending via Brevo (300/day free).", payload);
+                }
+
+                // Success
+                sendBtn.querySelector("span").textContent = "Ã¢Å“... Query Sent!";
+                sendBtn.style.background = "var(--success)";
+                setTimeout(() => {
+                    supportModal.classList.remove("active");
+                    document.getElementById("support-name").value    ="";
+                    document.getElementById("support-email").value   ="";
+                    document.getElementById("support-message").value ="";
+                    document.getElementById("support-subject").value = "general";
+                    supportFiles = [];
+                    renderFileChips();
+                    sendBtn.disabled = false;
+                    sendBtn.querySelector("span").textContent = "Send Query";
+                    sendBtn.style.background = "";
+                }, 2000);
+
+            } catch (err) {
+                console.error("Support form error:", err);
+                sendBtn.querySelector("span").textContent = "Send Query";
+                sendBtn.disabled = false;
+                alert("Failed to send your query. Please email us directly at: " + ADMIN_EMAIL);
+            }
+        });
+    }
+    // (Backdrop close is handled globally via event delegation above)
+});
+
+
+/* ================================================================
+   ADMIN SETTINGS BRIDGE
+   Reads admin-saved settings from localStorage and applies them to
+   the main site on startup. Settings survive ALL page refreshes and
+   site code updates because they are stored in the BROWSER localStorage.
+   Plans purchased by users are stored per email (ar_plan_EMAIL) and
+   are NEVER reset by any site code  -  only by admin action or expiry.
+================================================================ */
+(function() {
+    'use strict';
+
+    // Keys must match admin/admin.js constants exactly
+    const LS_PLANS    = 'ar_plans';
+    const LS_SETTINGS = 'ar_settings';
+    const LS_CREDS    = 'ar_credentials';
+    const LS_KEYS     = 'ar_gemini_keys';
+    const LS_KEY_IDX  = 'ar_gemini_key_index';
+
+    function readLS(key, def) {
+        try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; }
+    }
+
+    /* -- GEMINI KEY ROTATION -- */
+    function getActiveGeminiKey() {
+        const keys  = readLS(LS_KEYS, []);
+        const creds = readLS(LS_CREDS, {});
+        if (!keys.length) return creds.GEMINI_API_KEY || '';
+        let idx = parseInt(localStorage.getItem(LS_KEY_IDX) || '0');
+        if (isNaN(idx) || idx >= keys.length) idx = 0;
+        return keys[idx] || creds.GEMINI_API_KEY || '';
+    }
+    function rotateGeminiKey() {
+        const keys = readLS(LS_KEYS, []);
+        if (!keys.length) return;
+        let idx = parseInt(localStorage.getItem(LS_KEY_IDX) || '0');
+        idx = (idx + 1) % keys.length;
+        localStorage.setItem(LS_KEY_IDX, String(idx));
+        console.log('[AR] Gemini key rotated to slot', idx);
+    }
+    window.AR_getActiveGeminiKey = getActiveGeminiKey;
+    window.AR_rotateGeminiKey    = rotateGeminiKey;
+
+    /* -- SYNC PRICING CARDS FROM ADMIN PLAN EDITOR -- */
+    function applyAdminPlans() {
+        const plans = readLS(LS_PLANS, null);
+        // Also read frameworks - kept for future framework-gating use
+        var _fw = readLS('ar_frameworks', null);
+        if (!plans) return;
+        document.querySelectorAll('.price-card').forEach(function(card) {
+            const payBtn = card.querySelector('.btn-pay');
+            if (!payBtn) return;
+            const pid = payBtn.dataset.plan;
+            const p   = plans[pid];
+            if (!p) return;
+            var priceEl = card.querySelector('.price-val');
+            if (priceEl && p.price) {
+                var monthly = Number(p.price);
+                var annual  = Math.round(monthly * 0.8);
+                priceEl.setAttribute('data-monthly', monthly);
+                priceEl.setAttribute('data-annual',  annual);
+                priceEl.textContent = monthly.toLocaleString('en-IN');
+            }
+            var nameEl = card.querySelector('.plan-name');
+            if (nameEl && p.name) nameEl.textContent = p.name;
+            var descEl = card.querySelector('.plan-desc');
+            if (descEl && p.description) descEl.textContent = p.description;
+            if (p.price) payBtn.dataset.price = String(p.price);
+            if (p.name)  payBtn.dataset.name  = p.name;
+        });
+    }
+
+    /* -- APPLY ADMIN SITE SETTINGS -- */
+    function applyAdminSettings() {
+        var s = readLS(LS_SETTINGS, null);
+        if (!s) return;
+        if (s.maintenance_mode) {
+            document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#060b14;color:#00e5ff;font-family:Outfit,sans-serif;text-align:center;flex-direction:column;gap:1.5rem"><svg width=\"64\" height=\"64\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/></svg><h1 style=\"font-size:2rem;font-weight:800\">Under Maintenance</h1><p style=\"color:rgba(255,255,255,.5);max-width:400px\">AuditReady.AI is currently undergoing scheduled maintenance. We will be back shortly.</p></div>';
+            return;
+        }
+        if (s.hero_title) {
+            var h = document.querySelector('.hero-title');
+            if (h) h.innerHTML = s.hero_title;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        applyAdminPlans();
+        applyAdminSettings();
+    });
+})();
+
+
+/* -----------------------------------------------------------
+   AUTH SYSTEM  -  Sign Up / Sign In / Google / Plan Gating
+   Accounts: localStorage ar_accounts (encrypted passwords)
+   Session:  localStorage ar_session  (email, name, isGoogle)
+   Plans:    localStorage ar_plan_EMAIL (plan, expiry)
+----------------------------------------------------------- */
+(function() {
+    'use strict';
+
+    /* -- STORAGE KEYS -- */
+    const LS_ACCOUNTS = 'ar_accounts';   // [{email, pwHash, name, created}]
+    const LS_SESSION  = 'ar_session';    // {email, name, isGoogle}
+    const LS_PLAN_PFX = 'ar_plan_';      // + email ? {plan, expiry, utr}
+
+    /* -- SIMPLE HASH (not cryptographic  -  demo) -- */
+    function hashStr(s) {
+        let h = 0x811c9dc5;
+        for (let i = 0; i < s.length; i++) {
+            h ^= s.charCodeAt(i);
+            h = (h * 0x01000193) >>> 0;
+        }
+        return h.toString(16);
+    }
+
+    /* -- ACCOUNT STORE -- */
+    function getAccounts() {
+        try { return JSON.parse(localStorage.getItem(LS_ACCOUNTS) || '[]'); } catch { return []; }
+    }
+    function saveAccounts(arr) {
+        localStorage.setItem(LS_ACCOUNTS, JSON.stringify(arr));
+    }
+    function findAccount(email) {
+        return getAccounts().find(a => a.email.toLowerCase() === email.toLowerCase());
+    }
+
+    /* -- SESSION -- */
+    function getSession() {
+        try { return JSON.parse(localStorage.getItem(LS_SESSION) || 'null'); } catch { return null; }
+    }
+    function setSession(user) {
+        localStorage.setItem(LS_SESSION, JSON.stringify(user));
+    }
+    function clearSession() {
+        localStorage.removeItem(LS_SESSION);
+    }
+
+    /* -- USER PLAN (per email) -- */
+    function getUserPlan(email) {
+        try {
+            const raw = localStorage.getItem(LS_PLAN_PFX + email.toLowerCase());
+            if (!raw) return null;
+            const p = JSON.parse(raw);
+            if (Date.now() > p.expiry) {
+                localStorage.removeItem(LS_PLAN_PFX + email.toLowerCase());
+                return null;
+            }
+            return p;
+        } catch { return null; }
+    }
+    function setUserPlan(email, plan, expiry, utr) {
+        localStorage.setItem(LS_PLAN_PFX + email.toLowerCase(), JSON.stringify({ plan, expiry, utr }));
+    }
+
+    /* --------------------------------------------------
+       AUTH MODAL CONTROL
+    -------------------------------------------------- */
+    let pendingPayPlan = null; // if user clicked Pay before signing in
+
+    function openAuthModal(tab, hint) {
+        const modal = document.getElementById('auth-modal');
+        if (modal) modal.classList.add('open');
+        if (tab === 'signup') switchTab('signup');
+        else switchTab('signin');
+        if (hint) {
+            const hintEl = document.getElementById('auth-signin-hint');
+            if (hintEl) { hintEl.textContent = hint; hintEl.classList.remove('hidden'); }
+        }
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+    }
+
+    function closeAuthModal() {
+        const modal = document.getElementById('auth-modal');
+        if (modal) modal.classList.remove('open');
+        clearAuthErrors();
+    }
+
+    function switchTab(tab) {
+        const signInForm  = document.getElementById('auth-signin-form');
+        const signUpForm  = document.getElementById('auth-signup-form');
+        const forgotForm  = document.getElementById('auth-forgot-form');
+        const tabSignIn   = document.getElementById('tab-signin');
+        const tabSignUp   = document.getElementById('tab-signup');
+        const tabs        = document.getElementById('tab-signin')?.parentElement;
+
+        [signInForm, signUpForm, forgotForm].forEach(f => f?.classList.add('hidden'));
+        [tabSignIn, tabSignUp].forEach(t => t?.classList.remove('active'));
+
+        if (tab === 'signup') {
+            signUpForm?.classList.remove('hidden');
+            tabSignUp?.classList.add('active');
+        } else if (tab === 'forgot') {
+            forgotForm?.classList.remove('hidden');
+            if (tabs) tabs.style.display = 'none';
+        } else {
+            signInForm?.classList.remove('hidden');
+            tabSignIn?.classList.add('active');
+            const tabs2 = document.getElementById('tab-signin')?.parentElement;
+            if (tabs2) tabs2.style.display = '';
+        }
+        clearAuthErrors();
+    }
+
+    function clearAuthErrors() {
+        ['si-error','su-error','fp-error'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) { el.textContent=''; el.classList.remove('show'); }
+        });
+    }
+
+    function showError(id, msg) {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = msg; el.classList.add('show'); }
+    }
+
+    /* --------------------------------------------------
+       GOOGLE SIGN-IN (Firebase if configured, else demo)
+    -------------------------------------------------- */
+    function doGoogleAuth() {
+        const creds = {};
+        try { Object.assign(creds, JSON.parse(localStorage.getItem('ar_credentials') || '{}')); } catch {}
+
+        if (typeof firebase !== 'undefined' && creds.FIREBASE_API_KEY) {
+            // Real Firebase Google Auth
+            if (!firebase.apps.length) {
+                firebase.initializeApp({
+                    apiKey:        creds.FIREBASE_API_KEY,
+                    authDomain:    creds.FIREBASE_AUTH_DOMAIN,
+                    projectId:     creds.FIREBASE_PROJECT_ID,
+                    storageBucket: creds.FIREBASE_STORAGE_BUCKET,
+                    messagingSenderId: creds.FIREBASE_MESSAGING_SENDER_ID,
+                    appId:         creds.FIREBASE_APP_ID,
+                });
+            }
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider)
+                .then(result => {
+                    const user = result.user;
+                    // Register if first time
+                    let accounts = getAccounts();
+                    if (!accounts.find(a => a.email.toLowerCase() === user.email.toLowerCase())) {
+                        accounts.push({ email: user.email, pwHash: null, name: user.displayName, created: Date.now(), google: true });
+                        saveAccounts(accounts);
+                    }
+                    loginSuccess({ email: user.email, name: user.displayName || user.email.split('@')[0], isGoogle: true });
+                })
+                .catch(err => {
+                    showError('si-error', 'Google sign-in failed: ' + err.message);
+                });
+        } else {
+            // Demo Google auth â€” show a proper inline modal (prompt() blocked on HTTPS)
+            showGoogleDemoModal();
+        }
+    }
+
+    function showGoogleDemoModal() {
+        // Remove any existing demo modal
+        const existing = document.getElementById('google-demo-modal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'google-demo-modal';
+        modal.style.cssText = `
+            position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;
+            display:flex;align-items:center;justify-content:center;padding:1rem;
+        `;
+        modal.innerHTML = `
+            <div style="background:#1a1f2e;border:1px solid rgba(255,255,255,0.12);border-radius:16px;
+                        padding:2rem;width:100%;max-width:400px;position:relative;">
+                <button onclick="document.getElementById('google-demo-modal').remove()"
+                        style="position:absolute;top:1rem;right:1rem;background:none;border:none;
+                               color:#aaa;font-size:1.4rem;cursor:pointer;line-height:1">&#x2715;</button>
+                <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem">
+                    <svg width="28" height="28" viewBox="0 0 48 48">
+                        <path fill="#4285F4" d="M44.5 20H24v8.5h11.7C34.1 33.1 29.5 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l6.4-6.4C34.4 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.8 0 20.1-7.8 20.1-21 0-1.4-.1-2.7-.3-4z"/>
+                        <path fill="#34A853" d="M6.3 14.7l7 5.1C15.1 16.1 19.2 13 24 13c3 0 5.7 1.1 7.8 2.9l6.4-6.4C34.4 5.1 29.5 3 24 3 16.2 3 9.4 7.9 6.3 14.7z"/>
+                        <path fill="#FBBC05" d="M24 45c5.3 0 10.2-1.8 13.9-4.9l-6.5-5.3C29.5 36.7 26.9 37.5 24 37.5c-5.5 0-10.1-3.7-11.7-8.7l-6.9 5.3C8.8 40.9 15.9 45 24 45z"/>
+                        <path fill="#EA4335" d="M44.5 20H24v8.5h11.7c-.8 2.3-2.3 4.2-4.3 5.5l6.5 5.3C42.1 36 45 30.5 45 24c0-1.4-.1-2.7-.3-4z"/>
+                    </svg>
+                    <span style="color:#fff;font-size:1.1rem;font-weight:600">Sign in with Google</span>
+                </div>
+                <div style="margin-bottom:1rem">
+                    <label style="color:#aaa;font-size:.85rem;display:block;margin-bottom:.4rem">Google Email Address</label>
+                    <input id="gdemo-email" type="email" placeholder="you@gmail.com"
+                           style="width:100%;padding:.75rem 1rem;background:#0f1322;border:1px solid rgba(255,255,255,0.15);
+                                  border-radius:10px;color:#fff;font-size:.95rem;box-sizing:border-box;outline:none">
+                </div>
+                <div style="margin-bottom:1.5rem">
+                    <label style="color:#aaa;font-size:.85rem;display:block;margin-bottom:.4rem">Your Name</label>
+                    <input id="gdemo-name" type="text" placeholder="Prakhar Mishra"
+                           style="width:100%;padding:.75rem 1rem;background:#0f1322;border:1px solid rgba(255,255,255,0.15);
+                                  border-radius:10px;color:#fff;font-size:.95rem;box-sizing:border-box;outline:none">
+                </div>
+                <p id="gdemo-error" style="color:#f87171;font-size:.85rem;margin-bottom:.75rem;display:none"></p>
+                <button onclick="submitGoogleDemo()"
+                        style="width:100%;padding:.85rem;background:linear-gradient(135deg,#06b6d4,#3b82f6);
+                               border:none;border-radius:10px;color:#fff;font-size:1rem;font-weight:600;cursor:pointer">
+                    Continue with Google
+                </button>
+                <p style="color:#6b7280;font-size:.78rem;text-align:center;margin-top:1rem">
+                    Full Google OAuth activates after Firebase setup in Admin Panel
+                </p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById('gdemo-email').focus();
+    }
+
+    window.submitGoogleDemo = function() {
+        const email = document.getElementById('gdemo-email')?.value.trim().toLowerCase();
+        const name  = document.getElementById('gdemo-name')?.value.trim();
+        const errEl = document.getElementById('gdemo-error');
+        if (!email || !email.includes('@')) {
+            errEl.textContent = 'Please enter a valid email address.';
+            errEl.style.display = 'block';
+            return;
+        }
+        document.getElementById('google-demo-modal').remove();
+        // Register if first time
+        let accounts = getAccounts();
+        if (!accounts.find(a => a.email.toLowerCase() === email)) {
+            accounts.push({ email, pwHash: null, name: name || email.split('@')[0], created: Date.now(), google: true });
+            saveAccounts(accounts);
+        }
+        loginSuccess({ email, name: name || email.split('@')[0], isGoogle: true });
+    };
+
+    /* --------------------------------------------------
+       SIGN UP
+    -------------------------------------------------- */
+    function doSignUp() {
+        const name    = document.getElementById('su-name')?.value.trim();
+        const email   = document.getElementById('su-email')?.value.trim().toLowerCase();
+        const pw      = document.getElementById('su-password')?.value;
+        const confirm = document.getElementById('su-confirm')?.value;
+
+        if (!name)             { showError('su-error','Please enter your full name.'); return; }
+        if (!email || !email.includes('@')) { showError('su-error','Please enter a valid email address.'); return; }
+        if (!pw || pw.length < 8) { showError('su-error','Password must be at least 8 characters.'); return; }
+        if (pw !== confirm)    { showError('su-error','Passwords do not match.'); return; }
+
+        const accounts = getAccounts();
+        if (accounts.find(a => a.email.toLowerCase() === email)) {
+            showError('su-error','An account with this email already exists. Please sign in.');
+            return;
+        }
+
+        // Create account
+        accounts.push({ email, pwHash: hashStr(pw), name, created: Date.now(), google: false });
+        saveAccounts(accounts);
+        loginSuccess({ email, name, isGoogle: false });
+    }
+
+    /* --------------------------------------------------
+       SIGN IN
+    -------------------------------------------------- */
+    function doSignIn() {
+        const email = document.getElementById('si-email')?.value.trim().toLowerCase();
+        const pw    = document.getElementById('si-password')?.value;
+
+        if (!email || !email.includes('@')) { showError('si-error','Please enter a valid email address.'); return; }
+        if (!pw)                            { showError('si-error','Please enter your password.'); return; }
+
+        const account = findAccount(email);
+        if (!account) {
+            showError('si-error','No account found with this email. Please sign up first.');
+            return;
+        }
+        if (account.google) {
+            showError('si-error','This email is registered with Google. Please use "Continue with Google".');
+            return;
+        }
+        if (account.pwHash !== hashStr(pw)) {
+            showError('si-error','Incorrect password. Please try again.');
+            return;
+        }
+
+        loginSuccess({ email: account.email, name: account.name, isGoogle: false });
+    }
+
+    /* --------------------------------------------------
+       FORGOT PASSWORD
+    -------------------------------------------------- */
+    function doForgotPassword() {
+        const email = document.getElementById('fp-email')?.value.trim().toLowerCase();
+        if (!email || !email.includes('@')) { showError('fp-error','Please enter a valid email address.'); return; }
+
+        const account = findAccount(email);
+        if (!account) {
+            showError('fp-error','No account found with this email address.');
+            return;
+        }
+
+        // Simulate sending reset email
+        const fpBtn = document.getElementById('fp-submit-btn');
+        if (fpBtn) {
+            fpBtn.textContent = 'Sending...';
+            fpBtn.disabled = true;
+        }
+        setTimeout(() => {
+            if (fpBtn) { fpBtn.textContent = '? Reset link sent to ' + email; }
+            setTimeout(() => {
+                switchTab('signin');
+                if (fpBtn) { fpBtn.textContent = 'Send Reset Link'; fpBtn.disabled = false; }
+            }, 2500);
+        }, 1200);
+    }
+
+    /* --------------------------------------------------
+       LOGIN SUCCESS  -  update UI, handle pending payment
+    -------------------------------------------------- */
+    function loginSuccess(user) {
+        setSession(user);
+        closeAuthModal();
+        updateNavForUser(user);
+        loadUserPlanBadge(user.email);
+
+        // If user had clicked "Pay & Auto Unlock" before signing in
+        if (pendingPayPlan) {
+            const { planId, price, planName } = pendingPayPlan;
+            pendingPayPlan = null;
+            setTimeout(() => openPayModal(planId, price, planName), 350);
+        }
+    }
+
+    function doSignOut() {
+        clearSession();
+        updateNavForGuest();
+        // Remove active plan badge
+        const badge = document.getElementById('active-plan-badge');
+        if (badge) badge.remove();
+    }
+
+    /* --------------------------------------------------
+       NAV STATE UPDATES
+    -------------------------------------------------- */
+    function updateNavForUser(user) {
+        const authBtns = document.getElementById('auth-btns-group');
+        const userPill = document.getElementById('nav-user-pill');
+        if (authBtns) authBtns.classList.add('hidden');
+        if (userPill) userPill.classList.remove('hidden');
+
+        const initial = (user.name || user.email).charAt(0).toUpperCase();
+        const el = (id) => document.getElementById(id);
+        if (el('nav-avatar'))    el('nav-avatar').textContent = initial;
+        if (el('nud-avatar'))    el('nud-avatar').textContent = initial;
+        if (el('nav-user-email')) el('nav-user-email').textContent = user.email;
+        if (el('nud-name'))      el('nud-name').textContent = user.name || user.email.split('@')[0];
+        if (el('nud-email'))     el('nud-email').textContent = user.email;
+    }
+
+    function updateNavForGuest() {
+        const authBtns = document.getElementById('auth-btns-group');
+        const userPill = document.getElementById('nav-user-pill');
+        if (authBtns) authBtns.classList.remove('hidden');
+        if (userPill) userPill.classList.add('hidden');
+    }
+
+    function loadUserPlanBadge(email) {
+        const p = getUserPlan(email);
+        const el = (id) => document.getElementById(id);
+        if (p) {
+            const daysLeft = Math.ceil((p.expiry - Date.now()) / 86400000);
+            const planName = p.plan.charAt(0).toUpperCase() + p.plan.slice(1);
+            if (el('nud-plan')) el('nud-plan').textContent = '? ' + planName + ' Plan Â· ' + daysLeft + 'd left';
+        } else {
+            if (el('nud-plan')) el('nud-plan').textContent = 'Free Plan';
+        }
+    }
+
+    /* --------------------------------------------------
+       PAYMENT GATE  -  require auth before paying
+    -------------------------------------------------- */
+    // Override the Pay button click to require sign-in first
+    function gatePay(planId, price, planName) {
+        const session = getSession();
+        if (!session) {
+            // Store pending intent and open auth modal
+            pendingPayPlan = { planId, price, planName };
+            openAuthModal('signin', '? Sign in or create an account to purchase the ' + planName + ' Plan.');
+            return;
+        }
+        openPayModal(planId, price, planName);
+    }
+
+    // openPayModal wires into the existing payment modal from the previous module
+    function openPayModal(planId, price, planName) {
+        // Dispatch a custom event that the payment module listens to
+        document.dispatchEvent(new CustomEvent('ar:openPayment', {
+            detail: { planId, price, planName, userEmail: getSession()?.email }
+        }));
+    }
+
+    // Expose functions for the payment module to use
+    window.AR_AUTH = {
+        getSession,
+        getUserPlan,
+        setUserPlan,
+    };
+
+    // Expose globally so HTML onclick attributes work as fallback
+    window.AR_openSignIn  = () => openAuthModal('signin');
+    window.AR_openSignUp  = () => openAuthModal('signup');
+    window.AR_closeAuth   = closeAuthModal;
+    window.AR_doSignIn    = doSignIn;
+    window.AR_doSignUp    = doSignUp;
+    window.AR_doGoogle    = doGoogleAuth;
+
+    /* --------------------------------------------------
+       BIND ALL EVENTS
+    -------------------------------------------------- */
+    // Safe init: runs immediately if DOM ready, else waits for event
+    function initAuth() {
+        // -- Open auth modal buttons --
+        const openSignIn = document.getElementById('open-signin-btn');
+        const openSignUp = document.getElementById('open-signup-btn');
+        if (openSignIn) openSignIn.addEventListener('click', () => openAuthModal('signin'));
+        if (openSignUp) openSignUp.addEventListener('click', () => openAuthModal('signup'));
+
+        // -- Close modal --
+        const closeBtn = document.getElementById('auth-modal-close-btn');
+        if (closeBtn) closeBtn.addEventListener('click', closeAuthModal);
+        document.getElementById('auth-modal')?.addEventListener('click', e => {
+            if (e.target === document.getElementById('auth-modal')) closeAuthModal();
+        });
+
+        // -- Tab switching --
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+        });
+        document.querySelectorAll('.auth-switch-link').forEach(link => {
+            link.addEventListener('click', e => { e.preventDefault(); switchTab(link.dataset.switch); });
+        });
+
+        // -- Forgot password --
+        document.getElementById('auth-forgot-link')?.addEventListener('click', e => {
+            e.preventDefault(); switchTab('forgot');
+        });
+
+        // -- Google buttons --
+        document.getElementById('auth-google-signin-btn')?.addEventListener('click', doGoogleAuth);
+        document.getElementById('auth-google-signup-btn')?.addEventListener('click', doGoogleAuth);
+
+        // -- Sign In submit --
+        const siBtn = document.getElementById('si-submit-btn');
+        if (siBtn) siBtn.addEventListener('click', doSignIn);
+        document.getElementById('si-password')?.addEventListener('keydown', e => { if (e.key==='Enter') doSignIn(); });
+
+        // -- Sign Up submit --
+        const suBtn = document.getElementById('su-submit-btn');
+        if (suBtn) suBtn.addEventListener('click', doSignUp);
+        document.getElementById('su-confirm')?.addEventListener('keydown', e => { if (e.key==='Enter') doSignUp(); });
+
+        // -- Forgot submit --
+        document.getElementById('fp-submit-btn')?.addEventListener('click', doForgotPassword);
+
+        // -- Password strength meter --
+        document.getElementById('su-password')?.addEventListener('input', function() {
+            const v = this.value;
+            const fill = document.getElementById('pw-strength-fill');
+            const lbl  = document.getElementById('pw-strength-label');
+            if (!fill) return;
+            let score = 0;
+            if (v.length >= 8)  score++;
+            if (v.length >= 12) score++;
+            if (/[A-Z]/.test(v)) score++;
+            if (/[0-9]/.test(v)) score++;
+            if (/[^a-zA-Z0-9]/.test(v)) score++;
+            const pct = (score/5)*100;
+            fill.style.width = pct + '%';
+            fill.style.background = score<=1 ? '#f87171' : score<=3 ? '#fbbf24' : '#34d399';
+            if (lbl) lbl.textContent = score<=1 ? 'Weak' : score<=2 ? 'Fair' : score<=3 ? 'Good' : score<=4 ? 'Strong' : 'Very Strong';
+        });
+
+        // -- Toggle password visibility --
+        document.querySelectorAll('.auth-eye-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = document.getElementById(this.dataset.target);
+                if (!input) return;
+                const isText = input.type === 'text';
+                input.type = isText ? 'password' : 'text';
+                this.querySelector('i')?.setAttribute('data-lucide', isText ? 'eye' : 'eye-off');
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            });
+        });
+
+        // -- Sign Out --
+        document.getElementById('nud-signout-btn')?.addEventListener('click', e => {
+            e.preventDefault(); doSignOut();
+        });
+
+        // -- Nav user pill dropdown toggle --
+        document.getElementById('nav-user-pill')?.addEventListener('click', function(e) {
+            if (!e.target.closest('#nud-signout-btn') && !e.target.closest('#nud-upgrade-link')) {
+                this.classList.toggle('open');
+            }
+        });
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#nav-user-pill')) {
+                document.getElementById('nav-user-pill')?.classList.remove('open');
+            }
+        });
+
+        // -- Override Pay buttons to require auth --
+        document.querySelectorAll('.btn-pay').forEach(btn => {
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            newBtn.addEventListener('click', function() {
+                const planId   = this.dataset.plan;
+                const price    = parseInt(this.dataset.price);
+                const planName = this.dataset.name;
+                gatePay(planId, price, planName);
+            });
+        });
+
+        // -- Restore session on page load --
+        const session = getSession();
+        if (session) {
+            checkAndHandlePlanExpiry(session.email);
+            updateNavForUser(session);
+            loadUserPlanBadge(session.email);
+        } else {
+            updateNavForGuest();
+        }
+    }
+
+    // Run immediately â€” DOM is already parsed since script is at bottom of <body>
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAuth);
+    } else {
+        initAuth();
+    }
+
+
+
+    /* ================================================================
+       PLAN EXPIRY CHECK + ADMIN REAL-TIME SYNC
+    ================================================================ */
+    function checkAndHandlePlanExpiry(email) {
+        try {
+            var raw = localStorage.getItem('ar_plan_' + email.toLowerCase());
+            if (!raw) return;
+            var p = JSON.parse(raw);
+            if (Date.now() > p.expiry) {
+                localStorage.removeItem('ar_plan_' + email.toLowerCase());
+                showQuickToast('Your ' + (p.plan || 'Pro') + ' plan has expired. You are now on the Free plan.', true);
+            }
+        } catch {}
+    }
+
+    function showQuickToast(msg, isError) {
+        var t = document.createElement('div');
+        t.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:99999;background:' +
+            (isError ? 'rgba(248,113,113,.97)' : 'rgba(52,211,153,.97)') +
+            ';color:#000;padding:.7rem 1.6rem;border-radius:12px;font-weight:700;font-size:.9rem;' +
+            'max-width:92vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4);font-family:Outfit,sans-serif;';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(function() { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(function(){t.remove();}, 400); }, 5000);
+    }
+
+    // Admin real-time sync
+    window.addEventListener('storage', function(e) {
+        if (['ar_credentials','ar_settings','ar_plans','ar_gemini_keys'].includes(e.key)) {
+            try { applyAdminPlans(); applyAdminSettings(); } catch {}
+        }
+    });
+
+    /* ================================================================
+       PAYMENT MODULE
+       Single persistent confirm handler using shared _payState.
+       Plans stored per-user (ar_plan_EMAIL) and NEVER auto-reset.
+    ================================================================ */
+    var _payState = { planId: null, price: 0, planName: '', userEmail: '' };
+
+    document.addEventListener('ar:openPayment', function(e) {
+        var d = e.detail;
+        _payState.planId    = d.planId;
+        _payState.price     = d.price;
+        _payState.planName  = d.planName;
+        _payState.userEmail = d.userEmail || '';
+
+        var title  = document.getElementById('pay-modal-title');
+        var amount = document.getElementById('pay-amount-display');
+        var pill   = document.getElementById('pay-plan-pill');
+        if (title)  title.textContent  = 'Pay & Auto Unlock \u2014 ' + d.planName + ' Plan';
+        if (amount) amount.textContent = '\u20b9' + d.price.toLocaleString('en-IN');
+        if (pill)   pill.textContent   = d.planName + ' Plan \u00b7 Monthly \u00b7 ' + (d.userEmail || '');
+
+        var creds = {};
+        try { creds = JSON.parse(localStorage.getItem('ar_credentials') || '{}'); } catch {}
+        var upiId   = creds.UPI_ID   || '6372843175@kotakbank';
+        var upiName = creds.UPI_NAME || 'AuditReady.AI';
+        var upiLink = 'upi://pay?pa=' + upiId + '&pn=' + encodeURIComponent(upiName) +
+                      '&am=' + d.price + '&cu=INR&tn=AuditReady+' + encodeURIComponent(d.planName);
+
+        var upiBtn = document.getElementById('pay-open-upi-btn');
+        if (upiBtn) upiBtn.onclick = function() { window.location.href = upiLink; };
+
+        var canvas = document.getElementById('pay-qr-canvas');
+        if (canvas) {
+            canvas.innerHTML = '';
+            if (typeof QRCode !== 'undefined') {
+                try {
+                    new QRCode(canvas, { text:upiLink, width:170, height:170, colorDark:'#000', colorLight:'#fff', correctLevel:QRCode.CorrectLevel.M });
+                } catch(err) { _qrFb(canvas, upiLink); }
+            } else { _qrFb(canvas, upiLink); }
+        }
+
+        var copyBtn = document.getElementById('pay-copy-upi-btn');
+        if (copyBtn) {
+            copyBtn.onclick = function() {
+                navigator.clipboard.writeText(upiId).then(function() {
+                    copyBtn.innerHTML = '<i data-lucide="check" style="width:13px;height:13px;color:#34d399"></i>';
+                    (typeof lucide!=='undefined'&&lucide.createIcons());
+                    setTimeout(function() { copyBtn.innerHTML = '<i data-lucide="copy" style="width:13px;height:13px"></i>'; (typeof lucide!=='undefined'&&lucide.createIcons()); }, 2000);
+                }).catch(function() { prompt('Copy UPI ID:', upiId); });
+            };
+        }
+
+        var utrInput = document.getElementById('pay-utr-input');
+        if (utrInput) utrInput.value = '';
+
+        var modal = document.getElementById('payment-modal');
+        if (modal) modal.classList.add('open');
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+    });
+
+    function _qrFb(canvas, link) {
+        var img = document.createElement('img');
+        img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=' + encodeURIComponent(link);
+        img.alt = 'UPI QR'; img.style.cssText = 'border-radius:4px;max-width:170px';
+        canvas.appendChild(img);
+    }
+
+    function initPayment() {
+        var payModal = document.getElementById('payment-modal');
+        if (payModal) payModal.addEventListener('click', function(ev) {
+            if (ev.target === payModal) payModal.classList.remove('open');
+        });
+
+        // SINGLE persistent confirm handler
+        var confirmBtn = document.getElementById('pay-confirm-btn');
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', function() {
+                var utr = (document.getElementById('pay-utr-input') ? document.getElementById('pay-utr-input').value : '').trim();
+                if (!utr || utr.length < 6) { _payToast('Please enter a valid UTR / Transaction ID (min 6 chars).', 'error'); return; }
+
+                var utrs = [];
+                try { utrs = JSON.parse(localStorage.getItem('ar_payment_utrs') || '[]'); } catch {}
+                if (utrs.includes(utr)) { _payToast('\u26a0 This Transaction ID was already used.', 'error'); return; }
+                utrs.push(utr);
+                localStorage.setItem('ar_payment_utrs', JSON.stringify(utrs));
+
+                var planId = _payState.planId, price = _payState.price;
+                var planName = _payState.planName, userEmail = _payState.userEmail;
+                var expiry = Date.now() + 30 * 24 * 60 * 60 * 1000;
+
+                if (userEmail && window.AR_AUTH) window.AR_AUTH.setUserPlan(userEmail, planId, expiry, utr);
+
+                var payments = [];
+                try { payments = JSON.parse(localStorage.getItem('ar_payments') || '[]'); } catch {}
+                payments.unshift({ user: userEmail || 'Guest', plan: planName, amount: '\u20b9' + price.toLocaleString('en-IN'), ref: utr, time: new Date().toLocaleString('en-IN'), status: 'completed' });
+                localStorage.setItem('ar_payments', JSON.stringify(payments));
+
+                var nudPlan = document.getElementById('nud-plan');
+                if (nudPlan) nudPlan.textContent = '\u2705 ' + planName + ' Plan \u00b7 30d left';
+
+                var body = document.querySelector('#payment-modal .modal-body');
+                if (body) body.innerHTML = '<div class="pay-success-screen"><div class="pay-success-icon">\u2705</div>' +
+                    '<h3 style="font-size:1.3rem;font-weight:800;margin-bottom:.5rem">Plan Unlocked!</h3>' +
+                    '<p style="color:var(--text-muted);margin-bottom:.5rem"><strong style="color:var(--cyan)">' + planName + ' Plan</strong> active for 30 days.</p>' +
+                    '<p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.25rem">Account: <code style="color:var(--cyan)">' + (userEmail||'guest') + '</code></p>' +
+                    '<p style="font-size:.78rem;color:var(--text-muted)">UTR: <code>' + utr + '</code></p>' +
+                    '<button class="btn btn-primary btn-glow" style="margin-top:1.25rem" onclick="document.getElementById(\'payment-modal\').classList.remove(\'open\');window.location.reload();">Start Using Your Plan \u2192</button></div>';
+            });
+        }
+
+        var utrEl = document.getElementById('pay-utr-input');
+        if (utrEl) utrEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('pay-confirm-btn') && document.getElementById('pay-confirm-btn').click(); });
+    }
+
+    // Run immediately
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPayment);
+    } else {
+        initPayment();
+    }
+
+    function _payToast(msg, type) {
+        var t = document.createElement('div');
+        t.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:99999;background:' +
+            (type === 'error' ? 'rgba(248,113,113,.95)' : 'rgba(52,211,153,.95)') +
+            ';color:#000;padding:.65rem 1.4rem;border-radius:10px;font-weight:700;font-size:.88rem;max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4);font-family:Outfit,sans-serif';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(function() { t.style.cssText += ';opacity:0;transition:opacity .4s'; setTimeout(function(){t.remove();}, 400); }, 4000);
+    }
+
+})();

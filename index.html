@@ -1,0 +1,2487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuditReady AI - Pass Your Next Audit on Autopilot</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN (primary: jsDelivr, reliable global CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script>
+      // Fallback: if Lucide fails to load, create a no-op so site still works
+      if (typeof lucide === 'undefined') {
+        window.lucide = { createIcons: function(){} };
+        console.warn('Lucide icons CDN failed to load — icons hidden, functionality intact.');
+      }
+    </script>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <!-- HEADER / NAVIGATION -->
+    <header class="header">
+        <div class="header-container">
+            <a href="#" class="logo" id="logo-link">
+                <div class="logo-icon">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <span class="logo-text">AuditReady<span class="logo-highlight">.AI</span></span>
+            </a>
+            
+            <nav class="nav-links">
+                <a href="#features" class="nav-link" id="nav-features-link">Features</a>
+                <a href="#how-it-works" class="nav-link" id="nav-how-link">How It Works</a>
+                <a href="#pricing" class="nav-link" id="nav-pricing-link">Pricing</a>
+                <a href="#" class="nav-link" id="nav-support-link">Help &amp; Support</a>
+            </nav>
+
+            <div class="header-actions" id="header-actions">
+                <!-- Shown when NOT logged in -->
+                <div class="auth-btns" id="auth-btns-group">
+                    <button class="btn btn-secondary" id="open-signin-btn" onclick="window.AR_openSignIn&&AR_openSignIn()">Sign In</button>
+                    <button class="btn btn-primary btn-glow" id="open-signup-btn" onclick="window.AR_openSignUp&&AR_openSignUp()">
+                        <i data-lucide="user-plus"></i> Sign Up Free
+                    </button>
+                </div>
+                <!-- Shown when logged in -->
+                <div class="nav-user-pill hidden" id="nav-user-pill">
+                    <div class="nav-avatar" id="nav-avatar">U</div>
+                    <span class="nav-user-email" id="nav-user-email">user@email.com</span>
+                    <div class="nav-user-dropdown" id="nav-user-dropdown">
+                        <div class="nud-header">
+                            <div class="nav-avatar lg" id="nud-avatar">U</div>
+                            <div>
+                                <strong id="nud-name">User</strong>
+                                <small id="nud-email">user@email.com</small>
+                            </div>
+                        </div>
+                        <div class="nud-plan" id="nud-plan">Free Plan</div>
+                        <a href="#pricing" class="nud-item" id="nud-upgrade-link">âš Upgrade Plan</a>
+                        <a href="#" class="nud-item" id="nud-signout-btn"> Sign Out</a>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-glow trigger-simulator-btn" style="margin-left:.25rem">
+                    <span>Try MVP Demo</span>
+                    <i data-lucide="arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main id="app-root">
+        <!-- LANDING PAGE VIEW -->
+        <div id="landing-view" class="view-active">
+            <!-- HERO SECTION -->
+            <section class="hero-section">
+                <div class="hero-bg-glows">
+                    <div class="glow-1"></div>
+                    <div class="glow-2"></div>
+                </div>
+                <div class="container hero-container">
+                    <div class="hero-content">
+                        <div class="badge-container">
+                            <span class="hero-badge">
+                                <span class="badge-dot"></span>
+                                Autonomous Compliance Agent v2.4
+                            </span>
+                        </div>
+                        <h1 class="hero-title">
+                            Pass Your Next Audit <br>
+                            <span class="gradient-text">on Autopilot.</span>
+                        </h1>
+                        <p class="hero-subtext">
+                            Stop wasting hundreds of hours on manual compliance tracking. Our autonomous AI agents continuously scan your internal documents, vendor contracts, and cloud logs to ensure you are 100% audit-ready, 365 days a year.
+                        </p>
+                        <div class="hero-cta-group">
+                            <button class="btn btn-primary btn-lg btn-glow trigger-simulator-btn">
+                                <span>Book a 10-Minute Audit Risk Scan</span>
+                                <i data-lucide="sparkles"></i>
+                            </button>
+                            <a href="#how-it-works" class="btn btn-secondary btn-lg">
+                                <span>See How It Works</span>
+                            </a>
+                        </div>
+                        <div class="hero-metrics">
+                            <div class="metric-item">
+                                <div class="metric-val">10x</div>
+                                <div class="metric-lbl">Faster Audits</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-val">0</div>
+                                <div class="metric-lbl">Manual Spreadsheets</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-val">100%</div>
+                                <div class="metric-lbl">Audit Readiness</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- HERO VISUAL MOCKUP -->
+                    <div class="hero-visual">
+                        <div class="mockup-card shadow-glow">
+                            <div class="mockup-header">
+                                <div class="mockup-dots">
+                                    <span class="dot-red"></span>
+                                    <span class="dot-yellow"></span>
+                                    <span class="dot-green"></span>
+                                </div>
+                                <div class="mockup-title">Autonomous Scan Console</div>
+                                <div class="mockup-status">
+                                    <span class="status-pulse"></span> Running
+                                </div>
+                            </div>
+                            <div class="mockup-body">
+                                <div class="mockup-stat-grid">
+                                    <div class="m-stat">
+                                        <span class="m-lbl">Active Framework</span>
+                                        <span class="m-val text-cyan">SOC 2 Type II</span>
+                                    </div>
+                                    <div class="m-stat">
+                                        <span class="m-lbl">Documents Scanned</span>
+                                        <span class="m-val">42 Contracts</span>
+                                    </div>
+                                    <div class="m-stat">
+                                        <span class="m-lbl">Ready Score</span>
+                                        <span class="m-val text-green">94%</span>
+                                    </div>
+                                </div>
+                                <div class="mockup-logs">
+                                    <div class="log-line"><span class="log-time">11:42:01</span> <span class="log-tag tag-info">[INGEST]</span> Loaded Acme_Vendor_Agreement.pdf</div>
+                                    <div class="log-line"><span class="log-time">11:42:02</span> <span class="log-tag tag-scan">[AUDIT]</span> Matching against SOC 2 CC7.1 (Access Protection)</div>
+                                    <div class="log-line warning"><span class="log-time">11:42:03</span> <span class="log-tag tag-warn">[FAIL]</span> Missing Data Indemnity Clause in Section 4.2</div>
+                                    <div class="log-line success"><span class="log-time">11:42:04</span> <span class="log-tag tag-ok">[PASS]</span> Encryption strength verified (AES-256)</div>
+                                    <div class="log-line"><span class="log-time">11:42:05</span> <span class="log-tag tag-info">[AUTO-FIX]</span> Drafted correction clause for Acme Agreement</div>
+                                </div>
+                                <div class="mockup-action-panel">
+                                    <div class="panel-left">
+                                        <i data-lucide="alert-triangle" class="text-orange"></i>
+                                        <span>Critical Gap: 1 File Failed</span>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm trigger-simulator-btn">Fix Instantly</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- SUPPORTED FRAMEWORKS STRIP -->
+                    <div class="frameworks-strip">
+                        <span class="strip-label">Frameworks Supported:</span>
+                        <div class="strip-badges">
+                            <span class="fw-badge soc">SOC 2 Type II</span>
+                            <span class="fw-badge gdpr">GDPR</span>
+                            <span class="fw-badge iso">ISO 27001:2022</span>
+                            <span class="fw-badge hipaa">HIPAA / HITECH</span>
+                            <span class="fw-badge pci">PCI DSS v4.0</span>
+                            <span class="fw-badge nist">NIST CSF 2.0</span>
+                            <span class="fw-badge ent-fw">🔍 Shadow Data</span>
+                            <span class="fw-badge ent-fw">👁 Auditor Mode</span>
+                            <span class="fw-badge ent-fw ccm-fw">🔔 CCM Monitor</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAIN POINT SECTION -->
+            <section id="features" class="pain-section">
+                <div class="container">
+                    <div class="section-header text-center">
+                        <h2 class="section-title">Compliance Managers Spend 70% of Their Time Doing This. <br><span class="gradient-text">Our AI Does it in 70 Seconds.</span></h2>
+                        <p class="section-subtitle">Annual audits are terrifying, chaotic, and manual. Here is the nightmare we eliminate forever.</p>
+                    </div>
+
+                    <div class="pain-grid">
+                        <!-- Pain Card 1 -->
+                        <div class="pain-card">
+                            <div class="pain-icon-wrapper text-red">
+                                <i data-lucide="file-warning"></i>
+                            </div>
+                            <h3>Chasing Missing Signatures</h3>
+                            <p>Manually emailing employees for HR policies, code of conduct sign-offs, and NDA agreements before audit deadlines. It's a logistical black hole.</p>
+                            <div class="pain-footer">
+                                <span class="comparison-bad">Old Way: 4 Weeks of Chasing</span>
+                                <span class="comparison-good">AuditReady: Automated Slack triggers</span>
+                            </div>
+                        </div>
+
+                        <!-- Pain Card 2 -->
+                        <div class="pain-card">
+                            <div class="pain-icon-wrapper text-orange">
+                                <i data-lucide="search"></i>
+                            </div>
+                            <h3>Scanning 100+ Page PDFs</h3>
+                            <p>Manually reading hundreds of pages of vendor contracts to verify if they have SOC 2 compliance, data indemnity, and breach notification SLAs.</p>
+                            <div class="pain-footer">
+                                <span class="comparison-bad">Old Way: Hours per document</span>
+                                <span class="comparison-good">AuditReady: 1.2 seconds AI scanning</span>
+                            </div>
+                        </div>
+
+                        <!-- Pain Card 3 -->
+                        <div class="pain-card">
+                            <div class="pain-icon-wrapper text-yellow">
+                                <i data-lucide="clock"></i>
+                            </div>
+                            <h3>Fearing the Annual Audit</h3>
+                            <p>Scrambling for evidence at the end of the year, praying that no vendor agreement expired and no IAM database permission was left open to the wild.</p>
+                            <div class="pain-footer">
+                                <span class="comparison-bad">Old Way: Stress & Fail Risks</span>
+                                <span class="comparison-good">AuditReady: Continuous compliance score</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HOW IT WORKS / USER GUIDE SECTION -->
+            <section id="how-it-works" class="how-section">
+                <div class="container">
+                    <div class="section-header text-center">
+                        <h2 class="section-title">Everything You Can Do with <span class="gradient-text">AuditReady.AI</span></h2>
+                        <p class="section-subtitle">A complete feature guide "” from basic scanning to enterprise-grade continuous monitoring. Each feature shows which plan it requires.</p>
+                    </div>
+
+                    <div class="guide-grid">
+
+                        <!-- Feature 1: Audit Risk Scan -->
+                        <div class="guide-card">
+                            <div class="guide-card-header">
+                                <div class="guide-icon"><i data-lucide="search-code"></i></div>
+                                <div>
+                                    <h3>AI Audit Risk Scan</h3>
+                                    <span class="plan-badge all-plans">ALL PLANS</span>
+                                </div>
+                            </div>
+                            <p class="guide-desc">Upload documents or connect cloud storage → AI scans against your framework → instant risk dashboard with gap details and recommended actions.</p>
+                            <ol class="guide-steps">
+                                <li>Select your compliance framework (SOC 2, GDPR, ISO 27001, HIPAA, PCI DSS, NIST)</li>
+                                <li>Connect Google Drive / AWS S3 / OneDrive / Notion or upload files directly</li>
+                                <li>Click <strong>"Start Autonomous Compliance Scan"</strong></li>
+                                <li>Watch the live terminal log as AI scans each document</li>
+                                <li>Review the results dashboard "” score, gaps found, risk levels</li>
+                                <li>Click <strong>"Export Auditor Evidence Package"</strong> to download the report</li>
+                            </ol>
+                        </div>
+
+                        <!-- Feature 2: Active Remediation -->
+                        <div class="guide-card">
+                            <div class="guide-card-header">
+                                <div class="guide-icon"><i data-lucide="wand-2"></i></div>
+                                <div>
+                                    <h3>Active Remediation (AI Fix)</h3>
+                                    <span class="plan-badge all-plans">ALL PLANS</span>
+                                </div>
+                            </div>
+                            <p class="guide-desc">Don't just see the gap "” fix it instantly. AI drafts the exact legal clause, config change, or policy amendment needed to resolve each compliance failure.</p>
+                            <ol class="guide-steps">
+                                <li>After a scan, find any failed document in the results table</li>
+                                <li>Click <strong>"Fix Now"</strong> on the failed row</li>
+                                <li>Review the AI-generated amendment clause in the modal</li>
+                                <li>Choose: <strong>Copy Clause</strong> / <strong>Apply Fix</strong> / <strong>Send via DocuSign</strong> (Scale+)</li>
+                                <li>Document status updates to âœ… Passed in the dashboard automatically</li>
+                            </ol>
+                        </div>
+
+                        <!-- Feature 3: DocuSign Send -->
+                        <div class="guide-card">
+                            <div class="guide-card-header">
+                                <div class="guide-icon"><i data-lucide="send"></i></div>
+                                <div>
+                                    <h3>Send via DocuSign</h3>
+                                    <span class="plan-badge scale-plans">SCALE &amp; ENTERPRISE</span>
+                                </div>
+                            </div>
+                            <p class="guide-desc">After the AI drafts a contract amendment, send it directly to the vendor for e-signature "” all from within the platform. No switching to email.</p>
+                            <ol class="guide-steps">
+                                <li>Open a failed document's remediation modal via <strong>"Fix Now"</strong></li>
+                                <li>Review the AI-drafted amendment clause</li>
+                                <li>Click the blue <strong>"Send via DocuSign"</strong> button</li>
+                                <li>System creates a DocuSign envelope and notifies the vendor via email</li>
+                                <li>Vendor signs digitally "” the contract is updated and legally binding</li>
+                            </ol>
+                        </div>
+
+                        <!-- Feature 4: Auditor Mode -->
+                        <div class="guide-card">
+                            <div class="guide-card-header">
+                                <div class="guide-icon"><i data-lucide="eye"></i></div>
+                                <div>
+                                    <h3>Live Auditor Mode</h3>
+                                    <span class="plan-badge scale-plans">SCALE &amp; ENTERPRISE</span>
+                                </div>
+                            </div>
+                            <p class="guide-desc">Share a cryptographically signed, read-only portal with Deloitte, EY, or your CPA. They see your full evidence package "” no email chains, no PDF bundles.</p>
+                            <ol class="guide-steps">
+                                <li>Go to <strong>Auditor Mode</strong> in the left sidebar</li>
+                                <li>Enter the auditor's firm name, email, and access scope</li>
+                                <li>Set portal expiry (7 / 14 / 30 days)</li>
+                                <li>Click <strong>"Generate Secure Portal Link"</strong></li>
+                                <li>Copy the cryptographic URL "” share with your auditor</li>
+                                <li>Auditor sees evidence with SHA-256 hashes, read-only, no downloads</li>
+                            </ol>
+                        </div>
+
+                        <!-- Feature 5: Shadow Data -->
+                        <div class="guide-card guide-card-enterprise">
+                            <div class="guide-card-header">
+                                <div class="guide-icon ent-icon"><i data-lucide="radar"></i></div>
+                                <div>
+                                    <h3>Shadow Data Discovery</h3>
+                                    <span class="plan-badge ent-plan">ENTERPRISE ONLY</span>
+                                </div>
+                            </div>
+                            <p class="guide-desc">Scan 6 simultaneous sources "” Slack, Jira, Notion, AWS S3, Google Drive, local servers "” for non-compliant data hidden outside your official document store.</p>
+                            <ol class="guide-steps">
+                                <li>Go to <strong>Shadow Data</strong> in the Enterprise sidebar section</li>
+                                <li>Review the 6 data source cards (Slack, Jira, Notion, S3, Google Drive, Servers)</li>
+                                <li>Click <strong>"Start Shadow Data Scan"</strong></li>
+                                <li>Watch each source card animate: scanning → âœ… Clean or âš ï Issues Found</li>
+                                <li>Review the findings table: location, data type (GDPR/HIPAA/PCI), risk level</li>
+                                <li>Click action buttons: Quarantine / Lock / Restrict / Review / Transfer</li>
+                            </ol>
+                        </div>
+
+                        <!-- Feature 6: CCM Monitor -->
+                        <div class="guide-card guide-card-enterprise">
+                            <div class="guide-card-header">
+                                <div class="guide-icon ent-icon"><i data-lucide="activity"></i></div>
+                                <div>
+                                    <h3>CCM Monitor (24/7 Alerts)</h3>
+                                    <span class="plan-badge ent-plan">ENTERPRISE ONLY</span>
+                                </div>
+                            </div>
+                            <p class="guide-desc">Nightly silent cron scans every control and sends instant Slack / PagerDuty / Teams / Email alerts the moment any compliance control lapses.</p>
+                            <ol class="guide-steps">
+                                <li>Go to <strong>CCM Monitor</strong> in the Enterprise sidebar section</li>
+                                <li>Check the Control Health Grid "” green âœ… / yellow âš ï / red 🔍</li>
+                                <li>Read the Live Alert Timeline for today's detected events</li>
+                                <li>Review Alert Routing: which channels get notified at each severity level</li>
+                                <li>Verify the Cron Schedule (<code>0 2 * * *</code> = daily 2AM)</li>
+                                <li>Click <strong>"Trigger Manual Scan Now"</strong> to run an instant check</li>
+                            </ol>
+                        </div>
+
+                        <!-- Feature 7: Framework Rules -->
+                        <div class="guide-card">
+                            <div class="guide-card-header">
+                                <div class="guide-icon"><i data-lucide="shield-alert"></i></div>
+                                <div>
+                                    <h3>Framework Rules Viewer</h3>
+                                    <span class="plan-badge all-plans">ALL PLANS</span>
+                                </div>
+                            </div>
+                            <p class="guide-desc">See every control rule the AI applies during scanning "” control ID, description, and active status "” for all 6 supported frameworks.</p>
+                            <ol class="guide-steps">
+                                <li>In the sidebar, click <strong>"Framework Rules"</strong></li>
+                                <li>Select a framework tab: SOC 2 / GDPR / ISO 27001 / HIPAA / PCI DSS / NIST</li>
+                                <li>Browse all control rules "” each shows ID, name, and whether it is active</li>
+                                <li>Use this to prepare your documents before running a scan</li>
+                            </ol>
+                        </div>
+
+                        <!-- Feature 8: Help & Support -->
+                        <div class="guide-card">
+                            <div class="guide-card-header">
+                                <div class="guide-icon"><i data-lucide="life-buoy"></i></div>
+                                <div>
+                                    <h3>Help &amp; Support</h3>
+                                    <span class="plan-badge all-plans">ALL PLANS</span>
+                                </div>
+                            </div>
+                            <p class="guide-desc">Send a support query with attachments to the AuditReady.AI team directly from inside the app "” no separate email needed.</p>
+                            <ol class="guide-steps">
+                                <li>Click the pulsing <strong>"?"</strong> button at the bottom-right of any screen</li>
+                                <li>Fill in your Name, Email, Subject, and Message</li>
+                                <li>Click <strong>"+"</strong> to attach files (up to 5 "” images, docs, PDFs)</li>
+                                <li>Click <strong>"Send Query"</strong> "” delivered to the support team instantly</li>
+                                <li>Support replies within your plan's SLA (48h / 4h / 1h)</li>
+                            </ol>
+                        </div>
+
+                    </div>
+
+                    <!-- Full Manual CTA -->
+                    <div class="manual-cta">
+                        <div class="manual-cta-content">
+                            <i data-lucide="book-open"></i>
+                            <div>
+                                <h4>Need the Complete Step-by-Step Manual?</h4>
+                                <p>The full user manual covers every feature in detail "” including credentials, admin setup, DocuSign config, and production deployment.</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-glow" id="open-manual-btn">
+                            <i data-lucide="file-text"></i>
+                            <span>Open Full User Guide</span>
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- FULL USER MANUAL MODAL -->
+            <div class="modal-overlay legal-modal" id="user-manual-modal">
+                <div class="modal-card" style="max-width:860px;max-height:90vh;">
+                    <div class="modal-header">
+                        <div class="modal-title-section">
+                            <div class="logo-icon" style="width:28px;height:28px;border-radius:6px;">
+                                <i data-lucide="book-open"></i>
+                            </div>
+                            <h3>AuditReady.AI "” Complete User Manual</h3>
+                        </div>
+                        <button class="modal-close-btn legal-close-btn" data-target="user-manual-modal"><i data-lucide="x"></i></button>
+                    </div>
+                    <div class="modal-body manual-modal-body">
+
+                        <div class="manual-toc">
+                            <h4>🔔‹ Table of Contents</h4>
+                            <div class="toc-grid">
+                                <a href="#man-1" class="toc-item">1. Getting Started</a>
+                                <a href="#man-2" class="toc-item">2. AI Audit Risk Scan</a>
+                                <a href="#man-3" class="toc-item">3. Framework Rules</a>
+                                <a href="#man-4" class="toc-item">4. Active Remediation</a>
+                                <a href="#man-5" class="toc-item">5. DocuSign Send</a>
+                                <a href="#man-6" class="toc-item">6. Auditor Mode</a>
+                                <a href="#man-7" class="toc-item">7. Shadow Data</a>
+                                <a href="#man-8" class="toc-item">8. CCM Monitor</a>
+                                <a href="#man-9" class="toc-item">9. Help &amp; Support</a>
+                                <a href="#man-10" class="toc-item">10. Export Report</a>
+                                <a href="#man-11" class="toc-item">11. Pay &amp; Auto Unlock</a>
+                                <a href="#man-12" class="toc-item">12. System Credentials</a>
+                            </div>
+                        </div>
+
+                        <div class="manual-plan-table">
+                            <h4>🔔Š Feature → Plan Quick Reference</h4>
+                            <table class="shadow-table">
+                                <thead><tr><th>Feature</th><th>Growth</th><th>Scale</th><th>Enterprise</th></tr></thead>
+                                <tbody>
+                                    <tr><td>AI Audit Risk Scan</td><td>âœ…</td><td>âœ…</td><td>âœ…</td></tr>
+                                    <tr><td>Framework Rules Viewer</td><td>âœ…</td><td>âœ…</td><td>âœ…</td></tr>
+                                    <tr><td>Active Remediation (AI Fix)</td><td>âœ…</td><td>âœ…</td><td>âœ…</td></tr>
+                                    <tr><td>Audit Evidence PDF Export</td><td>âœ…</td><td>âœ…</td><td>âœ…</td></tr>
+                                    <tr><td>Help &amp; Support Portal</td><td>âœ…</td><td>âœ…</td><td>âœ…</td></tr>
+                                    <tr><td>DocuSign Send</td><td>âŒ</td><td>âœ…</td><td>âœ…</td></tr>
+                                    <tr><td>Auditor Mode</td><td>âŒ</td><td>âœ…</td><td>âœ…</td></tr>
+                                    <tr><td>Shadow Data Discovery</td><td>âŒ</td><td>âŒ</td><td>âœ…</td></tr>
+                                    <tr><td>CCM Monitor (24/7 Alerts)</td><td>âŒ</td><td>âŒ</td><td>âœ…</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="manual-section" id="man-1">
+                            <h4><span class="man-num">01</span> Getting Started</h4>
+                            <ol>
+                                <li>Open the website and click any <strong>"Start Risk Scan"</strong> or <strong>"Try Free Demo"</strong> button</li>
+                                <li>The simulator dashboard opens with the sidebar showing all available modules</li>
+                                <li>Use the left sidebar to navigate between features at any time</li>
+                                <li>Click <strong>"Back to Landing Page"</strong> at the bottom of the sidebar to return to the main site</li>
+                            </ol>
+                        </div>
+
+                        <div class="manual-section" id="man-2">
+                            <h4><span class="man-num">02</span> AI Audit Risk Scan <span class="man-badge all-plans">All Plans</span></h4>
+                            <ol>
+                                <li>Click any compliance framework card (SOC 2, GDPR, ISO 27001, HIPAA, PCI DSS, NIST CSF)</li>
+                                <li>Select your storage provider: Google Drive / AWS S3 / OneDrive / Notion / Dropbox / SharePoint</li>
+                                <li>Drag & drop files or click the upload zone to browse "” supports PDF, DOCX, TXT, CSV, JSON</li>
+                                <li>Click <strong>"Start Autonomous Compliance Scan"</strong></li>
+                                <li>Watch the live scanning terminal "” it shows each document being processed in real time</li>
+                                <li>The dashboard auto-opens when scanning is complete, showing: score, gaps, risk levels</li>
+                                <li>Review each row: Document → Status → Issue → Risk → Recommended Action</li>
+                            </ol>
+                        </div>
+
+                        <div class="manual-section" id="man-3">
+                            <h4><span class="man-num">03</span> Framework Rules Viewer <span class="man-badge all-plans">All Plans</span></h4>
+                            <ol>
+                                <li>In the sidebar, click <strong>"Framework Rules"</strong> (shield icon)</li>
+                                <li>Click any tab: SOC 2 / GDPR / ISO 27001 / HIPAA / PCI DSS / NIST CSF</li>
+                                <li>Each control shows: Control ID &middot; Name &middot; Status (Active) &middot; Description</li>
+                                <li>Use this panel before scanning to understand what documents you need to prepare</li>
+                            </ol>
+                        </div>
+
+                        <div class="manual-section" id="man-4">
+                            <h4><span class="man-num">04</span> Active Remediation "” AI Fix Generator <span class="man-badge all-plans">All Plans</span></h4>
+                            <ol>
+                                <li>After a scan, find a failed document in the results table (red âŒ status)</li>
+                                <li>Click <strong>"Fix Now"</strong> "” a modal opens with the AI-drafted fix</li>
+                                <li>Read the Gap Description and the AI-generated legal clause / config amendment</li>
+                                <li>Click <strong>"Copy Clause"</strong> to copy the text to your clipboard</li>
+                                <li>OR click <strong>"Apply Fix to Document"</strong> "” status immediately updates to âœ… Passed</li>
+                                <li>The compliance score recalculates automatically in the dashboard</li>
+                            </ol>
+                        </div>
+
+                        <div class="manual-section" id="man-5">
+                            <h4><span class="man-num">05</span> Send via DocuSign <span class="man-badge scale-plans">Scale &amp; Enterprise</span></h4>
+                            <ol>
+                                <li>Open a failed document's Fix modal (click <strong>"Fix Now"</strong> on any failed row)</li>
+                                <li>Review the AI-drafted amendment clause in the modal</li>
+                                <li>Click the blue <strong>"Send via DocuSign"</strong> button</li>
+                                <li>Button shows "Sending envelope..." then "âœï Sent to DocuSign!"</li>
+                                <li>A DocuSign envelope is created "” vendor receives an email to review and e-sign</li>
+                                <li>The modal closes and a success toast confirms the envelope was dispatched</li>
+                            </ol>
+                        </div>
+
+                        <div class="manual-section" id="man-6">
+                            <h4><span class="man-num">06</span> Live Auditor Mode <span class="man-badge scale-plans">Scale &amp; Enterprise</span></h4>
+                            <ol>
+                                <li>Click <strong>"Auditor Mode"</strong> in the left sidebar (eye icon)</li>
+                                <li>Fill in: Auditor Firm Name &middot; Email &middot; Access Scope &middot; Portal Expiry</li>
+                                <li>Click <strong>"Generate Secure Portal Link"</strong></li>
+                                <li>Copy the cryptographic URL "” it includes a SHA-256 evidence hash</li>
+                                <li>Share the URL with your auditor (Deloitte, EY, KPMG, independent CPA)</li>
+                                <li>Auditor sees: compliance score, all control evidence with verified hashes "” read-only, no downloads, all views logged</li>
+                            </ol>
+                        </div>
+
+                        <div class="manual-section" id="man-7">
+                            <h4><span class="man-num">07</span> Shadow Data Discovery <span class="man-badge ent-plan">Enterprise Only</span></h4>
+                            <ol>
+                                <li>Click <strong>"Shadow Data"</strong> in the Enterprise sidebar section (radar icon)</li>
+                                <li>Review the 6 source cards: Slack &middot; Jira &middot; Notion &middot; AWS S3 &middot; Google Drive &middot; Local Servers</li>
+                                <li>Click <strong>"Start Shadow Data Scan"</strong></li>
+                                <li>Each card animates "” shows scanning → âœ… Clean or âš ï Issues Found</li>
+                                <li>When complete, a findings table appears: Location &middot; Finding &middot; Data Type &middot; Risk &middot; Action</li>
+                                <li>Click action buttons per row: Quarantine / Lock Bucket / Restrict / Review / Transfer</li>
+                                <li>Each action dims the row and toasts confirmation that the security team was notified</li>
+                            </ol>
+                        </div>
+
+                        <div class="manual-section" id="man-8">
+                            <h4><span class="man-num">08</span> CCM Monitor "” Continuous Control Monitoring <span class="man-badge ent-plan">Enterprise Only</span></h4>
+                            <ol>
+                                <li>Click <strong>"CCM Monitor"</strong> in the sidebar (activity icon) "” badge shows "â— Live Monitoring Active"</li>
+                                <li>Read the Control Health Grid (12 controls):  Pass &middot;  Expiring &middot; 🔍 Lapsed</li>
+                                <li>Read the Live Alert Timeline "” events from the last nightly cron run</li>
+                                <li>Review Alert Routing: Critical → Slack+PagerDuty+Email &middot; High → Slack+Teams &middot; Medium → Daily Email &middot; Low → Weekly</li>
+                                <li>Check the Cron Schedule (<code>0 2 * * *</code> = every night 2:00 AM IST)</li>
+                                <li>Click <strong>"Trigger Manual Scan Now"</strong> "” a new âœ… event appears live in the timeline after ~2 seconds</li>
+                            </ol>
+                        </div>
+
+                        <div class="manual-section" id="man-9">
+                            <h4><span class="man-num">09</span> Help &amp; Support <span class="man-badge all-plans">All Plans</span></h4>
+                            <ol>
+                                <li>Click the pulsing blue <strong>"?"</strong> button at the bottom-right of any screen</li>
+                                <li>Fill in: Name &middot; Email &middot; Subject &middot; Message</li>
+                                <li>Click <strong>"+"</strong> icon to attach files (up to 5 "” images, PDFs, documents)</li>
+                                <li>Click <strong>"Send Query"</strong> "” sent directly to the support team</li>
+                                <li>Response within: 48h (Growth) &middot; 4h (Scale) &middot; 1h (Enterprise)</li>
+                            </ol>
+                        </div>
+
+                        <div class="manual-section" id="man-10">
+                            <h4><span class="man-num">10</span> Export Auditor Evidence Package <span class="man-badge all-plans">All Plans</span></h4>
+                            <ol>
+                                <li>After a scan, scroll to the bottom of the Audit Dashboard</li>
+                                <li>Click <strong>"Export Auditor Evidence Package"</strong> (download icon)</li>
+                                <li>A structured text report downloads automatically containing: Score &middot; Framework &middot; All document results &middot; Gap descriptions &middot; Risk levels</li>
+                                <li>Scale/Enterprise users can use Auditor Mode instead for a live cryptographic portal (more professional)</li>
+                            </ol>
+                        </div>
+
+                        <div class="manual-section" id="man-11">
+                            <h4><span class="man-num">11</span> Pay &amp; Auto Unlock <span class="man-badge all-plans">All Paid Plans</span></h4>
+                            <ol>
+                                <li>Scroll to the <strong>Pricing</strong> section on the homepage</li>
+                                <li>Choose your plan (Growth / Scale / Enterprise) and click the glowing <strong>"âš Pay &amp; Auto Unlock"</strong> button below it</li>
+                                <li>A payment modal opens "” the UPI QR code is automatically generated with the correct amount prefilled</li>
+                                <li><strong>On mobile:</strong> Click <strong>"Open UPI App"</strong> "” your UPI app (Google Pay, PhonePe, Paytm, BHIM) opens with amount pre-filled to 6372843175@kotakbank</li>
+                                <li><strong>On desktop:</strong> Open your UPI app → Scan the QR code shown on screen → Complete payment</li>
+                                <li>After payment, copy the <strong>UTR / Transaction ID</strong> from your UPI app's payment receipt</li>
+                                <li>Paste the UTR into the field in the modal → click <strong>"Unlock Plan"</strong></li>
+                                <li>âœ… Your plan unlocks immediately "” all features for your plan become available</li>
+                                <li>The plan <strong>auto-expires</strong> at the end of the billing period and reverts to Free tier. Renew by paying again.</li>
+                            </ol>
+                        </div>
+
+                        <div class="manual-section" id="man-12">
+                            <h4><span class="man-num">12</span> System Credentials &amp; Admin Setup <span class="man-badge scale-plans">Admin Only</span></h4>
+                            <ol>
+                                <li>Open the <strong>Admin Portal</strong> at <code>/admin/index.html</code></li>
+                                <li>Sign in with Google (only <code>prakharmishra00000@gmail.com</code> allowed) or use email + password <code>prakhar@2025</code></li>
+                                <li>If you forget your password: click <strong>"Forgot password?"</strong> → enter PIN <code>123</code> → set a new password</li>
+                                <li>In the Admin Portal → left sidebar → click <strong>âš™ï System Setup</strong></li>
+                                <li>Paste your Gemini API keys into the 9 slots "” they rotate automatically when one hits the daily limit</li>
+                                <li>Fill in Brevo SMTP, Firebase, Cloudflare, Razorpay, and all other credentials</li>
+                                <li>Click <strong>"Save &amp; Initialize System"</strong> "” credentials are saved and applied to the site backend instantly</li>
+                                <li>Back on the dashboard, use <strong>Plan Editor</strong> to change plan names, prices, features "” changes reflect on the main site immediately</li>
+                                <li>Use <strong>Website Settings</strong> to toggle features on/off, edit hero text, change UPI ID, or enable maintenance mode</li>
+                                <li>View all support queries in <strong>Support Queries</strong> inbox "” reply directly from the admin panel</li>
+                            </ol>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer"><button class="btn btn-primary btn-glow legal-close-btn" data-target="user-manual-modal">Close Guide</button></div>
+                </div>
+            </div>
+
+
+            <!-- PRICING SECTION -->
+            <section id="pricing" class="pricing-section">
+                <div class="container">
+                    <div class="section-header text-center">
+                        <h2 class="section-title">Enterprise Security at <span class="gradient-text">Transparent Pricing</span></h2>
+                        <p class="section-subtitle">Choose a plan matching your document volume and compliance frameworks.</p>
+                        
+                        <div class="billing-toggle">
+                            <span class="toggle-label active" id="billing-monthly">Monthly</span>
+                            <label class="switch">
+                                <input type="checkbox" id="pricing-toggle-checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                            <span class="toggle-label" id="billing-annual">Annual <span class="save-badge">Save 20%</span></span>
+                        </div>
+                    </div>
+
+                    <div class="pricing-grid">
+                        <!-- Plan 1: Growth -->
+                        <div class="price-card">
+                            <div class="price-header">
+                                <h3 class="plan-name">Growth</h3>
+                                <p class="plan-desc">For fast-growing startups preparing for their first external audit.</p>
+                                <div class="plan-price">
+                                    <span class="currency">&#x20B9;</span>
+                                    <span class="price-val" data-monthly="79999" data-annual="63999">79,999</span>
+                                    <span class="period">/mo</span>
+                                </div>
+                            </div>
+                            <div class="price-features">
+                                <ul>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> <strong>1</strong> Compliance Framework (SOC 2)</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Up to <strong>500</strong> documents scanned/mo</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Monthly automated audits</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> AI Audit Risk Scan</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Active Remediation "” AI Fix Generator</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Audit Evidence PDF Export</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Help &amp; Support portal</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Standard email support (48h SLA)</li>
+                                    <li><i data-lucide="x-circle" style="color:var(--text-muted)"></i> <span style="color:var(--text-muted)">DocuSign Send (Scale+)</span></li>
+                                    <li><i data-lucide="x-circle" style="color:var(--text-muted)"></i> <span style="color:var(--text-muted)">Auditor Mode (Scale+)</span></li>
+                                    <li><i data-lucide="x-circle" style="color:var(--text-muted)"></i> <span style="color:var(--text-muted)">Shadow Data Discovery (Enterprise)</span></li>
+                                    <li><i data-lucide="x-circle" style="color:var(--text-muted)"></i> <span style="color:var(--text-muted)">CCM Monitor (Enterprise)</span></li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-secondary btn-full trigger-simulator-btn">Start Risk Scan</button>
+                            <button class="btn btn-pay btn-full" data-plan="growth" data-price="79999" data-name="Growth">
+                                <i data-lucide="zap"></i> Pay &amp; Auto Unlock
+                            </button>
+                        </div>
+
+                        <!-- Plan 2: Scale (Popular) -->
+                        <div class="price-card popular">
+                            <div class="popular-badge">MOST POPULAR</div>
+                            <div class="price-header">
+                                <h3 class="plan-name">Scale</h3>
+                                <p class="plan-desc">For mid-market companies needing continuous multi-framework audits.</p>
+                                <div class="plan-price">
+                                    <span class="currency">&#x20B9;</span>
+                                    <span class="price-val" data-monthly="199999" data-annual="159999">1,99,999</span>
+                                    <span class="period">/mo</span>
+                                </div>
+                            </div>
+                            <div class="price-features">
+                                <ul>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> <strong>3</strong> Compliance Frameworks</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Up to <strong>2,500</strong> documents scanned/mo</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Weekly automated audits</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> AI Audit Risk Scan + Framework Rules</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Active Remediation + <strong>DocuSign Send</strong></li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> <strong>Auditor Mode</strong> "” Secure shared portals</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Audit Evidence PDF Export</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Help &amp; Support portal (priority)</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Priority 24/7 support (4h SLA)</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Dedicated Agent Sandbox</li>
+                                    <li><i data-lucide="x-circle" style="color:var(--text-muted)"></i> <span style="color:var(--text-muted)">Shadow Data Discovery (Enterprise)</span></li>
+                                    <li><i data-lucide="x-circle" style="color:var(--text-muted)"></i> <span style="color:var(--text-muted)">CCM Monitor (Enterprise)</span></li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-primary btn-full btn-glow trigger-simulator-btn">Start Risk Scan</button>
+                            <button class="btn btn-pay btn-full" data-plan="scale" data-price="199999" data-name="Scale">
+                                <i data-lucide="zap"></i> Pay &amp; Auto Unlock
+                            </button>
+                        </div>
+
+                        <!-- Plan 3: Enterprise -->
+                        <div class="price-card">
+                            <div class="price-header">
+                                <h3 class="plan-name">Enterprise</h3>
+                                <p class="plan-desc">For enterprise organizations needing an automated compliance ecosystem.</p>
+                                <div class="plan-price">
+                                    <span class="currency">&#x20B9;</span>
+                                    <span class="price-val" data-monthly="399999" data-annual="319999">3,99,999</span>
+                                    <span class="period">+/mo</span>
+                                </div>
+                            </div>
+                            <div class="price-features">
+                                <ul>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> <strong>Unlimited</strong> Compliance Frameworks</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> <strong>Unlimited</strong> documents scanned</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Real-time <strong>nightly</strong> automated audits</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> AI Audit Risk Scan + All Framework Rules</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Active Remediation + DocuSign Send</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Auditor Mode "” Cryptographic portals</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> <strong>Shadow Data Discovery</strong> (Slack, Jira, Notion, S3)</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> <strong>CCM Monitor</strong> "” 24/7 continuous control alerts</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Slack, Teams &amp; PagerDuty alert routing</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Custom fine-tuned AI model weights</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> Dedicated Compliance Architect</li>
+                                    <li><i data-lucide="check-circle" class="text-cyan"></i> 1h SLA &middot; White-glove onboarding</li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-secondary btn-full trigger-simulator-btn">Contact Enterprise</button>
+                            <button class="btn btn-pay btn-full" data-plan="enterprise" data-price="399999" data-name="Enterprise">
+                                <i data-lucide="zap"></i> Pay &amp; Auto Unlock
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• PAYMENT MODAL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+            <div class="modal-overlay legal-modal" id="payment-modal">
+                <div class="modal-card" style="max-width:520px">
+                    <div class="modal-header">
+                        <div class="modal-title-section">
+                            <div class="logo-icon" style="width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#00e5ff,#818cf8)">
+                                <i data-lucide="credit-card" style="width:15px;height:15px;color:#000"></i>
+                            </div>
+                            <h3 id="pay-modal-title">Pay &amp; Auto Unlock "” Growth Plan</h3>
+                        </div>
+                        <button class="modal-close-btn legal-close-btn" data-target="payment-modal"><i data-lucide="x"></i></button>
+                    </div>
+                    <div class="modal-body" style="padding:1.5rem">
+                        <!-- Amount display -->
+                        <div class="pay-amount-box">
+                            <div class="pay-amount-left">
+                                <p>Total Amount</p>
+                                <h2 id="pay-amount-display">&#x20B9;79,999</h2>
+                                <span id="pay-plan-pill" class="pay-plan-tag">Growth Plan &middot; Monthly</span>
+                            </div>
+                            <div class="pay-razorpay-badge">
+                                <img src="https://razorpay.com/favicon.png" width="18" alt="Razorpay"> Powered by Razorpay
+                            </div>
+                        </div>
+
+                        <!-- QR + UPI Section -->
+                        <div class="pay-qr-section">
+                            <div class="pay-qr-wrap">
+                                <div class="pay-qr-header">
+                                    <div style="display:flex;gap:.4rem;align-items:center">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/320px-UPI-Logo-vector.svg.png" height="18" alt="UPI" style="filter:brightness(0) invert(1);opacity:.7">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/BHIM_logo.png/320px-BHIM_logo.png" height="18" alt="BHIM" style="filter:brightness(0) invert(1);opacity:.7">
+                                    </div>
+                                    <span style="font-size:.7rem;color:var(--text-muted)">SCAN &amp; PAY</span>
+                                </div>
+                                <div id="pay-qr-canvas" class="pay-qr-canvas">
+                                    <!-- QR injected by JS -->
+                                </div>
+                                <p class="pay-qr-hint">Scan with Google Pay, PhonePe, Paytm or any UPI app</p>
+                                <div class="pay-upi-apps">
+                                    <span>G Pay</span>
+                                    <span>PhonePe</span>
+                                    <span>Paytm</span>
+                                    <span>BHIM</span>
+                                </div>
+                            </div>
+                            <div class="pay-divider-v"><span>or</span></div>
+                            <div class="pay-upi-direct">
+                                <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:.75rem">Open UPI app directly</p>
+                                <button class="pay-upi-btn" id="pay-open-upi-btn">
+                                    <i data-lucide="external-link"></i> Open UPI App
+                                </button>
+                                <div class="pay-upi-id-box">
+                                    <p style="font-size:.72rem;color:var(--text-muted)">UPI ID</p>
+                                    <code style="font-size:.88rem;color:var(--cyan)">6372843175@kotakbank</code>
+                                    <button class="pay-copy-btn" id="pay-copy-upi-btn" title="Copy UPI ID"><i data-lucide="copy" style="width:13px;height:13px"></i></button>
+                                </div>
+                                <div class="pay-upi-id-box" style="margin-top:.6rem">
+                                    <p style="font-size:.72rem;color:var(--text-muted)">Account Name</p>
+                                    <code style="font-size:.88rem;color:var(--text-primary)">AuditReady.AI</code>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- UTR Confirmation -->
+                        <div class="pay-confirm-section">
+                            <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:.5rem">After paying, enter the UPI Transaction ID (UTR) or Reference Number to unlock instantly:</p>
+                            <div class="pay-utr-row">
+                                <input type="text" id="pay-utr-input" class="pay-utr-input" placeholder="e.g. 637521843099 or UPI/2025...">
+                                <button class="btn btn-primary" id="pay-confirm-btn" style="white-space:nowrap;padding:.7rem 1.2rem;font-size:.88rem">
+                                    <i data-lucide="unlock"></i> Unlock Plan
+                                </button>
+                            </div>
+                            <p class="pay-note">âš Plan unlocks immediately once UTR is verified. Expires automatically at the end of the billing period.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MVP APP SIMULATOR VIEW (HIDDEN BY DEFAULT) -->
+        <div id="simulator-view" class="view-inactive">
+            <div class="simulator-layout">
+                <!-- Sidebar -->
+                <aside class="sim-sidebar">
+                    <div class="sim-sidebar-brand">
+                        <div class="logo-icon">
+                            <i data-lucide="shield-check"></i>
+                        </div>
+                        <span class="logo-text">AuditReady<span class="logo-highlight">.AI</span></span>
+                    </div>
+
+                    <div class="sim-nav">
+                        <div class="sim-nav-group-title">COMPLIANCE HUB</div>
+                        <a href="#" class="sim-nav-item active" id="sim-menu-scan">
+                            <i data-lucide="search-code"></i>
+                            <span>Audit Risk Scan</span>
+                        </a>
+                        <a href="#" class="sim-nav-item" id="sim-menu-frameworks">
+                            <i data-lucide="shield-alert"></i>
+                            <span>Framework Rules</span>
+                        </a>
+                        <a href="#" class="sim-nav-item" id="sim-menu-settings">
+                            <i data-lucide="settings"></i>
+                            <span>Secure Credentials</span>
+                        </a>
+                        <div class="sim-nav-group-title" style="margin-top:1.2rem">ENTERPRISE</div>
+                        <a href="#" class="sim-nav-item" id="sim-menu-shadow">
+                            <i data-lucide="radar"></i>
+                            <span>Shadow Data</span>
+                            <span class="nav-badge">NEW</span>
+                        </a>
+                        <a href="#" class="sim-nav-item" id="sim-menu-auditor">
+                            <i data-lucide="eye"></i>
+                            <span>Auditor Mode</span>
+                            <span class="nav-badge">NEW</span>
+                        </a>
+                        <a href="#" class="sim-nav-item" id="sim-menu-ccm">
+                            <i data-lucide="activity"></i>
+                            <span>CCM Monitor</span>
+                            <span class="nav-badge ccm-live">LIVE</span>
+                        </a>
+                    </div>
+
+                    <div class="sim-sidebar-footer">
+                        <button class="btn btn-secondary btn-sm btn-full" id="back-to-landing-btn">
+                            <i data-lucide="arrow-left"></i>
+                            <span>Back to Landing Page</span>
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Simulator Core Workspaces -->
+                <div class="sim-content-area">
+                    
+                    <!-- STEP 1: CONNECT & INGEST -->
+                    <div id="sim-step-connect" class="sim-card-wrapper active">
+                        <div class="sim-header-title-bar">
+                            <h2>Launch Autonomous Compliance Audit</h2>
+                            <p>Configure framework rules and upload files or connect remote accounts to launch your risk scan.</p>
+                        </div>
+
+                        <div class="sim-grid">
+                            <!-- Left Card: Framework and Source Setup -->
+                            <div class="sim-form-card">
+                                <h3>1. Select Compliance Framework</h3>
+                                <div class="framework-selectors">
+                                    <div class="fw-card active" data-framework="SOC 2">
+                                        <div class="fw-icon"><i data-lucide="shield"></i></div>
+                                        <div class="fw-info"><h4>SOC 2 Type II</h4><p>Trust Services Criteria (CC6.0"“CC7.0)</p></div>
+                                    </div>
+                                    <div class="fw-card" data-framework="GDPR">
+                                        <div class="fw-icon"><i data-lucide="globe"></i></div>
+                                        <div class="fw-info"><h4>GDPR Compliance</h4><p>EU General Data Protection (Articles 5"“32)</p></div>
+                                    </div>
+                                    <div class="fw-card" data-framework="ISO 27001">
+                                        <div class="fw-icon"><i data-lucide="lock"></i></div>
+                                        <div class="fw-info"><h4>ISO 27001:2022</h4><p>Information Security Mgmt (Annex A Controls)</p></div>
+                                    </div>
+                                    <div class="fw-card" data-framework="HIPAA">
+                                        <div class="fw-icon"><i data-lucide="heart-pulse"></i></div>
+                                        <div class="fw-info"><h4>HIPAA / HITECH</h4><p>Health Insurance Portability & Accountability Act</p></div>
+                                    </div>
+                                    <div class="fw-card" data-framework="PCI DSS">
+                                        <div class="fw-icon"><i data-lucide="credit-card"></i></div>
+                                        <div class="fw-info"><h4>PCI DSS v4.0</h4><p>Payment Card Industry Data Security Standard</p></div>
+                                    </div>
+                                    <div class="fw-card" data-framework="NIST">
+                                        <div class="fw-icon"><i data-lucide="layout-grid"></i></div>
+                                        <div class="fw-info"><h4>NIST CSF 2.0</h4><p>Cybersecurity Framework (Identify"“Protect"“Detect)</p></div>
+                                    </div>
+                                </div>
+
+                                <h3 class="spacing-top">2. Connect Storage Provider</h3>
+                                <div class="provider-selectors">
+                                    <button class="provider-btn active" data-provider="gdrive">
+                                        <i data-lucide="folder-git-2" class="text-cyan"></i>
+                                        <span>Google Drive</span>
+                                    </button>
+                                    <button class="provider-btn" data-provider="aws">
+                                        <i data-lucide="cloud" class="text-cyan"></i>
+                                        <span>AWS S3</span>
+                                    </button>
+                                    <button class="provider-btn" data-provider="onedrive">
+                                        <i data-lucide="hard-drive" class="text-cyan"></i>
+                                        <span>OneDrive</span>
+                                    </button>
+                                    <button class="provider-btn" data-provider="notion">
+                                        <i data-lucide="file-text" class="text-cyan"></i>
+                                        <span>Notion</span>
+                                    </button>
+                                    <button class="provider-btn" data-provider="dropbox">
+                                        <i data-lucide="package" class="text-cyan"></i>
+                                        <span>Dropbox</span>
+                                    </button>
+                                    <button class="provider-btn" data-provider="box">
+                                        <i data-lucide="box" class="text-cyan"></i>
+                                        <span>Box</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Right Card: File Drag-Drop/Selection -->
+                            <div class="sim-files-card">
+                                <h3>3. Verify Documents to Audit</h3>
+                                <p class="card-desc">Simulated directory containing vendor agreements, HR files, and AWS policy configurations.</p>
+                                
+                                <div class="file-uploader-box" id="drop-zone">
+                                    <i data-lucide="upload-cloud" class="upload-icon"></i>
+                                    <p class="upload-main-text">Drag & Drop additional PDF/CSV logs</p>
+                                    <p class="upload-sub-text">or <span class="browse-link">click to select mock files</span></p>
+                                    <input type="file" id="file-input" style="display: none;" multiple>
+                                </div>
+
+                                <div class="file-list-header">
+                                    <span>Ingested Files (4 pre-loaded)</span>
+                                    <button class="btn btn-secondary btn-sm" id="reset-files-btn">Reset Defaults</button>
+                                </div>
+
+                                <div class="file-list" id="sim-file-list-container">
+                                    <!-- Populated dynamically via index.js -->
+                                </div>
+
+                                <button class="btn btn-primary btn-full btn-lg btn-glow spacing-top" id="start-audit-scan-btn">
+                                    <i data-lucide="play-circle"></i>
+                                    <span>Run Autonomous Audit Scan</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: SCANNING INTERFACE -->
+                    <div id="sim-step-scan" class="sim-card-wrapper">
+                        <div class="terminal-container">
+                            <div class="terminal-header">
+                                <div class="terminal-dots">
+                                    <span class="dot-red"></span>
+                                    <span class="dot-yellow"></span>
+                                    <span class="dot-green"></span>
+                                </div>
+                                <div class="terminal-title">Active Ingestion & RAG Assessment Console</div>
+                                <div class="terminal-badge"><span class="pulse-dot"></span> SCANNING IN PROGRESS</div>
+                            </div>
+                            
+                            <div class="terminal-console" id="terminal-console-logs">
+                                <!-- Populated dynamically by index.js -->
+                            </div>
+
+                            <div class="terminal-progress-section">
+                                <div class="progress-details">
+                                    <span class="progress-file" id="terminal-current-file">Initializing scan engine...</span>
+                                    <span class="progress-percentage" id="terminal-percent-text">0%</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" id="terminal-progress-fill"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: AUDIT DASHBOARD REPORT -->
+                    <div id="sim-step-dashboard" class="sim-card-wrapper">
+                        <div class="dashboard-header-block">
+                            <div>
+                                <h2>Audit Assessment Report</h2>
+                                <p>Review the automated RAG scanning results for <strong id="report-framework-name">SOC 2 Type II</strong>.</p>
+                            </div>
+                            <div class="dashboard-metrics-row">
+                                <div class="dash-metric-pill">
+                                    <span class="metric-num text-red" id="dash-stat-failed">2</span>
+                                    <span class="metric-lbl">Gaps Found</span>
+                                </div>
+                                <div class="dash-metric-pill">
+                                    <span class="metric-num text-green" id="dash-stat-passed">2</span>
+                                    <span class="metric-lbl">Passed</span>
+                                </div>
+                                <div class="dash-metric-pill">
+                                    <span class="metric-num text-cyan" id="dash-stat-score">50%</span>
+                                    <span class="metric-lbl">Score</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Report Card -->
+                        <div class="report-table-card">
+                            <table class="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>Document Name</th>
+                                        <th>Status</th>
+                                        <th>Issue Found</th>
+                                        <th>Risk Level</th>
+                                        <th>AI Recommended Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="report-table-body">
+                                    <!-- Populated dynamically via index.js -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="dashboard-action-footer">
+                            <div class="footer-msg">
+                                <i data-lucide="shield-alert" class="text-orange"></i>
+                                <span>Resolve the remaining critical risk gaps to achieve 100% audit readiness.</span>
+                            </div>
+                            <div class="footer-actions">
+                                <button class="btn btn-secondary" id="restart-audit-btn">
+                                    <i data-lucide="rotate-ccw"></i>
+                                    <span>Run Another Scan</span>
+                                </button>
+                                <button class="btn btn-primary btn-glow" id="download-report-btn">
+                                    <i data-lucide="download"></i>
+                                    <span>Export Auditor Evidence Package</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FRAMEWORK RULES PANEL -->
+                    <div id="sim-step-frameworks" class="sim-card-wrapper">
+                        <div class="sim-header-title-bar">
+                            <h2>Compliance Framework Rules</h2>
+                            <p>View all mapped control rules for each active compliance framework. Rules are automatically applied during scanning.</p>
+                        </div>
+
+                        <div class="fw-rules-tabs">
+                            <button class="fw-tab active" data-target="fw-tab-soc2">SOC 2 Type II</button>
+                            <button class="fw-tab" data-target="fw-tab-gdpr">GDPR</button>
+                            <button class="fw-tab" data-target="fw-tab-iso">ISO 27001</button>
+                            <button class="fw-tab" data-target="fw-tab-hipaa">HIPAA</button>
+                            <button class="fw-tab" data-target="fw-tab-pci">PCI DSS</button>
+                            <button class="fw-tab" data-target="fw-tab-nist">NIST CSF</button>
+                        </div>
+
+                        <!-- SOC 2 Rules -->
+                        <div id="fw-tab-soc2" class="fw-tab-content active">
+                            <div class="rules-grid">
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header">
+                                        <span class="rule-id">CC6.1</span>
+                                        <span class="rule-badge active">Active</span>
+                                    </div>
+                                    <h4>Logical Access Controls</h4>
+                                    <p>Verify that access to system resources is restricted through logical access security controls including SSO, MFA, and role-based permissions.</p>
+                                    <div class="rule-footer">
+                                        <span class="rule-tag">Availability</span>
+                                        <span class="rule-tag">Security</span>
+                                    </div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header">
+                                        <span class="rule-id">CC7.1</span>
+                                        <span class="rule-badge active">Active</span>
+                                    </div>
+                                    <h4>Vulnerability Management</h4>
+                                    <p>Ensure vendor agreements include vulnerability notification SLAs and data indemnity clauses covering all processed personal data.</p>
+                                    <div class="rule-footer">
+                                        <span class="rule-tag">Security</span>
+                                        <span class="rule-tag">Confidentiality</span>
+                                    </div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header">
+                                        <span class="rule-id">CC6.3</span>
+                                        <span class="rule-badge active">Active</span>
+                                    </div>
+                                    <h4>Employee Background Verification</h4>
+                                    <p>All personnel records must include background check confirmations prior to system access being granted.</p>
+                                    <div class="rule-footer">
+                                        <span class="rule-tag">HR Compliance</span>
+                                    </div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header">
+                                        <span class="rule-id">CC9.2</span>
+                                        <span class="rule-badge active">Active</span>
+                                    </div>
+                                    <h4>Risk Mitigation Activities</h4>
+                                    <p>Track and assess residual risk mitigation plans for each identified compliance gap beyond the immediate audit period.</p>
+                                    <div class="rule-footer">
+                                        <span class="rule-tag">Risk</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GDPR Rules -->
+                        <div id="fw-tab-gdpr" class="fw-tab-content">
+                            <div class="rules-grid">
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header">
+                                        <span class="rule-id">Art. 5</span>
+                                        <span class="rule-badge active">Active</span>
+                                    </div>
+                                    <h4>Principles of Data Processing</h4>
+                                    <p>Personal data must be processed lawfully, fairly and transparently. Verify data minimisation and storage limitation in all documents.</p>
+                                    <div class="rule-footer">
+                                        <span class="rule-tag">Data Protection</span>
+                                    </div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header">
+                                        <span class="rule-id">Art. 28</span>
+                                        <span class="rule-badge active">Active</span>
+                                    </div>
+                                    <h4>Processor Contract Requirements</h4>
+                                    <p>All vendor contracts must explicitly bind processors to GDPR obligations and include liability/indemnity clauses for unauthorized data exposure.</p>
+                                    <div class="rule-footer">
+                                        <span class="rule-tag">Vendor Contracts</span>
+                                        <span class="rule-tag">Liability</span>
+                                    </div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header">
+                                        <span class="rule-id">Art. 32</span>
+                                        <span class="rule-badge active">Active</span>
+                                    </div>
+                                    <h4>Security of Processing</h4>
+                                    <p>Ensure technical and organisational measures including encryption, pseudonymisation, and access controls are in place and documented.</p>
+                                    <div class="rule-footer">
+                                        <span class="rule-tag">Security</span>
+                                    </div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header">
+                                        <span class="rule-id">Art. 17</span>
+                                        <span class="rule-badge active">Active</span>
+                                    </div>
+                                    <h4>Right to Erasure</h4>
+                                    <p>Data subjects must be able to request deletion of their personal data. Verify erasure request workflows exist in policy documents.</p>
+                                    <div class="rule-footer">
+                                        <span class="rule-tag">Data Rights</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- HIPAA Rules -->
+                        <div id="fw-tab-hipaa" class="fw-tab-content">
+                            <div class="rules-grid">
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header"><span class="rule-id"> 164.308</span><span class="rule-badge active">Active</span></div>
+                                    <h4>Administrative Safeguards</h4>
+                                    <p>Covered entities must implement security measures sufficient to reduce risks to ePHI, including risk assessments, training, and contingency plans.</p>
+                                    <div class="rule-footer"><span class="rule-tag">ePHI</span><span class="rule-tag">Risk</span></div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header"><span class="rule-id"> 164.312</span><span class="rule-badge active">Active</span></div>
+                                    <h4>Technical Safeguards</h4>
+                                    <p>Technology and policies governing access to ePHI "” including unique user IDs, emergency access, automatic logoff, and audit controls.</p>
+                                    <div class="rule-footer"><span class="rule-tag">Access Control</span><span class="rule-tag">Audit</span></div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header"><span class="rule-id"> 164.314</span><span class="rule-badge active">Active</span></div>
+                                    <h4>Business Associate Agreements</h4>
+                                    <p>Vendor contracts must include BAA provisions ensuring all business associates protect ePHI and report breaches within 60 days.</p>
+                                    <div class="rule-footer"><span class="rule-tag">BAA</span><span class="rule-tag">Contracts</span></div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header"><span class="rule-id"> 164.530</span><span class="rule-badge active">Active</span></div>
+                                    <h4>Workforce Training</h4>
+                                    <p>All workforce members must receive HIPAA training and records must be maintained for a minimum of 6 years.</p>
+                                    <div class="rule-footer"><span class="rule-tag">Training</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PCI DSS Rules -->
+                        <div id="fw-tab-pci" class="fw-tab-content">
+                            <div class="rules-grid">
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header"><span class="rule-id">Req. 3</span><span class="rule-badge active">Active</span></div>
+                                    <h4>Protect Stored Cardholder Data</h4>
+                                    <p>Cardholder data must be encrypted using strong cryptography. PANs must be rendered unreadable anywhere they are stored.</p>
+                                    <div class="rule-footer"><span class="rule-tag">Encryption</span><span class="rule-tag">PAN</span></div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header"><span class="rule-id">Req. 7</span><span class="rule-badge active">Active</span></div>
+                                    <h4>Restrict Access to System Components</h4>
+                                    <p>Access to cardholder data must be limited to only individuals whose job requires it, enforced by access control systems.</p>
+                                    <div class="rule-footer"><span class="rule-tag">Access Control</span></div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header"><span class="rule-id">Req. 10</span><span class="rule-badge active">Active</span></div>
+                                    <h4>Log and Monitor All Access</h4>
+                                    <p>All access to network resources and cardholder data must be logged. Audit logs must be reviewed daily and retained for at least 12 months.</p>
+                                    <div class="rule-footer"><span class="rule-tag">Logging</span><span class="rule-tag">Monitoring</span></div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header"><span class="rule-id">Req. 12</span><span class="rule-badge active">Active</span></div>
+                                    <h4>Support Information Security Policies</h4>
+                                    <p>An information security policy must be established, published and communicated to all personnel and relevant vendors annually.</p>
+                                    <div class="rule-footer"><span class="rule-tag">Policy</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- NIST CSF Rules -->
+                        <div id="fw-tab-nist" class="fw-tab-content">
+                            <div class="rules-grid">
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header"><span class="rule-id">ID.AM</span><span class="rule-badge active">Active</span></div>
+                                    <h4>Asset Management</h4>
+                                    <p>Physical devices, systems, software platforms and applications are inventoried and documented as the basis of cybersecurity risk management.</p>
+                                    <div class="rule-footer"><span class="rule-tag">Identify</span><span class="rule-tag">Assets</span></div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header"><span class="rule-id">PR.AC</span><span class="rule-badge active">Active</span></div>
+                                    <h4>Identity & Access Management</h4>
+                                    <p>Access to assets and associated facilities is limited to authorized users, processes, and devices "” verified through identity and access controls.</p>
+                                    <div class="rule-footer"><span class="rule-tag">Protect</span><span class="rule-tag">IAM</span></div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header"><span class="rule-id">DE.CM</span><span class="rule-badge active">Active</span></div>
+                                    <h4>Continuous Monitoring</h4>
+                                    <p>The information system and assets are monitored at discrete intervals to identify cybersecurity events and verify the effectiveness of protective measures.</p>
+                                    <div class="rule-footer"><span class="rule-tag">Detect</span><span class="rule-tag">Monitoring</span></div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header"><span class="rule-id">RS.RP</span><span class="rule-badge active">Active</span></div>
+                                    <h4>Response Planning</h4>
+                                    <p>Response processes and procedures are executed and maintained to ensure timely response to detected cybersecurity events.</p>
+                                    <div class="rule-footer"><span class="rule-tag">Respond</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ISO 27001 Rules -->
+                        <div id="fw-tab-iso" class="fw-tab-content">
+                            <div class="rules-grid">
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header">
+                                        <span class="rule-id">A.5.19</span>
+                                        <span class="rule-badge active">Active</span>
+                                    </div>
+                                    <h4>Supplier Relationship Security</h4>
+                                    <p>All supplier/vendor agreements must include security requirements, liability protections, and breach notification obligations (Annex A.5.19).</p>
+                                    <div class="rule-footer">
+                                        <span class="rule-tag">Supplier</span>
+                                        <span class="rule-tag">Contracts</span>
+                                    </div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header">
+                                        <span class="rule-id">A.8.2</span>
+                                        <span class="rule-badge active">Active</span>
+                                    </div>
+                                    <h4>Privileged Access Rights</h4>
+                                    <p>Administrative and privileged access must be controlled, reviewed, and restricted to least-privilege principles across all IAM policies.</p>
+                                    <div class="rule-footer">
+                                        <span class="rule-tag">IAM</span>
+                                        <span class="rule-tag">Access Control</span>
+                                    </div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header">
+                                        <span class="rule-id">A.6.1</span>
+                                        <span class="rule-badge active">Active</span>
+                                    </div>
+                                    <h4>Screening of Employees</h4>
+                                    <p>Background verification checks must be performed for all employees and contractors before granting access to information systems.</p>
+                                    <div class="rule-footer">
+                                        <span class="rule-tag">HR</span>
+                                        <span class="rule-tag">Screening</span>
+                                    </div>
+                                </div>
+                                <div class="rule-card rule-active">
+                                    <div class="rule-header">
+                                        <span class="rule-id">A.8.10</span>
+                                        <span class="rule-badge active">Active</span>
+                                    </div>
+                                    <h4>Information Deletion Controls</h4>
+                                    <p>Data disposal policies must be documented and asset destruction timelines verified across all media and cloud storage records.</p>
+                                    <div class="rule-footer">
+                                        <span class="rule-tag">Data Deletion</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECURE CREDENTIALS PANEL -->
+                    <div id="sim-step-settings" class="sim-card-wrapper">
+                        <div class="sim-header-title-bar">
+                            <h2>Secure Credentials &amp; Integrations</h2>
+                            <p>Connect your data sources, configure alerts, and manage API keys. All credentials are <strong>AES-256 encrypted at rest</strong> and never shared with third parties.</p>
+                        </div>
+
+                        <!-- Credentials Tabs -->
+                        <div class="fw-rules-tabs cred-tabs">
+                            <button class="fw-tab active" data-target="cred-tab-storage">âï Cloud Storage</button>
+                            <button class="fw-tab" data-target="cred-tab-alerts">🔍” Alerts</button>
+                            <button class="fw-tab" data-target="cred-tab-workflow">🔔‹ How It Works</button>
+                        </div>
+
+                        <!-- TAB 1: Cloud Storage -->
+                        <div id="cred-tab-storage" class="fw-tab-content active">
+                            <div class="cred-why-box">
+                                <i data-lucide="info" class="text-cyan"></i>
+                                <span><strong>Why you need this:</strong> AuditReady.AI reads your vendor contracts, IAM policies, HR logs, and security documents directly from your cloud storage "” without you manually uploading each file. You only need <strong>read-only access</strong>. We never write, modify, or delete any of your files.</span>
+                            </div>
+                            <div class="integration-list">
+                                <div class="integration-item connected">
+                                    <div class="int-left">
+                                        <div class="int-icon"><i data-lucide="folder-git-2"></i></div>
+                                        <div class="int-info">
+                                            <h4>Google Drive</h4>
+                                            <p>audit-docs@company.com &middot; Read-only &middot; <span class="why-tag">Vendor contracts, policy PDFs</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="int-right">
+                                        <span class="int-status connected-badge">Connected</span>
+                                        <button class="btn btn-secondary btn-sm">Revoke</button>
+                                    </div>
+                                </div>
+                                <div class="integration-item">
+                                    <div class="int-left">
+                                        <div class="int-icon"><i data-lucide="cloud"></i></div>
+                                        <div class="int-info">
+                                            <h4>AWS S3 Buckets</h4>
+                                            <p>Not connected &middot; IAM read-only role &middot; <span class="why-tag">IAM policies, CloudTrail logs</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="int-right">
+                                        <button class="btn btn-primary btn-sm btn-glow">Connect</button>
+                                    </div>
+                                </div>
+                                <div class="integration-item">
+                                    <div class="int-left">
+                                        <div class="int-icon"><i data-lucide="hard-drive"></i></div>
+                                        <div class="int-info">
+                                            <h4>OneDrive / SharePoint</h4>
+                                            <p>Not connected &middot; Microsoft 365 OAuth &middot; <span class="why-tag">Legal contracts, HR records</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="int-right">
+                                        <button class="btn btn-primary btn-sm btn-glow">Connect</button>
+                                    </div>
+                                </div>
+                                <div class="integration-item">
+                                    <div class="int-left">
+                                        <div class="int-icon"><i data-lucide="file-text"></i></div>
+                                        <div class="int-info">
+                                            <h4>Notion Workspace</h4>
+                                            <p>Not connected &middot; Internal token &middot; <span class="why-tag">Compliance wikis, policy pages</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="int-right">
+                                        <button class="btn btn-primary btn-sm btn-glow">Connect</button>
+                                    </div>
+                                </div>
+                                <div class="integration-item">
+                                    <div class="int-left">
+                                        <div class="int-icon"><i data-lucide="package"></i></div>
+                                        <div class="int-info">
+                                            <h4>Dropbox Business</h4>
+                                            <p>Not connected &middot; App access token &middot; <span class="why-tag">Archived contracts, audit logs</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="int-right">
+                                        <button class="btn btn-primary btn-sm btn-glow">Connect</button>
+                                    </div>
+                                </div>
+                                <div class="integration-item">
+                                    <div class="int-left">
+                                        <div class="int-icon"><i data-lucide="box"></i></div>
+                                        <div class="int-info">
+                                            <h4>Box Enterprise</h4>
+                                            <p>Not connected &middot; JWT app auth &middot; <span class="why-tag">Enterprise legal documents</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="int-right">
+                                        <button class="btn btn-primary btn-sm btn-glow">Connect</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB 2: Alerts -->
+                        <div id="cred-tab-alerts" class="fw-tab-content">
+                            <div class="cred-why-box">
+                                <i data-lucide="info" class="text-cyan"></i>
+                                <span><strong>Why you need this:</strong> When the AI detects a <strong>Critical or High</strong> compliance gap in your documents, it needs a way to notify your team immediately "” not just show it on a dashboard. Alerts ensure your compliance officer and legal team know the moment a risk is found, even if they're not logged in.</span>
+                            </div>
+                            <div class="integration-list">
+                                <div class="integration-item connected">
+                                    <div class="int-left">
+                                        <div class="int-icon"><i data-lucide="mail"></i></div>
+                                        <div class="int-info">
+                                            <h4>Email Alerts</h4>
+                                            <p>compliance@company.com &middot; <span class="why-tag">Immediate gap reports, weekly digest, remediation confirmations</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="int-right">
+                                        <span class="int-status connected-badge">Active</span>
+                                        <button class="btn btn-secondary btn-sm">Edit</button>
+                                    </div>
+                                </div>
+                                <div class="integration-item">
+                                    <div class="int-left">
+                                        <div class="int-icon"><i data-lucide="message-square"></i></div>
+                                        <div class="int-info">
+                                            <h4>Slack Workspace</h4>
+                                            <p>Not connected &middot; Webhook URL &middot; <span class="why-tag">#compliance-alerts: real-time gap pings</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="int-right">
+                                        <button class="btn btn-primary btn-sm btn-glow">Connect</button>
+                                    </div>
+                                </div>
+                                <div class="integration-item">
+                                    <div class="int-left">
+                                        <div class="int-icon"><i data-lucide="monitor"></i></div>
+                                        <div class="int-info">
+                                            <h4>Microsoft Teams</h4>
+                                            <p>Not connected &middot; Incoming webhook &middot; <span class="why-tag">Compliance channel notifications</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="int-right">
+                                        <button class="btn btn-primary btn-sm btn-glow">Connect</button>
+                                    </div>
+                                </div>
+                                <div class="integration-item">
+                                    <div class="int-left">
+                                        <div class="int-icon"><i data-lucide="smartphone"></i></div>
+                                        <div class="int-info">
+                                            <h4>SMS / WhatsApp</h4>
+                                            <p>Not connected &middot; Twilio API &middot; <span class="why-tag">Critical-only alerts to compliance officer's phone</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="int-right">
+                                        <button class="btn btn-primary btn-sm btn-glow">Connect</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB 3: Workflow Guide -->
+                        <div id="cred-tab-workflow" class="fw-tab-content">
+                            <div class="workflow-guide">
+                                <div class="wf-intro">
+                                    <h3>🔔‹ Complete Document Scan Workflow</h3>
+                                    <p>Here is exactly how AuditReady.AI works "” from first login to receiving your audit report.</p>
+                                </div>
+
+                                <div class="wf-steps">
+                                    <div class="wf-step">
+                                        <div class="wf-num">1</div>
+                                        <div class="wf-content">
+                                            <h4>Sign In / Create Account</h4>
+                                            <p>Click <strong>Log In</strong> in the top navigation bar. Sign in with Google (recommended) or your work email. New users automatically get a 14-day free trial on the Growth plan "” no credit card needed.</p>
+                                            <div class="wf-needed"><i data-lucide="check-circle" class="text-cyan"></i> <span>Required: Email address &amp; password or Google account</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="wf-step">
+                                        <div class="wf-num">2</div>
+                                        <div class="wf-content">
+                                            <h4>Connect Your Document Source</h4>
+                                            <p>Go to <strong>Secure Credentials → Cloud Storage</strong> and click <strong>Connect</strong> next to your storage provider (Google Drive, OneDrive, AWS S3, Notion, Dropbox, or Box). This is a one-click OAuth flow "” you grant <em>read-only</em> access. We never write to your files. Alternatively, skip this and simply <strong>drag-and-drop files</strong> directly into the upload zone on the Audit Scan screen.</p>
+                                            <div class="wf-needed"><i data-lucide="check-circle" class="text-cyan"></i> <span>Required: Google/Microsoft account OR your PDF/CSV/DOCX files</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="wf-step">
+                                        <div class="wf-num">3</div>
+                                        <div class="wf-content">
+                                            <h4>Select Compliance Framework</h4>
+                                            <p>On the Audit Scan screen, choose which compliance standard to audit against. You can select <strong>one or more</strong> frameworks: SOC 2, GDPR, ISO 27001, HIPAA, PCI DSS, or NIST CSF. Each framework has different rule sets "” the AI will apply only the relevant checks to your documents.</p>
+                                            <div class="wf-needed"><i data-lucide="check-circle" class="text-cyan"></i> <span>No credentials needed "” just click the framework card</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="wf-step">
+                                        <div class="wf-num">4</div>
+                                        <div class="wf-content">
+                                            <h4>AI Ingests &amp; Reads Your Documents</h4>
+                                            <p>Click <strong>"Start AI Audit Scan"</strong>. The AI engine ingests each document, chunks it into semantic segments, converts each chunk into a vector embedding, and loads it into a temporary secure memory store. This is the RAG (Retrieval-Augmented Generation) pipeline. You will see the live terminal showing exactly which file and which rule is being checked in real time.</p>
+                                            <div class="wf-needed"><i data-lucide="check-circle" class="text-cyan"></i> <span>Fully automatic "” watch the terminal scan progress bar</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="wf-step">
+                                        <div class="wf-num">5</div>
+                                        <div class="wf-content">
+                                            <h4>AI Detects Compliance Gaps</h4>
+                                            <p>The AI compares each document chunk against every rule in your selected framework. If a required clause is missing (e.g. no Data Indemnity clause in a vendor contract against SOC 2 CC7.1), it is flagged as a gap with a risk score: <span style="color:#f87171"><strong>Critical</strong></span>, <span style="color:#fb923c"><strong>High</strong></span>, <span style="color:#fbbf24"><strong>Medium</strong></span>, or <span style="color:#4ade80"><strong>Low</strong></span>.</p>
+                                            <div class="wf-needed"><i data-lucide="check-circle" class="text-cyan"></i> <span>Fully automatic "” results appear in the Audit Dashboard</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="wf-step">
+                                        <div class="wf-num">6</div>
+                                        <div class="wf-content">
+                                            <h4>Review the Audit Dashboard</h4>
+                                            <p>The dashboard shows your <strong>Compliance Readiness Score</strong> (e.g. 71%), a table of every document with Pass/Fail status, the specific gap found, and its risk level. Failed documents show a <strong>"Fix Now"</strong> button next to them.</p>
+                                            <div class="wf-needed"><i data-lucide="check-circle" class="text-cyan"></i> <span>No action needed "” review your score and gaps at a glance</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="wf-step">
+                                        <div class="wf-num">7</div>
+                                        <div class="wf-content">
+                                            <h4>AI Generates the Fix (Remediation)</h4>
+                                            <p>Click <strong>"Fix Now"</strong> on any failed document. The AI generates the exact legal clause or configuration amendment needed to resolve the gap "” for example, a full GDPR Article 28 processor indemnity clause, a HIPAA BAA addendum, or a corrected AWS IAM policy JSON. You can copy it to clipboard or apply it directly.</p>
+                                            <div class="wf-needed"><i data-lucide="check-circle" class="text-cyan"></i> <span>Click "Apply Fix" to mark the document as resolved in the report</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="wf-step">
+                                        <div class="wf-num">8</div>
+                                        <div class="wf-content">
+                                            <h4>Export the Audit Evidence Package</h4>
+                                            <p>Once all gaps are resolved (or even before), click <strong>"Export Auditor Evidence Package"</strong>. This downloads a structured report file containing your compliance score, all document results, gap descriptions, risk levels, and applied remediation amendments "” ready to hand to your external auditor or regulator.</p>
+                                            <div class="wf-needed"><i data-lucide="check-circle" class="text-cyan"></i> <span>Optional: Set up email/Slack alerts to auto-send the report to your team</span></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="wf-step wf-step-optional">
+                                        <div class="wf-num">âŸ³</div>
+                                        <div class="wf-content">
+                                            <h4>Continuous Monitoring (Automatic)</h4>
+                                            <p>On paid plans, AuditReady.AI continuously monitors your connected cloud storage. If a new document is added or an existing contract is updated, the AI automatically re-scans it and sends an alert if a new gap is detected "” so you are always audit-ready, not just once a year.</p>
+                                            <div class="wf-needed"><i data-lucide="check-circle" class="text-cyan"></i> <span>Requires: Cloud Storage integration connected + Alert channel configured</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+                    <!-- ENTERPRISE: SHADOW DATA DISCOVERY               -->
+                    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+                    <div id="sim-step-shadow" class="sim-card-wrapper">
+                        <div class="sim-header-title-bar">
+                            <h2>Multi-Source Shadow Data Discovery</h2>
+                            <p>Automatically scan your entire company ecosystem "” not just uploaded files "” to detect non-compliant data stored in hidden or unmonitored locations.</p>
+                        </div>
+
+                        <div class="enterprise-badge-row">
+                            <span class="ent-badge"><i data-lucide="zap"></i> Enterprise Feature</span>
+                            <span class="ent-desc">Scans 6 sources simultaneously &middot; Real-time risk flagging &middot; PII auto-detection</span>
+                        </div>
+
+                        <!-- Source Grid -->
+                        <div class="shadow-source-grid">
+                            <div class="shadow-source-card" data-source="slack">
+                                <div class="source-icon slack-icon"><i data-lucide="message-square"></i></div>
+                                <div class="source-info">
+                                    <h4>Slack Channels</h4>
+                                    <p>Scanning #general, #sales, #finance...</p>
+                                </div>
+                                <div class="source-status scanning"><span class="pulse-dot"></span> Scanning</div>
+                            </div>
+                            <div class="shadow-source-card" data-source="jira">
+                                <div class="source-icon jira-icon"><i data-lucide="git-branch"></i></div>
+                                <div class="source-info">
+                                    <h4>Jira Tickets</h4>
+                                    <p>Checking open/closed tickets for PII...</p>
+                                </div>
+                                <div class="source-status scanning"><span class="pulse-dot"></span> Scanning</div>
+                            </div>
+                            <div class="shadow-source-card" data-source="notion">
+                                <div class="source-icon notion-icon"><i data-lucide="file-text"></i></div>
+                                <div class="source-info">
+                                    <h4>Notion Workspaces</h4>
+                                    <p>Reading shared pages and databases...</p>
+                                </div>
+                                <div class="source-status scanning"><span class="pulse-dot"></span> Scanning</div>
+                            </div>
+                            <div class="shadow-source-card" data-source="s3">
+                                <div class="source-icon s3-icon"><i data-lucide="cloud"></i></div>
+                                <div class="source-info">
+                                    <h4>AWS S3 Buckets</h4>
+                                    <p>Auditing public/private bucket ACLs...</p>
+                                </div>
+                                <div class="source-status scanning"><span class="pulse-dot"></span> Scanning</div>
+                            </div>
+                            <div class="shadow-source-card" data-source="gdrive">
+                                <div class="source-icon gdrive-icon"><i data-lucide="folder-git-2"></i></div>
+                                <div class="source-info">
+                                    <h4>Rogue Google Drives</h4>
+                                    <p>Detecting personal drives with company data...</p>
+                                </div>
+                                <div class="source-status scanning"><span class="pulse-dot"></span> Scanning</div>
+                            </div>
+                            <div class="shadow-source-card" data-source="local">
+                                <div class="source-icon local-icon"><i data-lucide="hard-drive"></i></div>
+                                <div class="source-info">
+                                    <h4>Local Server Shares</h4>
+                                    <p>Mapping \\FILESERVER01 shared drives...</p>
+                                </div>
+                                <div class="source-status scanning"><span class="pulse-dot"></span> Scanning</div>
+                            </div>
+                        </div>
+
+                        <!-- Start Scan Button -->
+                        <div style="margin: 1.25rem 0; display:flex; gap:1rem; align-items:center;">
+                            <button class="btn btn-primary btn-glow" id="shadow-scan-btn">
+                                <i data-lucide="radar"></i>
+                                <span>Start Shadow Data Scan</span>
+                            </button>
+                            <span class="shadow-scan-status" id="shadow-scan-status">Ready to scan 6 sources</span>
+                        </div>
+
+                        <!-- Results Table -->
+                        <div class="shadow-results-card" id="shadow-results-card" style="display:none;">
+                            <div class="shadow-results-header">
+                                <h4>âš ï Shadow Data Findings "” 7 Critical Issues Detected</h4>
+                                <span class="ent-badge" style="background:rgba(248,113,113,0.15);color:#f87171;border-color:rgba(248,113,113,0.3);">Action Required</span>
+                            </div>
+                            <table class="shadow-table">
+                                <thead><tr><th>Location</th><th>Finding</th><th>Data Type</th><th>Risk</th><th>Action</th></tr></thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="source-tag slack-tag">Slack #sales</span></td>
+                                        <td>Employee shared customer credit card ending in 4242</td>
+                                        <td>PCI "” Card Data</td>
+                                        <td><span class="risk-chip critical">Critical</span></td>
+                                        <td><button class="btn btn-sm btn-primary btn-glow">Quarantine</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="source-tag s3-tag">S3 hr-data-bucket</span></td>
+                                        <td>Bucket is publicly readable "” contains 214 employee records</td>
+                                        <td>GDPR "” Personal Data</td>
+                                        <td><span class="risk-chip critical">Critical</span></td>
+                                        <td><button class="btn btn-sm btn-primary btn-glow">Lock Bucket</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="source-tag notion-tag">Notion /HR</span></td>
+                                        <td>Medical leave records stored in publicly shared Notion page</td>
+                                        <td>HIPAA "” PHI</td>
+                                        <td><span class="risk-chip critical">Critical</span></td>
+                                        <td><button class="btn btn-sm btn-primary btn-glow">Restrict</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="source-tag jira-tag">Jira TICKET-2891</span></td>
+                                        <td>Production DB password committed in ticket description</td>
+                                        <td>Security "” Credentials</td>
+                                        <td><span class="risk-chip high">High</span></td>
+                                        <td><button class="btn btn-sm btn-secondary">Review</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="source-tag gdrive-tag">Personal Drive</span></td>
+                                        <td>Sales rep storing 38 vendor contracts on personal Google Drive</td>
+                                        <td>SOC 2 "” Asset Control</td>
+                                        <td><span class="risk-chip high">High</span></td>
+                                        <td><button class="btn btn-sm btn-secondary">Transfer</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+                    <!-- ENTERPRISE: AUDITOR MODE                        -->
+                    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+                    <div id="sim-step-auditor" class="sim-card-wrapper">
+                        <div class="sim-header-title-bar">
+                            <h2>Live Auditor Mode "” Secure Shared Portals</h2>
+                            <p>Generate a cryptographically signed, read-only portal link for your external auditor (Deloitte, EY, KPMG, independent CPA). They see everything "” you control what they access.</p>
+                        </div>
+
+                        <div class="enterprise-badge-row">
+                            <span class="ent-badge"><i data-lucide="zap"></i> Enterprise Feature</span>
+                            <span class="ent-desc">Reduces 3-week audit to single afternoon &middot; Cryptographic evidence hashes &middot; Role-based access</span>
+                        </div>
+
+                        <div class="auditor-mode-grid">
+                            <!-- Left: Generate Portal -->
+                            <div class="auditor-panel">
+                                <h4 class="panel-heading"><i data-lucide="link" class="text-cyan"></i> Generate Auditor Portal</h4>
+
+                                <div class="auditor-form">
+                                    <div class="support-field">
+                                        <label>Auditor Firm Name</label>
+                                        <input type="text" class="support-input" id="auditor-firm" placeholder="e.g. Deloitte, EY, KPMG" />
+                                    </div>
+                                    <div class="support-field">
+                                        <label>Auditor Email</label>
+                                        <input type="email" class="support-input" id="auditor-email" placeholder="auditor@deloitte.com" />
+                                    </div>
+                                    <div class="support-field">
+                                        <label>Access Scope</label>
+                                        <select class="support-input support-select" id="auditor-scope">
+                                            <option>SOC 2 Type II Evidence Only</option>
+                                            <option>Full Compliance Report (All Frameworks)</option>
+                                            <option>GDPR Evidence Package</option>
+                                            <option>HIPAA Evidence Package</option>
+                                            <option>PCI DSS Evidence Package</option>
+                                        </select>
+                                    </div>
+                                    <div class="support-field">
+                                        <label>Portal Expiry</label>
+                                        <select class="support-input support-select">
+                                            <option>7 days</option>
+                                            <option>14 days</option>
+                                            <option>30 days</option>
+                                            <option>Audit period only</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-primary btn-glow" id="generate-portal-btn" style="width:100%;justify-content:center;">
+                                        <i data-lucide="key"></i>
+                                        <span>Generate Secure Portal Link</span>
+                                    </button>
+                                </div>
+
+                                <!-- Portal Link Result -->
+                                <div class="portal-result" id="portal-result" style="display:none;">
+                                    <div class="portal-link-box">
+                                        <i data-lucide="shield-check" class="text-cyan"></i>
+                                        <div>
+                                            <p class="portal-link-label">Cryptographically Signed Portal URL</p>
+                                            <code class="portal-link-code" id="portal-link-url">https://auditready.ai/portal/jwt-sig-a3f9c...</code>
+                                        </div>
+                                        <button class="btn btn-secondary btn-sm" id="copy-portal-btn">Copy</button>
+                                    </div>
+                                    <div class="portal-hash-row">
+                                        <span>Evidence Hash (SHA-256):</span>
+                                        <code id="portal-hash">a3f9c8d2e1b7...</code>
+                                    </div>
+                                    <p class="portal-sent-note"><i data-lucide="mail"></i> Invitation email sent to auditor automatically</p>
+                                </div>
+                            </div>
+
+                            <!-- Right: Auditor Dashboard Preview -->
+                            <div class="auditor-panel">
+                                <h4 class="panel-heading"><i data-lucide="eye" class="text-cyan"></i> What the Auditor Sees (Read-Only View)</h4>
+                                <div class="auditor-preview-card">
+                                    <div class="auditor-preview-header">
+                                        <div>
+                                            <p class="auditor-firm-name" id="preview-firm-name">Awaiting portal generation...</p>
+                                            <p class="auditor-preview-label">SOC 2 Type II Evidence Package &middot; FY 2024"“25</p>
+                                        </div>
+                                        <div class="auditor-score-pill">
+                                            <span>71%</span>
+                                            <span class="score-label">Readiness</span>
+                                        </div>
+                                    </div>
+                                    <div class="auditor-evidence-list">
+                                        <div class="evidence-item pass">
+                                            <i data-lucide="check-circle"></i>
+                                            <div>
+                                                <p>CC6.1 "” Logical Access Controls</p>
+                                                <span>AWS_IAM_Policy.json &middot; SHA256: 9f8a3c...</span>
+                                            </div>
+                                            <span class="ev-status pass-badge">Verified</span>
+                                        </div>
+                                        <div class="evidence-item pass">
+                                            <i data-lucide="check-circle"></i>
+                                            <div>
+                                                <p>CC7.2 "” System Monitoring</p>
+                                                <span>CloudTrail_Logs_Q4.csv &middot; SHA256: 2b4d1e...</span>
+                                            </div>
+                                            <span class="ev-status pass-badge">Verified</span>
+                                        </div>
+                                        <div class="evidence-item fail">
+                                            <i data-lucide="alert-circle"></i>
+                                            <div>
+                                                <p>CC9.2 "” Vendor Risk Management</p>
+                                                <span>Acme_Vendor_Agrmt.pdf &middot; Missing data indemnity clause</span>
+                                            </div>
+                                            <span class="ev-status fail-badge">Gap Found</span>
+                                        </div>
+                                        <div class="evidence-item pass">
+                                            <i data-lucide="check-circle"></i>
+                                            <div>
+                                                <p>CC2.1 "” Employee Background Checks</p>
+                                                <span>HR_Onboarding_Log.csv &middot; SHA256: 7c2f8a...</span>
+                                            </div>
+                                            <span class="ev-status pass-badge">Verified</span>
+                                        </div>
+                                    </div>
+                                    <div class="auditor-preview-footer">
+                                        <i data-lucide="lock"></i>
+                                        <span>Read-only &middot; No download access &middot; Access expires in 14 days &middot; All views are logged</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+                    <!-- ENTERPRISE: CCM MONITOR                         -->
+                    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+                    <div id="sim-step-ccm" class="sim-card-wrapper">
+                        <div class="sim-header-title-bar">
+                            <h2>Continuous Control Monitoring (CCM)</h2>
+                            <p>Compliance isn't a once-a-year audit "” it's a continuous state. CCM runs silent background checks every night and triggers instant alerts the moment a control lapses.</p>
+                        </div>
+
+                        <div class="enterprise-badge-row">
+                            <span class="ent-badge ccm-live-badge"><span class="pulse-dot"></span> Live Monitoring Active</span>
+                            <span class="ent-desc">Last cron run: Today 02:00 AM IST &middot; Next run: Tomorrow 02:00 AM &middot; 47 controls monitored</span>
+                        </div>
+
+                        <div class="ccm-grid">
+
+                            <!-- Control Health Grid -->
+                            <div class="ccm-card ccm-full">
+                                <h4 class="panel-heading"><i data-lucide="activity" class="text-cyan"></i> Control Health Dashboard "” Last 7 Days</h4>
+                                <div class="ccm-health-grid">
+                                    <div class="health-item green"><span>Access Review</span><span>âœ… Pass</span></div>
+                                    <div class="health-item green"><span>Encryption Keys</span><span>âœ… Pass</span></div>
+                                    <div class="health-item red"><span>Vendor NDA</span><span>🔍 Lapsed</span></div>
+                                    <div class="health-item green"><span>MFA Enforcement</span><span>âœ… Pass</span></div>
+                                    <div class="health-item yellow"><span>SSL Certificate</span><span>âš ï Exp in 12d</span></div>
+                                    <div class="health-item green"><span>Backup Verification</span><span>âœ… Pass</span></div>
+                                    <div class="health-item red"><span>Background Check</span><span>🔍 Missing</span></div>
+                                    <div class="health-item green"><span>Pen Test (Annual)</span><span>âœ… Pass</span></div>
+                                    <div class="health-item green"><span>DSAR Response</span><span>âœ… Pass</span></div>
+                                    <div class="health-item yellow"><span>Privacy Policy</span><span>âš ï Review Due</span></div>
+                                    <div class="health-item green"><span>DLP Policy</span><span>âœ… Pass</span></div>
+                                    <div class="health-item green"><span>Incident Log</span><span>âœ… Pass</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Live Alert Timeline -->
+                            <div class="ccm-card">
+                                <h4 class="panel-heading"><i data-lucide="bell" class="text-cyan"></i> Live Alert Timeline</h4>
+                                <div class="ccm-timeline" id="ccm-timeline">
+                                    <div class="ccm-event critical">
+                                        <div class="event-dot critical-dot"></div>
+                                        <div class="event-body">
+                                            <p class="event-title">🔍 Vendor NDA Expired</p>
+                                            <p class="event-detail">Acme Corp NDA expired 3 days ago. Auto-alert sent to legal@company.com and #compliance-alerts Slack channel.</p>
+                                            <span class="event-time">Today, 02:14 AM</span>
+                                        </div>
+                                    </div>
+                                    <div class="ccm-event critical">
+                                        <div class="event-dot critical-dot"></div>
+                                        <div class="event-body">
+                                            <p class="event-title">🔍 Missing Background Check Detected</p>
+                                            <p class="event-detail">New hire Priya Sharma (Employee #1041) onboarded 5 days ago without completed background verification.</p>
+                                            <span class="event-time">Today, 02:14 AM</span>
+                                        </div>
+                                    </div>
+                                    <div class="ccm-event warning">
+                                        <div class="event-dot warning-dot"></div>
+                                        <div class="event-body">
+                                            <p class="event-title">âš ï SSL Certificate Expiring</p>
+                                            <p class="event-detail">api.company.com SSL cert expires in 12 days. Auto-renewal via Certbot scheduled for Day 5.</p>
+                                            <span class="event-time">Today, 02:15 AM</span>
+                                        </div>
+                                    </div>
+                                    <div class="ccm-event info">
+                                        <div class="event-dot info-dot"></div>
+                                        <div class="event-body">
+                                            <p class="event-title">âï New Vendor Contract Detected</p>
+                                            <p class="event-detail">DataSync Ltd contract added to Google Drive. No NDA detected "” auto-scan queued for 06:00 AM.</p>
+                                            <span class="event-time">Yesterday, 11:42 PM</span>
+                                        </div>
+                                    </div>
+                                    <div class="ccm-event ok">
+                                        <div class="event-dot ok-dot"></div>
+                                        <div class="event-body">
+                                            <p class="event-title">âœ… Nightly Scan Complete "” 45/47 Controls Passed</p>
+                                            <p class="event-detail">Full scan of 42 documents across 3 frameworks. 2 new gaps detected, 0 existing gaps resolved.</p>
+                                            <span class="event-time">Yesterday, 02:00 AM</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Alert Routing Config -->
+                            <div class="ccm-card">
+                                <h4 class="panel-heading"><i data-lucide="git-merge" class="text-cyan"></i> Alert Routing Configuration</h4>
+                                <div class="ccm-routing-list">
+                                    <div class="routing-item">
+                                        <div class="routing-left">
+                                            <span class="risk-chip critical" style="font-size:0.68rem;">Critical</span>
+                                            <span class="routing-label">Immediately on detection</span>
+                                        </div>
+                                        <div class="routing-channels">
+                                            <span class="channel-chip slack">Slack</span>
+                                            <span class="channel-chip pager">PagerDuty</span>
+                                            <span class="channel-chip email-chip">Email</span>
+                                        </div>
+                                    </div>
+                                    <div class="routing-item">
+                                        <div class="routing-left">
+                                            <span class="risk-chip high" style="font-size:0.68rem;">High</span>
+                                            <span class="routing-label">Within 30 minutes</span>
+                                        </div>
+                                        <div class="routing-channels">
+                                            <span class="channel-chip slack">Slack</span>
+                                            <span class="channel-chip teams">Teams</span>
+                                        </div>
+                                    </div>
+                                    <div class="routing-item">
+                                        <div class="routing-left">
+                                            <span class="risk-chip medium" style="font-size:0.68rem;">Medium</span>
+                                            <span class="routing-label">Daily digest (9 AM IST)</span>
+                                        </div>
+                                        <div class="routing-channels">
+                                            <span class="channel-chip email-chip">Email</span>
+                                        </div>
+                                    </div>
+                                    <div class="routing-item">
+                                        <div class="routing-left">
+                                            <span class="risk-chip low" style="font-size:0.68rem;">Low</span>
+                                            <span class="routing-label">Weekly report (Monday)</span>
+                                        </div>
+                                        <div class="routing-channels">
+                                            <span class="channel-chip email-chip">Email</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="ccm-schedule-row">
+                                    <i data-lucide="clock" class="text-cyan"></i>
+                                    <div>
+                                        <p class="ccm-schedule-title">Cron Schedule</p>
+                                        <code class="ccm-cron">0 2 * * * "” Daily at 2:00 AM IST</code>
+                                    </div>
+                                    <button class="btn btn-secondary btn-sm">Edit</button>
+                                </div>
+
+                                <button class="btn btn-primary btn-glow" id="ccm-trigger-btn" style="width:100%;justify-content:center;margin-top:1rem;">
+                                    <i data-lucide="play"></i>
+                                    <span>Trigger Manual Scan Now</span>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• AUTH MODAL (Sign Up / Sign In) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="auth-modal-card">
+
+            <!-- Left branding panel -->
+            <div class="auth-brand-panel">
+                <div class="auth-brand-logo">
+                    <div class="logo-icon" style="width:48px;height:48px;border-radius:14px"><i data-lucide="shield-check" style="width:24px;height:24px"></i></div>
+                    <span style="font-size:1.2rem;font-weight:800">AuditReady<span style="color:var(--cyan)">.AI</span></span>
+                </div>
+                <h2 class="auth-brand-headline">Enterprise Compliance<br>on Autopilot</h2>
+                <p class="auth-brand-sub">One account to unlock AI-powered auditing, active remediation, and continuous compliance monitoring across all your devices.</p>
+                <div class="auth-trust-badges">
+                    <div class="auth-trust-item"><i data-lucide="shield-check"></i> SOC 2 Compliant</div>
+                    <div class="auth-trust-item"><i data-lucide="lock"></i> AES-256 Encrypted</div>
+                    <div class="auth-trust-item"><i data-lucide="globe"></i> GDPR Ready</div>
+                </div>
+            </div>
+
+            <!-- Right form panel -->
+            <div class="auth-form-panel">
+                <button class="auth-close-btn" id="auth-modal-close-btn"><i data-lucide="x"></i></button>
+
+                <!-- Tab switcher -->
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="tab-signin" data-tab="signin">Sign In</button>
+                    <button class="auth-tab" id="tab-signup" data-tab="signup">Create Account</button>
+                </div>
+
+                <!-- SIGN IN FORM -->
+                <div class="auth-form-body" id="auth-signin-form">
+                    <p class="auth-form-hint" id="auth-signin-hint"></p>
+
+                    <button class="auth-google-btn" id="auth-google-signin-btn">
+                        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.7C34.1 33.1 29.5 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l6.4-6.4C34.4 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.8 0 20.1-7.8 20.1-21 0-1.4-.1-2.7-.3-4z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15.1 16.1 19.2 13 24 13c3 0 5.7 1.1 7.8 2.9l6.4-6.4C34.4 5.1 29.5 3 24 3 16.2 3 9.4 7.9 6.3 14.7z"/><path fill="#FBBC05" d="M24 45c5.3 0 10.2-1.8 13.9-4.9l-6.5-5.3C29.5 36.7 26.9 37.5 24 37.5c-5.5 0-10.1-3.7-11.7-8.7l-6.9 5.3C8.8 40.9 15.9 45 24 45z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.7c-.8 2.3-2.3 4.2-4.3 5.5l6.5 5.3C42.1 36 45 30.5 45 24c0-1.4-.1-2.7-.3-4z"/></svg>
+                        Continue with Google
+                    </button>
+
+                    <div class="auth-divider"><span>or sign in with email</span></div>
+
+                    <div class="auth-field">
+                        <label>Email Address</label>
+                        <div class="auth-input-wrap">
+                            <i data-lucide="mail" class="auth-input-icon"></i>
+                            <input type="email" id="si-email" class="auth-input" placeholder="you@company.com" autocomplete="email">
+                        </div>
+                    </div>
+                    <div class="auth-field">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <label>Password</label>
+                            <a href="#" class="auth-forgot-link" id="auth-forgot-link">Forgot password?</a>
+                        </div>
+                        <div class="auth-input-wrap">
+                            <i data-lucide="lock" class="auth-input-icon"></i>
+                            <input type="password" id="si-password" class="auth-input" placeholder="Enter your password" autocomplete="current-password">
+                            <button type="button" class="auth-eye-btn" data-target="si-password"><i data-lucide="eye"></i></button>
+                        </div>
+                    </div>
+
+                    <p class="auth-error" id="si-error"></p>
+
+                    <button class="btn btn-primary btn-full btn-glow" id="si-submit-btn">
+                        <i data-lucide="log-in"></i> Sign In Securely
+                    </button>
+
+                    <p class="auth-switch-text">Don't have an account? <a href="#" class="auth-switch-link" data-switch="signup">Create one free →</a></p>
+                </div>
+
+                <!-- SIGN UP FORM -->
+                <div class="auth-form-body hidden" id="auth-signup-form">
+                    <p class="auth-form-hint">Create your account to access AI compliance tools and purchase plans.</p>
+
+                    <button class="auth-google-btn" id="auth-google-signup-btn">
+                        <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#4285F4" d="M44.5 20H24v8.5h11.7C34.1 33.1 29.5 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l6.4-6.4C34.4 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.8 0 20.1-7.8 20.1-21 0-1.4-.1-2.7-.3-4z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15.1 16.1 19.2 13 24 13c3 0 5.7 1.1 7.8 2.9l6.4-6.4C34.4 5.1 29.5 3 24 3 16.2 3 9.4 7.9 6.3 14.7z"/><path fill="#FBBC05" d="M24 45c5.3 0 10.2-1.8 13.9-4.9l-6.5-5.3C29.5 36.7 26.9 37.5 24 37.5c-5.5 0-10.1-3.7-11.7-8.7l-6.9 5.3C8.8 40.9 15.9 45 24 45z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.7c-.8 2.3-2.3 4.2-4.3 5.5l6.5 5.3C42.1 36 45 30.5 45 24c0-1.4-.1-2.7-.3-4z"/></svg>
+                        Continue with Google
+                    </button>
+
+                    <div class="auth-divider"><span>or register with email</span></div>
+
+                    <div class="auth-field">
+                        <label>Full Name</label>
+                        <div class="auth-input-wrap">
+                            <i data-lucide="user" class="auth-input-icon"></i>
+                            <input type="text" id="su-name" class="auth-input" placeholder="Your full name" autocomplete="name">
+                        </div>
+                    </div>
+                    <div class="auth-field">
+                        <label>Work Email</label>
+                        <div class="auth-input-wrap">
+                            <i data-lucide="mail" class="auth-input-icon"></i>
+                            <input type="email" id="su-email" class="auth-input" placeholder="you@company.com" autocomplete="email">
+                        </div>
+                    </div>
+                    <div class="auth-field">
+                        <label>Password <small style="color:var(--text-muted);font-weight:400">(min 8 characters)</small></label>
+                        <div class="auth-input-wrap">
+                            <i data-lucide="lock" class="auth-input-icon"></i>
+                            <input type="password" id="su-password" class="auth-input" placeholder="Create a strong password" autocomplete="new-password">
+                            <button type="button" class="auth-eye-btn" data-target="su-password"><i data-lucide="eye"></i></button>
+                        </div>
+                        <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-strength-fill"></div></div>
+                        <small class="pw-strength-label" id="pw-strength-label"></small>
+                    </div>
+                    <div class="auth-field">
+                        <label>Confirm Password</label>
+                        <div class="auth-input-wrap">
+                            <i data-lucide="lock" class="auth-input-icon"></i>
+                            <input type="password" id="su-confirm" class="auth-input" placeholder="Re-enter your password" autocomplete="new-password">
+                        </div>
+                    </div>
+
+                    <p class="auth-error" id="su-error"></p>
+
+                    <button class="btn btn-primary btn-full btn-glow" id="su-submit-btn">
+                        <i data-lucide="user-plus"></i> Create Account
+                    </button>
+
+                    <p class="auth-terms">By creating an account you agree to our <a href="#" class="text-cyan">Terms of Service</a> and <a href="#" class="text-cyan">Privacy Policy</a>.</p>
+
+                    <p class="auth-switch-text">Already have an account? <a href="#" class="auth-switch-link" data-switch="signin">Sign in →</a></p>
+                </div>
+
+                <!-- FORGOT PASSWORD FORM -->
+                <div class="auth-form-body hidden" id="auth-forgot-form">
+                    <p class="auth-form-hint">Enter your registered email and we'll send a reset link.</p>
+                    <div class="auth-field">
+                        <label>Email Address</label>
+                        <div class="auth-input-wrap">
+                            <i data-lucide="mail" class="auth-input-icon"></i>
+                            <input type="email" id="fp-email" class="auth-input" placeholder="you@company.com">
+                        </div>
+                    </div>
+                    <p class="auth-error" id="fp-error"></p>
+                    <button class="btn btn-primary btn-full" id="fp-submit-btn"><i data-lucide="send"></i> Send Reset Link</button>
+                    <p class="auth-switch-text"><a href="#" class="auth-switch-link" data-switch="signin">→ Back to Sign In</a></p>
+                </div>
+
+            </div><!-- end auth-form-panel -->
+        </div><!-- end auth-modal-card -->
+    </div><!-- end auth-modal -->
+
+    <!-- REMEDIATION MODAL -->
+    <div class="modal-overlay" id="remediation-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-title-section">
+                    <i data-lucide="sparkles" class="text-cyan"></i>
+                    <h3>Autonomous AI Clause Remediation</h3>
+                </div>
+                <button class="modal-close-btn" id="close-modal-btn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="modal-info-grid">
+                    <div class="info-item">
+                        <span class="info-lbl">Target Document</span>
+                        <span class="info-val" id="modal-doc-name">Acme_Vendor_Agrmt.pdf</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-lbl">Framework Metric</span>
+                        <span class="info-val text-cyan" id="modal-metric">SOC 2 Section CC7.1</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-lbl">Severity Risk</span>
+                        <span class="info-val badge-risk badge-high" id="modal-risk">High</span>
+                    </div>
+                </div>
+
+                <div class="remediation-detail">
+                    <h4>Identified Compliance Gap</h4>
+                    <p class="gap-text" id="modal-gap-desc">Missing Data Indemnity Clause. The contract lacks explicit protection clauses ensuring the vendor indemnifies the organization against data security breaches.</p>
+                </div>
+
+                <div class="ai-fix-section">
+                    <div class="ai-fix-header">
+                        <h4>AI-Generated Correction Amendment</h4>
+                        <span class="ai-badge"><span class="badge-spark"></span> Dynamic Clause Injected</span>
+                    </div>
+                    <div class="code-block-container">
+                        <pre><code id="modal-remediation-clause">Initializing remediation code...</code></pre>
+                        <button class="btn-copy-code" id="copy-clause-btn" title="Copy to clipboard">
+                            <i data-lucide="copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="gap:0.75rem;flex-wrap:wrap;">
+                <button class="btn btn-secondary" id="cancel-remediation-btn">Cancel</button>
+                <button class="btn btn-secondary" id="docusign-send-btn" style="border-color:rgba(0,105,255,0.4);color:#4A90E2;">
+                    <i data-lucide="send"></i>
+                    <span>Send via DocuSign</span>
+                </button>
+                <button class="btn btn-primary btn-glow" id="apply-remediation-btn">
+                    <i data-lucide="check-circle"></i>
+                    <span>Apply Fix to Document</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast-notification" class="toast">
+        <i data-lucide="check" class="toast-icon"></i>
+        <span class="toast-message">Action successful!</span>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="main-footer" id="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand-col">
+                <a href="#" class="logo">
+                    <div class="logo-icon">
+                        <i data-lucide="shield-check"></i>
+                    </div>
+                    <span class="logo-text">AuditReady<span class="logo-highlight">.AI</span></span>
+                </a>
+                <p class="brand-desc">Autonomous AI agents auditing your vendor agreements, internal documents, and cloud operations continuously for effortless compliance.</p>
+                <div class="social-links">
+                    <a href="#"><i data-lucide="twitter"></i></a>
+                    <a href="#"><i data-lucide="linkedin"></i></a>
+                    <a href="#"><i data-lucide="github"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-links-col">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#" class="trigger-simulator-btn">Interactive Demo</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                </ul>
+            </div>
+            
+
+            <div class="footer-links-col">
+                <h4>Compliance Standards</h4>
+                <ul>
+                    <li><a href="#">Data Protection Trust</a></li>
+                    <li><a href="#">AICPA Trust Criteria</a></li>
+                    <li><a href="#">Encryption Standards</a></li>
+                    <li><a href="#">Secure SOC Reporting</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container footer-bottom">
+            <p>&copy; 2026 AuditReady.AI. All rights reserved. Built with advanced AI safeguards.</p>
+            <div class="footer-bottom-links">
+                <a href="#" id="open-privacy-btn">Privacy Policy</a>
+                <a href="#" id="open-terms-btn">Terms of Service</a>
+                <a href="#" id="open-security-btn">Security Statement</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- PRIVACY POLICY MODAL -->
+    <div class="modal-overlay legal-modal" id="privacy-modal">
+        <div class="modal-card legal-modal-card">
+            <div class="modal-header">
+                <div class="modal-title-section"><i data-lucide="shield" class="text-cyan"></i><h3>Privacy Policy</h3></div>
+                <button class="modal-close-btn legal-close-btn" data-target="privacy-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body legal-body">
+                <p class="legal-effective">Effective Date: January 1, 2026 &nbsp;|&nbsp; Last Updated: June 1, 2026</p>
+                <div class="legal-section">
+                    <h4>1. Introduction</h4>
+                    <p>AuditReady.AI ("we", "our", or "us") is committed to protecting the privacy of our clients and their data. This Privacy Policy explains how we collect, use, disclose, and safeguard information when you use our autonomous AI compliance platform and services. By accessing our platform, you agree to the terms described herein.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>2. Information We Collect</h4>
+                    <p><strong>Account Information:</strong> Name, email address, organisation name, role, and billing details provided during registration.</p>
+                    <p><strong>Document Data:</strong> Files, contracts, logs, and policy documents uploaded to or connected through our platform for compliance scanning. These are processed by our AI engine and are never sold or shared with third parties.</p>
+                    <p><strong>Usage Data:</strong> Log files, IP addresses, browser type, device identifiers, and behavioural analytics related to your use of the platform.</p>
+                    <p><strong>Integration Credentials:</strong> OAuth tokens and read-only API keys for connected cloud storage providers (Google Drive, AWS, OneDrive, etc.). These are encrypted at rest using AES-256 and never stored in plaintext.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>3. How We Use Your Information</h4>
+                    <p>We use collected information to: (a) provide, operate, and maintain our AI compliance scanning engine; (b) process and analyse your documents against selected compliance frameworks; (c) generate audit reports and remediation suggestions; (d) communicate service updates, alerts, and security notifications; (e) improve our AI models and detection accuracy using anonymised, aggregated datasets; and (f) comply with applicable legal obligations.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>4. Data Retention</h4>
+                    <p>Uploaded documents and scan results are retained for 90 days after the last active scan unless you request earlier deletion. Account data is retained for the duration of your subscription and up to 30 days following account termination. You may request immediate deletion at any time by contacting privacy@auditready.ai.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>5. Data Sharing & Disclosure</h4>
+                    <p>We do not sell, rent, or trade your personal data. We may share data with: (a) sub-processors who assist in operating our platform under strict Data Processing Agreements (DPAs); (b) law enforcement or regulatory bodies when required by applicable law; and (c) successors in the event of a merger or acquisition, subject to equivalent privacy protections.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>6. Your Rights</h4>
+                    <p>Depending on your jurisdiction, you may have rights to: access, correct, or delete your personal data; restrict or object to certain processing; data portability; and lodge a complaint with a supervisory authority. To exercise these rights, email privacy@auditready.ai.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>7. Contact</h4>
+                    <p>For privacy-related enquiries: <strong>AuditReady.AI Privacy Team</strong> &bull; privacy@auditready.ai &bull; Bengaluru, Karnataka, India "“ 560001.</p>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary btn-glow legal-close-btn" data-target="privacy-modal">Close</button></div>
+        </div>
+    </div>
+
+    <!-- TERMS OF SERVICE MODAL -->
+    <div class="modal-overlay legal-modal" id="terms-modal">
+        <div class="modal-card legal-modal-card">
+            <div class="modal-header">
+                <div class="modal-title-section"><i data-lucide="file-check" class="text-cyan"></i><h3>Terms of Service</h3></div>
+                <button class="modal-close-btn legal-close-btn" data-target="terms-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body legal-body">
+                <p class="legal-effective">Effective Date: January 1, 2026 &nbsp;|&nbsp; Version: 3.2</p>
+                <div class="legal-section">
+                    <h4>1. Acceptance of Terms</h4>
+                    <p>By accessing or using AuditReady.AI's platform (the "Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree with any part of the Terms, you may not access the Service. These Terms apply to all users, including visitors, clients, and organisation administrators.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>2. Description of Service</h4>
+                    <p>AuditReady.AI provides an autonomous AI-powered compliance audit platform that ingests documents from connected cloud storage, evaluates them against selected regulatory frameworks (SOC 2, GDPR, ISO 27001, HIPAA, PCI DSS, NIST CSF), identifies compliance gaps, and generates AI-powered remediation amendments. The Service is provided on a subscription basis.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>3. User Responsibilities</h4>
+                    <p>You agree to: (a) provide accurate and complete account information; (b) maintain the security of your account credentials; (c) use the Service solely for lawful compliance auditing purposes; (d) not attempt to reverse-engineer, decompile, or circumvent any technical safeguards; and (e) notify us immediately of any unauthorised use of your account.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>4. Subscription & Billing</h4>
+                    <p>Subscriptions are billed monthly or annually as selected. All fees are in Indian Rupees (INR) and are non-refundable except as required by law. We reserve the right to modify pricing with 30 days' written notice. Failure to pay may result in suspension of the Service.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>5. Intellectual Property</h4>
+                    <p>All AI models, frameworks, scanning logic, interfaces, and platform components are the exclusive intellectual property of AuditReady.AI. You retain ownership of all documents and data you upload. By using the Service, you grant us a limited, non-exclusive licence to process your documents solely for the purpose of providing the Service.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>6. Limitation of Liability</h4>
+                    <p>AuditReady.AI shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Service. Our AI-generated outputs are advisory in nature and do not constitute legal advice. You remain solely responsible for your organisation's compliance obligations.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>7. Termination</h4>
+                    <p>Either party may terminate the subscription with 30 days' written notice. We may terminate immediately for breach of these Terms. Upon termination, your data will be deleted within 30 days unless you request export.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>8. Governing Law</h4>
+                    <p>These Terms are governed by the laws of India. Any disputes shall be resolved through binding arbitration in Bengaluru, Karnataka, under the Arbitration and Conciliation Act, 1996.</p>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary btn-glow legal-close-btn" data-target="terms-modal">Close</button></div>
+        </div>
+    </div>
+
+    <!-- SECURITY STATEMENT MODAL -->
+    <div class="modal-overlay legal-modal" id="security-modal">
+        <div class="modal-card legal-modal-card">
+            <div class="modal-header">
+                <div class="modal-title-section"><i data-lucide="shield-check" class="text-cyan"></i><h3>Security Statement</h3></div>
+                <button class="modal-close-btn legal-close-btn" data-target="security-modal"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body legal-body">
+                <p class="legal-effective">Last Reviewed: June 2026 &nbsp;|&nbsp; Compliance: SOC 2 Type II Certified</p>
+                <div class="legal-section">
+                    <h4>1. Our Security Commitment</h4>
+                    <p>AuditReady.AI is built security-first. We apply the same rigorous compliance standards to our own infrastructure that we help our clients achieve. Our platform is SOC 2 Type II certified and undergoes annual third-party penetration testing.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>2. Data Encryption</h4>
+                    <p><strong>In Transit:</strong> All data transmitted between your browser and our servers is encrypted using TLS 1.3. We enforce HTTPS-only connections across all endpoints and APIs.</p>
+                    <p><strong>At Rest:</strong> All stored data "” including uploaded documents, scan results, API keys, and OAuth tokens "” is encrypted using AES-256-GCM with envelope key management via AWS KMS.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>3. Access Control</h4>
+                    <p>Access to production systems is limited to authorised AuditReady.AI engineers on a strict need-to-know basis. All internal access requires MFA, is gated via a zero-trust VPN, and is fully logged and audited. No human operator can access your document contents without explicit written authorisation from your organisation.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>4. Infrastructure Security</h4>
+                    <p>Our platform runs on AWS (Mumbai region) with multi-availability zone redundancy. We use automated vulnerability scanning (Snyk, AWS Inspector), runtime anomaly detection (AWS GuardDuty), and web application firewall (AWS WAF) to protect against injection, XSS, and DDoS attacks.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>5. Incident Response</h4>
+                    <p>In the event of a confirmed security incident affecting your data, we will notify you within 72 hours via email and in-platform alert, in accordance with GDPR Article 33 and relevant breach notification laws. A detailed incident report including root cause analysis will follow within 14 days.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>6. Sub-Processor Security</h4>
+                    <p>All third-party sub-processors (cloud providers, email delivery, analytics) are vetted against SOC 2 or ISO 27001 standards. A full list of sub-processors is available upon request. Data is never processed outside of India or EU-approved jurisdictions without your explicit consent.</p>
+                </div>
+                <div class="legal-section">
+                    <h4>7. Responsible Disclosure</h4>
+                    <p>We operate a responsible disclosure programme. If you discover a security vulnerability in our platform, please report it to security@auditready.ai. We commit to acknowledging reports within 24 hours and resolving critical vulnerabilities within 7 days.</p>
+                </div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-primary btn-glow legal-close-btn" data-target="security-modal">Close</button></div>
+        </div>
+    </div>
+
+    <!-- QR Code library for UPI payment QR generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Main JavaScript file -->
+    <script src="index.js"></script>
+
+    <!-- FLOATING HELP BUTTON -->
+    <button class="help-float-btn" id="open-support-btn" title="Help &amp; Support">
+        <i data-lucide="life-buoy"></i>
+        <span class="help-float-label">Help</span>
+    </button>
+
+    <!-- HELP & SUPPORT MODAL -->
+    <div class="modal-overlay legal-modal" id="support-modal">
+        <div class="modal-card support-modal-card">
+            <div class="modal-header">
+                <div class="modal-title-section">
+                    <div class="support-modal-icon">
+                        <i data-lucide="life-buoy"></i>
+                    </div>
+                    <div>
+                        <h3>Help &amp; Support</h3>
+                        <p class="support-subtitle">We typically reply within 2"“4 business hours</p>
+                    </div>
+                </div>
+                <button class="modal-close-btn legal-close-btn" data-target="support-modal"><i data-lucide="x"></i></button>
+            </div>
+
+            <div class="support-body">
+                <!-- Left: Form -->
+                <div class="support-form-col">
+                    <div class="support-field">
+                        <label for="support-name">Your Name</label>
+                        <input type="text" id="support-name" class="support-input" placeholder="Rahul Sharma" />
+                    </div>
+                    <div class="support-field">
+                        <label for="support-email">Your Email <span class="req">*</span></label>
+                        <input type="email" id="support-email" class="support-input" placeholder="you@company.com" />
+                    </div>
+                    <div class="support-field">
+                        <label for="support-subject">Subject</label>
+                        <select id="support-subject" class="support-input support-select">
+                            <option value="general">General Question</option>
+                            <option value="billing">Billing &amp; Plans</option>
+                            <option value="bug">Report a Bug</option>
+                            <option value="feature">Feature Request</option>
+                            <option value="integration">Integration Help</option>
+                            <option value="compliance">Compliance Framework Question</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="support-field">
+                        <label for="support-message">Your Message <span class="req">*</span></label>
+                        <textarea id="support-message" class="support-input support-textarea" placeholder="Describe your issue or question in detail..."></textarea>
+                    </div>
+
+                    <!-- File Attachment Area -->
+                    <div class="support-attach-row">
+                        <button class="support-attach-btn" id="support-attach-btn" title="Attach files or images">
+                            <i data-lucide="plus"></i>
+                            <span>Add Attachment</span>
+                        </button>
+                        <span class="attach-hint">PDF, DOCX, PNG, JPG "” max 5 files</span>
+                        <input type="file" id="support-file-input" multiple accept=".pdf,.doc,.docx,.txt,.csv,.json,.png,.jpg,.jpeg,.gif,.webp" style="display:none" />
+                    </div>
+
+                    <!-- File Preview List -->
+                    <div class="support-file-list" id="support-file-list"></div>
+
+                    <button class="btn btn-primary btn-glow support-send-btn" id="support-send-btn">
+                        <i data-lucide="send"></i>
+                        <span>Send Query</span>
+                    </button>
+                    <p class="support-privacy-note"><i data-lucide="lock"></i> Your query is sent securely. We never share your information.</p>
+                </div>
+
+                <!-- Right: Contact Info -->
+                <div class="support-info-col">
+                    <div class="support-info-card">
+                        <i data-lucide="mail" class="text-cyan"></i>
+                        <div>
+                            <h4>Email Support</h4>
+                            <p>prakharmishra00000@gmail.com</p>
+                            <span>Response within 4 hours</span>
+                        </div>
+                    </div>
+                    <div class="support-info-card">
+                        <i data-lucide="clock" class="text-cyan"></i>
+                        <div>
+                            <h4>Support Hours</h4>
+                            <p>Mon "“ Sat, 9 AM "“ 7 PM IST</p>
+                            <span>Priority support for Growth &amp; Enterprise plans</span>
+                        </div>
+                    </div>
+                    <div class="support-info-card">
+                        <i data-lucide="book-open" class="text-cyan"></i>
+                        <div>
+                            <h4>Quick Answers</h4>
+                            <p>Browse How It Works guide</p>
+                            <span>Available in Secure Credentials → How It Works</span>
+                        </div>
+                    </div>
+                    <div class="support-info-card support-info-tip">
+                        <i data-lucide="lightbulb" class="text-yellow"></i>
+                        <div>
+                            <h4>Tip</h4>
+                            <p>Attach a screenshot or document to help us understand your issue faster.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
