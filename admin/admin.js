@@ -99,6 +99,38 @@ let activeKeyIndex = parseInt(localStorage.getItem(LS_KEY_INDEX) || "0");
 /* â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*
    INIT
 â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â*â* */
+
+function updateActivityFeed() {
+  var feed = document.getElementById('activity-feed');
+  if (!feed) return;
+  var items = [];
+  // Pull from audit log
+  try { var logs=JSON.parse(localStorage.getItem('ar_audit_log')||'[]'); logs.slice(0,5).forEach(function(l){ items.push({dot:'cyan',text:'<strong>Admin</strong> '+l.action,sub:new Date(l.ts).toLocaleTimeString('en-IN')}); }); } catch {}
+  // Pull latest payment
+  try { var pays=JSON.parse(localStorage.getItem('ar_payments')||'[]'); if(pays[0]){ items.unshift({dot:'green',text:'<strong>'+pays[0].user+'</strong> purchased '+pays[0].plan+' plan',sub:pays[0].time||'recently'}); } } catch {}
+  // Pull latest support query
+  try { var qs=JSON.parse(localStorage.getItem('ar_support_queries')||'[]'); if(qs[0]){ items.push({dot:'orange',text:'<strong>'+qs[0].name+'</strong> submitted support query',sub:qs[0].time||'recently'}); } } catch {}
+  if (!items.length) return; // keep static placeholder if no real data
+  feed.innerHTML = items.slice(0,5).map(function(it){ return '<li><span class="act-dot '+it.dot+'"></span><div>'+it.text+'<br><small>'+it.sub+'</small></div></li>'; }).join('');
+}
+
+function updateDonutChart() {
+  var accs=[]; try{accs=JSON.parse(localStorage.getItem('ar_accounts')||'[]');}catch{}
+  if (!accs.length) return;
+  var counts={growth:0,scale:0,enterprise:0,free:0};
+  accs.forEach(function(u){
+    var pr=null; try{pr=JSON.parse(localStorage.getItem('ar_plan_'+u.email.toLowerCase())||'null');}catch{}
+    var plan=(pr&&Date.now()<pr.expiry)?pr.plan:'free';
+    counts[plan]=(counts[plan]||0)+1;
+  });
+  var total=accs.length;
+  // Update legend numbers
+  var el=document.querySelector('.legend-item:nth-child(1) strong'); if(el)el.textContent=counts.growth||0;
+  el=document.querySelector('.legend-item:nth-child(2) strong'); if(el)el.textContent=counts.scale||0;
+  el=document.querySelector('.legend-item:nth-child(3) strong'); if(el)el.textContent=counts.enterprise||0;
+  el=document.querySelector('.legend-item:nth-child(4) strong'); if(el)el.textContent=counts.free||0;
+  el=document.querySelector('.donut-label span'); if(el)el.textContent=total;
+}
 function adminInit() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
   autoSeedDefaults();
@@ -203,7 +235,7 @@ function setupLoginHandlers() {
 
   // Topbar buttons
   document.getElementById("main-site-btn").addEventListener("click", () => {
-    window.open("../index.html", "_blank");
+    window.open(window.location.origin + "/", "_blank");
   });
   document.getElementById("sidebar-toggle-btn").addEventListener("click", toggleSidebar);
 }
@@ -276,6 +308,8 @@ function bootAdminApp(email = ADMIN_EMAIL) {
   syncSupportBadge();
   logAction("Admin Login", "Auth System");
   updateKPIs();
+  updateActivityFeed();
+  updateDonutChart();
   showToast("Welcome back, Admin!", "success");
 }
 
@@ -289,7 +323,7 @@ function updateKPIs() {
   try { support  = JSON.parse(localStorage.getItem('ar_support_queries') || '[]'); } catch {}
 
   const totalUsers   = users.length;
-  const activePlans  = users.filter(u => u.plan && u.plan !== 'free').length;
+  const activePlans  = users.filter(function(u){ var pr=null; try{pr=JSON.parse(localStorage.getItem('ar_plan_'+u.email.toLowerCase())||'null');}catch{} return pr && pr.plan && pr.plan!=='free' && Date.now()<pr.expiry; }).length;
   const openTickets  = [...MOCK_SUPPORT, ...support].filter(q => q.status === 'open').length;
 
   // Revenue today: sum payments from last 24h
@@ -541,7 +575,20 @@ function buildUsersTable(filter ="", planFilter ="") {
   document.getElementById("next-page-btn").onclick = () => { if (currentPage<pages){ currentPage++; buildUsersTable(); }};
 }
 
-function upgradeUser(i) { showToast(`User upgraded to next plan!`, "success"); }
+function upgradeUser(i) {
+  var accs=[]; try{accs=JSON.parse(localStorage.getItem('ar_accounts')||'[]');}catch{}
+  var u=accs[i]; if(!u){showToast("User not found.","error");return;}
+  var planOrder=['free','growth','scale','enterprise'];
+  var pr=null; try{pr=JSON.parse(localStorage.getItem('ar_plan_'+u.email.toLowerCase())||'null');}catch{}
+  var curr=(pr&&pr.plan)||'free'; var idx=planOrder.indexOf(curr.toLowerCase());
+  var next=planOrder[Math.min(idx+1,planOrder.length-1)];
+  if(next===curr){showToast("User is already on the highest plan.","info");return;}
+  var expiry=Date.now()+30*24*60*60*1000;
+  localStorage.setItem('ar_plan_'+u.email.toLowerCase(), JSON.stringify({plan:next,expiry:expiry,utr:'admin-upgrade'}));
+  buildUsersTable(); updateKPIs();
+  logAction("User Upgraded",""+u.email+" → "+next);
+  showToast(u.email+" upgraded to "+next.charAt(0).toUpperCase()+next.slice(1)+"!","success");
+}
 function suspendUser(i, email) {
   confirmAction("Suspend User", `Suspend access for ${email}?`, () => {
     MOCK_USERS[i].status = "suspended";
@@ -822,7 +869,7 @@ function saveFrameworks() {
 function buildPaymentsTable() {
   let stored = [];
   try { stored = JSON.parse(localStorage.getItem(LS_PAYMENTS) || "[]"); } catch {}
-  const all = [...stored, ...MOCK_PAYMENTS];
+  const all = stored;
   const tbody = document.getElementById("payments-tbody");
   if (!tbody) return;
   if (!all.length) {
@@ -1041,6 +1088,13 @@ function buildAuditLog() {
 }
 
 function logAction(action, target) {
+  // Also persist to localStorage for activity feed
+  try {
+    var logs=[]; try{logs=JSON.parse(localStorage.getItem('ar_audit_log')||'[]');}catch{}
+    logs.unshift({action:action,target:target||'',ts:Date.now()});
+    if(logs.length>100) logs=logs.slice(0,100);
+    localStorage.setItem('ar_audit_log', JSON.stringify(logs));
+  } catch {}
   auditLog.unshift({ action, admin: ADMIN_EMAIL, target, ip:"192.168.1.1", ts: new Date().toLocaleTimeString() });
   if (auditLog.length > 100) auditLog.pop();
   buildAuditLog();

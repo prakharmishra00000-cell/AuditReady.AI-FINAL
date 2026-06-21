@@ -1523,11 +1523,15 @@ window.addEventListener("load", function initSupportForm() {
                     });
                     if (!res.ok) throw new Error(`Worker returned ${res.status}`);
                 } else {
-                    // " Demo mode  - simulates success until Worker URL is configured
+                    // "Demo mode - simulates success until Worker URL is configured
                     await new Promise(res => setTimeout(res, 1500));
                     console.log("Demo mode  - configure WORKER_URL to enable real email sending via Brevo (300/day free).", payload);
                 }
 
+                // Save query to localStorage so admin panel sees it
+                try { var qs=[]; try{qs=JSON.parse(localStorage.getItem('ar_support_queries')||'[]');}catch{}
+                qs.unshift({id:Date.now(),name:payload.from_name,email:payload.from_email,subject:payload.subject,msg:payload.message,time:new Date().toLocaleString('en-IN'),status:'open',attachments:supportFiles.map(function(f){return f.name;})});
+                localStorage.setItem('ar_support_queries',JSON.stringify(qs)); } catch {}
                 // Success
                 sendBtn.querySelector("span").textContent = "Ã¢Å“... Query Sent!";
                 sendBtn.style.background = "var(--success)";
