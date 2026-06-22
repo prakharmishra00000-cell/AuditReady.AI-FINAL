@@ -2242,25 +2242,7 @@ window.addEventListener("load", function initSupportForm() {
         if (el('nud-name'))      el('nud-name').textContent = user.name || user.email.split('@')[0];
         if (el('nud-email'))     el('nud-email').textContent = user.email;
 
-        // Dynamic Admin panel link redirection injection
-        const adminLink = document.getElementById('nud-admin-link');
-        if (user.email.toLowerCase() === 'prakharmishra00000@gmail.com') {
-            if (!adminLink) {
-                const upgradeLink = document.getElementById('nud-upgrade-link');
-                if (upgradeLink) {
-                    const newLink = document.createElement('a');
-                    newLink.href = 'admin/index.html';
-                    newLink.className = 'nud-item';
-                    newLink.id = 'nud-admin-link';
-                    newLink.innerHTML = '⚙️ Admin Panel';
-                    upgradeLink.parentNode.insertBefore(newLink, upgradeLink);
-                }
-            } else {
-                adminLink.style.display = '';
-            }
-        } else {
-            if (adminLink) adminLink.style.display = 'none';
-        }
+        // Dynamic Admin panel link redirection injection removed.
     }
 
     function updateNavForGuest() {
