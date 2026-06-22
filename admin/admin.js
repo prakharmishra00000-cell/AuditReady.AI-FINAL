@@ -555,7 +555,7 @@ function buildUsersTable(filter ="", planFilter ="") {
       <td><span class="status-pill ${u.status}">${u.status}</span></td>
       <td><div class="action-btns">
         <button class="btn-xs cyan" onclick="upgradeUser(${i})">Upgrade</button>
-        <button class="btn-xs orange" onclick="suspendUser(${i},'${u.email}')">Suspend</button>
+        <button class="btn-xs orange" onclick="suspendUser(${i},'${u.email}')">${u.status==='suspended'?'Unsuspend':'Suspend'}</button>
         <button class="btn-xs red" onclick="deleteUser(${i},'${u.name}')">Delete</button>
       </div></td>
     </tr>`).join("");
@@ -582,13 +582,20 @@ function upgradeUser(i) {
   showToast(u.email+" upgraded to "+next.charAt(0).toUpperCase()+next.slice(1)+"!","success");
 }
 function suspendUser(i, email) {
-  confirmAction("Suspend User", `Suspend access for ${email}?`, () => {
-    var accs=[]; try{accs=JSON.parse(localStorage.getItem('ar_accounts')||'[]');}catch{}
-    var u = accs.find(function(a){ return a.email.toLowerCase()===email.toLowerCase(); });
-    if (u) { u.suspended = true; localStorage.setItem('ar_accounts', JSON.stringify(accs)); }
+  var accs=[]; try{accs=JSON.parse(localStorage.getItem('ar_accounts')||'[]');}catch{}
+  var u = accs.find(function(a){ return a.email.toLowerCase()===email.toLowerCase(); });
+  var isSuspended = !!(u && u.suspended);
+  var actionText = isSuspended ? "Unsuspend User" : "Suspend User";
+  var promptMsg = isSuspended ? `Restore access for ${email}?` : `Suspend access for ${email}?`;
+
+  confirmAction(actionText, promptMsg, () => {
+    if (u) {
+      u.suspended = !isSuspended;
+      localStorage.setItem('ar_accounts', JSON.stringify(accs));
+    }
     buildUsersTable();
-    logAction("User Suspended", email);
-    showToast(`${email} has been suspended.`, "warning");
+    logAction(isSuspended ? "User Unsuspended" : "User Suspended", email);
+    showToast(`${email} has been ${isSuspended ? 'unsuspended' : 'suspended'}.`, isSuspended ? "success" : "warning");
   });
 }
 function deleteUser(i, name) {
@@ -725,6 +732,24 @@ function openQuery(id) {
     </div>
     <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem;font-size:.9rem;line-height:1.6;color:var(--text-muted)">${q.msg}</div>
     ${q.attachments.length ? `<div style="margin-bottom:1rem"><strong style="font-size:.8rem;color:var(--text-muted)">ATTACHMENTS</strong><div style="display:flex;gap:.5rem;margin-top:.4rem">${q.attachments.map(a=>`<span style="background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);border-radius:6px;padding:3px 10px;font-size:.8rem;color:var(--cyan)">${a}</span>`).join("")}</div></div>` : ""}
+    
+    ${q.replies && q.replies.length ? `
+      <div style="margin-bottom:1rem">
+        <strong style="font-size:.8rem;color:var(--text-muted)">CONVERSATION THREAD</strong>
+        <div style="margin-top:.4rem;display:flex;flex-direction:column;gap:.5rem">
+          ${q.replies.map(r => `
+            <div style="background:rgba(0,229,255,.03);border:1px solid rgba(0,229,255,.1);border-radius:8px;padding:.75rem;margin-left:1.5rem">
+              <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-dim);margin-bottom:.25rem">
+                <strong>${r.sender}</strong>
+                <span>${r.time}</span>
+              </div>
+              <div style="font-size:.85rem;color:var(--text-primary);line-height:1.5">${r.text}</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    ` : ""}
+
     <div class="form-group"><label>Reply to ${q.email}</label><textarea class="admin-textarea" rows="4" id="reply-msg" placeholder="Type your reply..."></textarea></div>
     <div style="display:flex;gap:.75rem;margin-top:.75rem">
       <button class="btn-action green" onclick="sendReply(${q.id})"><i data-lucide="send"></i> Send Reply</button>
@@ -742,10 +767,29 @@ function resolveQuery(id) {
 function sendReply(id) {
   const msg = document.getElementById("reply-msg")?.value;
   if (!msg?.trim()) { showToast("Please enter a reply message.", "error"); return; }
-  var allQ=[]; try{allQ=JSON.parse(localStorage.getItem('ar_support_queries')||'[]');}catch{}
-  var q = allQ.find(function(x){return x.id===id;});
-  showToast(`Reply sent to ${q ? q.email : 'user'}!`, "success");
-  document.getElementById("reply-msg").value = "";
+  
+  var allQueries = [];
+  try { allQueries = JSON.parse(localStorage.getItem('ar_support_queries') || '[]'); } catch {}
+  
+  var q = allQueries.find(x => x.id === id);
+  if (q) {
+    if (!q.replies) q.replies = [];
+    q.replies.push({
+      sender: 'Admin',
+      text: msg,
+      time: new Date().toLocaleString('en-IN')
+    });
+    q.status = 'resolved';
+    localStorage.setItem('ar_support_queries', JSON.stringify(allQueries));
+    
+    showToast(`Reply sent to ${q.email}!`, "success");
+    document.getElementById("reply-msg").value = "";
+    
+    buildSupportInbox();
+    openQuery(id);
+  } else {
+    showToast("Support query not found.", "error");
+  }
 }
 function deleteQuery(id) {
   confirmAction("Delete Query", "Remove this support query permanently?", function() {
@@ -892,13 +936,67 @@ function buildPaymentsTable() {
       <td>${p.time}</td>
       <td><span class="badge-${p.status==="completed"?"green":p.status==="pending"?"yellow":"red"}">${p.status}</span></td>
       <td><div class="action-btns">
-        ${p.status==="pending"?`<button class="btn-xs green" onclick="approvePay('${p.user}')">Approve</button>`:""}
-        <button class="btn-xs red" onclick="refundPay('${p.user}')">Refund</button>
+        ${p.status==="pending"?`<button class="btn-xs green" onclick="approvePay('${p.ref}')">Approve</button>`:""}
+        <button class="btn-xs red" onclick="refundPay('${p.ref}')">Refund</button>
       </div></td>
     </tr>`).join("");
+  (typeof lucide!=='undefined'&&lucide.createIcons());
 }
-function approvePay(user) { showToast(`Payment for ${user} approved. Plan activated.`, "success"); }
-function refundPay(user)  { confirmAction("Process Refund", `Issue a refund for ${user}?`, () => showToast(`Refund initiated for ${user}.`, "warning")); }
+function approvePay(ref) {
+  let payments = [];
+  try { payments = JSON.parse(localStorage.getItem(LS_PAYMENTS) || "[]"); } catch {}
+  let payRecord = payments.find(p => p.ref === ref);
+  if (payRecord) {
+    payRecord.status = 'completed';
+    localStorage.setItem(LS_PAYMENTS, JSON.stringify(payments));
+    
+    // Activate user plan
+    const userEmail = payRecord.user;
+    const planName = payRecord.plan.toLowerCase();
+    const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000;
+    localStorage.setItem('ar_plan_' + userEmail.toLowerCase(), JSON.stringify({
+      plan: planName,
+      expiry: expiry,
+      utr: ref
+    }));
+    
+    logAction("Payment Approved", "User: " + userEmail + ", Plan: " + payRecord.plan);
+    showToast(`Payment approved for ${userEmail}. Plan activated!`, "success");
+    
+    buildPaymentsTable();
+    updateKPIs();
+    updateDonutChart();
+    updateActivityFeed();
+  } else {
+    showToast("Payment transaction reference not found.", "error");
+  }
+}
+
+function refundPay(ref) {
+  let payments = [];
+  try { payments = JSON.parse(localStorage.getItem(LS_PAYMENTS) || "[]"); } catch {}
+  let payRecord = payments.find(p => p.ref === ref);
+  if (payRecord) {
+    confirmAction("Process Refund / Reject", `Issue a refund or reject payment (UTR: ${ref})?`, () => {
+      payRecord.status = 'refunded';
+      localStorage.setItem(LS_PAYMENTS, JSON.stringify(payments));
+      
+      // Remove user plan
+      const userEmail = payRecord.user;
+      localStorage.removeItem('ar_plan_' + userEmail.toLowerCase());
+      
+      logAction("Payment Refunded/Rejected", "User: " + userEmail);
+      showToast(`Refund processed for ${userEmail}. Plan revoked.`, "warning");
+      
+      buildPaymentsTable();
+      updateKPIs();
+      updateDonutChart();
+      updateActivityFeed();
+    });
+  } else {
+    showToast("Payment transaction reference not found.", "error");
+  }
+}
 function exportPayments() {
   var payments=[]; try{payments=JSON.parse(localStorage.getItem('ar_payments')||'[]');}catch{}
   const csv = ["User,Plan,Amount,Reference,Time,Status", ...payments.map(function(p){return `${p.user},${p.plan},${p.amount},"${p.ref||''}",${ p.time||''  },${p.status||''}`; })].join("\n");

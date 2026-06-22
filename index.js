@@ -865,7 +865,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
         if (!limits.frameworks.includes(currentFramework)) {
             showToast(`⚠️ ${currentFramework} is available on Pro & Enterprise plans. Upgrade to scan this framework.`, true);
             const session = JSON.parse(localStorage.getItem('ar_session') || 'null');
-            if (!session) { window.AR_openSignIn && AR_openSignIn(); }
+            if (!session) { window.AR_openSignIn && window.AR_openSignIn(); }
             return;
         }
 
@@ -1376,6 +1376,7 @@ window.addEventListener("load", function initSupportForm() {
     if (openSupportBtn) {
         openSupportBtn.addEventListener("click", () => {
             supportModal.classList.add("active");
+            syncSupportTabsState();
             (typeof lucide!=='undefined'&&lucide.createIcons());
         });
     }
@@ -1385,8 +1386,106 @@ window.addEventListener("load", function initSupportForm() {
         navSupportLink.addEventListener("click", (e) => {
             e.preventDefault();
             supportModal.classList.add("active");
+            syncSupportTabsState();
             (typeof lucide!=='undefined'&&lucide.createIcons());
         });
+    }
+
+    function syncSupportTabsState() {
+        const session = getSession();
+        const tabContainer = document.getElementById('support-modal-tabs');
+        if (session && tabContainer) {
+            tabContainer.style.display = 'flex';
+            window.AR_switchSupportTab('submit');
+        } else if (tabContainer) {
+            tabContainer.style.display = 'none';
+            window.AR_switchSupportTab('submit');
+        }
+    }
+
+    window.AR_switchSupportTab = function(tabName) {
+        const submitTabBtn = document.getElementById('tab-support-submit');
+        const historyTabBtn = document.getElementById('tab-support-history');
+        const formCol = document.getElementById('support-form-col');
+        const historyCol = document.getElementById('support-history-col');
+        
+        if (tabName === 'history') {
+            submitTabBtn?.classList.remove('active');
+            historyTabBtn?.classList.add('active');
+            if (formCol) formCol.style.display = 'none';
+            if (historyCol) {
+                historyCol.style.display = 'flex';
+                renderSupportHistory();
+            }
+        } else {
+            historyTabBtn?.classList.remove('active');
+            submitTabBtn?.classList.add('active');
+            if (historyCol) historyCol.style.display = 'none';
+            if (formCol) formCol.style.display = 'block';
+        }
+    };
+
+    function renderSupportHistory() {
+        const historyCol = document.getElementById('support-history-col');
+        if (!historyCol) return;
+        
+        const session = getSession();
+        if (!session) {
+            historyCol.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--text-muted)">Please sign in to view your tickets.</div>';
+            return;
+        }
+        
+        let allQueries = [];
+        try { allQueries = JSON.parse(localStorage.getItem('ar_support_queries') || '[]'); } catch {}
+        
+        const myQueries = allQueries.filter(q => q.email.toLowerCase() === session.email.toLowerCase());
+        
+        if (!myQueries.length) {
+            historyCol.innerHTML = `
+                <div style="text-align:center;padding:3rem 1rem;color:var(--text-muted);display:flex;flex-direction:column;align-items:center;gap:.75rem">
+                    <i data-lucide="inbox" style="width:36px;height:36px;opacity:.3"></i>
+                    <p style="font-size:.9rem">No support tickets submitted yet.</p>
+                </div>`;
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+            return;
+        }
+        
+        historyCol.innerHTML = myQueries.map(q => {
+            const repliesHtml = (q.replies || []).map(r => `
+                <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:.65rem;margin-top:.5rem;margin-left:1rem">
+                    <div style="display:flex;justify-content:space-between;font-size:.73rem;color:var(--text-muted);margin-bottom:.2rem">
+                        <strong>${r.sender}</strong>
+                        <span>${r.time}</span>
+                    </div>
+                    <div style="font-size:.8rem;color:var(--text-primary);line-height:1.4">${r.text}</div>
+                </div>
+            `).join('');
+            
+            return `
+                <div class="ticket-card" style="background:rgba(255,255,255,.02);border:1px solid var(--border-color);border-radius:10px;padding:1rem;margin-bottom:.75rem">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+                        <span class="badge-${q.status==='open'?'cyan':'green'}" style="font-size:.75rem;padding:2px 8px;border-radius:4px">${q.status}</span>
+                        <small style="color:var(--text-muted)">${q.time}</small>
+                    </div>
+                    <h4 style="font-size:.92rem;font-weight:700;color:var(--text-primary);margin-bottom:.3rem">${q.subject.charAt(0).toUpperCase() + q.subject.slice(1)}</h4>
+                    <p style="font-size:.82rem;color:var(--text-secondary);line-height:1.5;background:rgba(0,0,0,.15);padding:.5rem .75rem;border-radius:6px">${q.msg}</p>
+                    
+                    ${q.attachments && q.attachments.length ? `
+                        <div style="margin-top:.5rem;font-size:.75rem;color:var(--text-muted)">
+                            <strong>Attachments:</strong> ${q.attachments.join(', ')}
+                        </div>
+                    ` : ''}
+
+                    ${q.replies && q.replies.length ? `
+                        <div style="margin-top:.75rem;border-top:1px solid var(--border-color);padding-top:.75rem">
+                            <strong style="font-size:.78rem;color:var(--cyan);display:block;margin-bottom:.4rem">Replies</strong>
+                            ${repliesHtml}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+        (typeof lucide!=='undefined'&&lucide.createIcons());
     }
 
     // ---- File Attachment Logic ----
@@ -1509,6 +1608,7 @@ window.addEventListener("load", function initSupportForm() {
                     sendBtn.disabled = false;
                     sendBtn.querySelector("span").textContent = "Send Query";
                     sendBtn.style.background = "";
+                    renderSupportHistory(); // refresh history if viewing
                 }, 2000);
 
             } catch (err) {
@@ -1568,7 +1668,6 @@ window.addEventListener("load", function initSupportForm() {
     /* -- SYNC PRICING CARDS FROM ADMIN PLAN EDITOR -- */
     function applyAdminPlans() {
         const plans = readLS(LS_PLANS, null);
-        // Also read frameworks - kept for future framework-gating use
         var _fw = readLS('ar_frameworks', null);
         if (!plans) return;
         document.querySelectorAll('.price-card').forEach(function(card) {
@@ -1577,6 +1676,15 @@ window.addEventListener("load", function initSupportForm() {
             const pid = payBtn.dataset.plan;
             const p   = plans[pid];
             if (!p) return;
+
+            // Plan visibility
+            if (p.visible === false) {
+                card.style.display = 'none';
+                return;
+            } else {
+                card.style.display = '';
+            }
+
             var priceEl = card.querySelector('.price-val');
             if (priceEl && p.price) {
                 var monthly = Number(p.price);
@@ -1591,7 +1699,18 @@ window.addEventListener("load", function initSupportForm() {
             if (descEl && p.description) descEl.textContent = p.description;
             if (p.price) payBtn.dataset.price = String(p.price);
             if (p.name)  payBtn.dataset.name  = p.name;
+
+            // Render features dynamically
+            if (p.features && p.features.length) {
+                const uList = card.querySelector('.price-features ul');
+                if (uList) {
+                    uList.innerHTML = p.features.map(function(f) {
+                        return '<li><i data-lucide="check-circle" class="text-cyan"></i> ' + f + '</li>';
+                    }).join('');
+                }
+            }
         });
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     /* -- APPLY ADMIN SITE SETTINGS -- */
@@ -1841,12 +1960,18 @@ window.addEventListener("load", function initSupportForm() {
             errEl.style.display = 'block';
             return;
         }
+        let accountsList = getAccounts();
+        const existingAcc = accountsList.find(a => a.email.toLowerCase() === email);
+        if (existingAcc && existingAcc.suspended) {
+            errEl.textContent = 'Your account has been suspended by the administrator.';
+            errEl.style.display = 'block';
+            return;
+        }
         document.getElementById('google-demo-modal').remove();
         // Register if first time
-        let accounts = getAccounts();
-        if (!accounts.find(a => a.email.toLowerCase() === email)) {
-            accounts.push({ email, pwHash: null, name: name || email.split('@')[0], created: Date.now(), google: true });
-            saveAccounts(accounts);
+        if (!accountsList.find(a => a.email.toLowerCase() === email)) {
+            accountsList.push({ email, pwHash: null, name: name || email.split('@')[0], created: Date.now(), google: true });
+            saveAccounts(accountsList);
         }
         loginSuccess({ email, name: name || email.split('@')[0], isGoogle: true });
     };
@@ -1890,6 +2015,10 @@ window.addEventListener("load", function initSupportForm() {
         const account = findAccount(email);
         if (!account) {
             showError('si-error','No account found with this email. Please sign up first.');
+            return;
+        }
+        if (account.suspended) {
+            showError('si-error','Your account has been suspended by the administrator.');
             return;
         }
         if (account.google) {
@@ -1973,6 +2102,26 @@ window.addEventListener("load", function initSupportForm() {
         if (el('nav-user-email')) el('nav-user-email').textContent = user.email;
         if (el('nud-name'))      el('nud-name').textContent = user.name || user.email.split('@')[0];
         if (el('nud-email'))     el('nud-email').textContent = user.email;
+
+        // Dynamic Admin panel link redirection injection
+        const adminLink = document.getElementById('nud-admin-link');
+        if (user.email.toLowerCase() === 'prakharmishra00000@gmail.com') {
+            if (!adminLink) {
+                const upgradeLink = document.getElementById('nud-upgrade-link');
+                if (upgradeLink) {
+                    const newLink = document.createElement('a');
+                    newLink.href = 'admin/index.html';
+                    newLink.className = 'nud-item';
+                    newLink.id = 'nud-admin-link';
+                    newLink.innerHTML = '⚙️ Admin Panel';
+                    upgradeLink.parentNode.insertBefore(newLink, upgradeLink);
+                }
+            } else {
+                adminLink.style.display = '';
+            }
+        } else {
+            if (adminLink) adminLink.style.display = 'none';
+        }
     }
 
     function updateNavForGuest() {
@@ -2142,9 +2291,21 @@ window.addEventListener("load", function initSupportForm() {
         // -- Restore session on page load --
         const session = getSession();
         if (session) {
-            checkAndHandlePlanExpiry(session.email);
-            updateNavForUser(session);
-            loadUserPlanBadge(session.email);
+            // Check suspension state on restore
+            var accounts = [];
+            try { accounts = JSON.parse(localStorage.getItem('ar_accounts') || '[]'); } catch {}
+            var u = accounts.find(a => a.email.toLowerCase() === session.email.toLowerCase());
+            if (u && u.suspended) {
+                clearSession();
+                updateNavForGuest();
+                setTimeout(() => {
+                    _payToast('⚠️ Your account has been suspended by the administrator.', 'error');
+                }, 1000);
+            } else {
+                checkAndHandlePlanExpiry(session.email);
+                updateNavForUser(session);
+                loadUserPlanBadge(session.email);
+            }
         } else {
             updateNavForGuest();
         }
@@ -2280,25 +2441,28 @@ window.addEventListener("load", function initSupportForm() {
 
                 var planId = _payState.planId, price = _payState.price;
                 var planName = _payState.planName, userEmail = _payState.userEmail;
-                var expiry = Date.now() + 30 * 24 * 60 * 60 * 1000;
-
-                if (userEmail && window.AR_AUTH) window.AR_AUTH.setUserPlan(userEmail, planId, expiry, utr);
 
                 var payments = [];
                 try { payments = JSON.parse(localStorage.getItem('ar_payments') || '[]'); } catch {}
-                payments.unshift({ user: userEmail || 'Guest', plan: planName, amount: '\u20b9' + price.toLocaleString('en-IN'), ref: utr, time: new Date().toLocaleString('en-IN'), status: 'completed' });
+                payments.unshift({ 
+                    user: userEmail || 'Guest', 
+                    plan: planName, 
+                    amount: '₹' + price.toLocaleString('en-IN'), 
+                    ref: utr, 
+                    time: new Date().toLocaleString('en-IN'), 
+                    status: 'pending' 
+                });
                 localStorage.setItem('ar_payments', JSON.stringify(payments));
 
-                var nudPlan = document.getElementById('nud-plan');
-                if (nudPlan) nudPlan.textContent = '\u2705 ' + planName + ' Plan \u00b7 30d left';
+                _payToast('Payment submitted successfully! Waiting for administrator approval.', 'success');
 
                 var body = document.querySelector('#payment-modal .modal-body');
-                if (body) body.innerHTML = '<div class="pay-success-screen"><div class="pay-success-icon">\u2705</div>' +
-                    '<h3 style="font-size:1.3rem;font-weight:800;margin-bottom:.5rem">Plan Unlocked!</h3>' +
-                    '<p style="color:var(--text-muted);margin-bottom:.5rem"><strong style="color:var(--cyan)">' + planName + ' Plan</strong> active for 30 days.</p>' +
+                if (body) body.innerHTML = '<div class="pay-success-screen" style="text-align:center;padding:2rem 1rem"><div class="pay-success-icon" style="font-size:3rem;margin-bottom:1rem">⏳</div>' +
+                    '<h3 style="font-size:1.3rem;font-weight:800;margin-bottom:.5rem">Verification Pending</h3>' +
+                    '<p style="color:var(--text-muted);margin-bottom:.5rem">Your payment details for <strong style="color:var(--cyan)">' + planName + ' Plan</strong> have been submitted.</p>' +
+                    '<p style="color:var(--text-muted);margin-bottom:1rem;font-size:.85rem;line-height:1.5;max-width:280px;margin-inline:auto">Our billing team will verify your transaction (UTR: <code>' + utr + '</code>) and activate your features shortly.</p>' +
                     '<p style="font-size:.78rem;color:var(--text-muted);margin-bottom:.25rem">Account: <code style="color:var(--cyan)">' + (userEmail||'guest') + '</code></p>' +
-                    '<p style="font-size:.78rem;color:var(--text-muted)">UTR: <code>' + utr + '</code></p>' +
-                    '<button class="btn btn-primary btn-glow" style="margin-top:1.25rem" onclick="document.getElementById(\'payment-modal\').classList.remove(\'open\');window.location.reload();">Start Using Your Plan \u2192</button></div>';
+                    '<button class="btn btn-primary btn-glow" style="margin-top:1.25rem;padding:.6rem 2rem" onclick="document.getElementById(\'payment-modal\').classList.remove(\'open\');">Close</button></div>';
             });
         }
 

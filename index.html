@@ -17,7 +17,7 @@
         console.warn('Lucide icons CDN failed to load — icons hidden, functionality intact.');
       }
     </script>
-    <link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
     <!-- HEADER / NAVIGATION -->
@@ -40,8 +40,8 @@
             <div class="header-actions" id="header-actions">
                 <!-- Shown when NOT logged in -->
                 <div class="auth-btns" id="auth-btns-group">
-                    <button class="btn btn-secondary" id="open-signin-btn" onclick="window.AR_openSignIn&&AR_openSignIn()">Sign In</button>
-                    <button class="btn btn-primary btn-glow" id="open-signup-btn" onclick="window.AR_openSignUp&&AR_openSignUp()">
+                    <button class="btn btn-secondary" id="open-signin-btn" onclick="window.AR_openSignIn&&window.AR_openSignIn()">Sign In</button>
+                    <button class="btn btn-primary btn-glow" id="open-signup-btn" onclick="window.AR_openSignUp&&window.AR_openSignUp()">
                         <i data-lucide="user-plus"></i> Sign Up Free
                     </button>
                 </div>
@@ -2373,7 +2373,7 @@
     <!-- QR Code library for UPI payment QR generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Main JavaScript file -->
-    <script src="/index.js"></script>
+    <script src="index.js"></script>
 
     <!-- FLOATING HELP BUTTON -->
     <button class="help-float-btn" id="open-support-btn" title="Help &amp; Support">
@@ -2385,13 +2385,19 @@
     <div class="modal-overlay legal-modal" id="support-modal">
         <div class="modal-card support-modal-card">
             <div class="modal-header">
-                <div class="modal-title-section">
-                    <div class="support-modal-icon">
-                        <i data-lucide="life-buoy"></i>
+                <div class="modal-title-section" style="width:100%; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem">
+                    <div style="display:flex; align-items:center; gap:.75rem">
+                        <div class="support-modal-icon">
+                            <i data-lucide="life-buoy"></i>
+                        </div>
+                        <div>
+                            <h3>Help &amp; Support</h3>
+                            <p class="support-subtitle">We typically reply within 2-4 business hours</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3>Help &amp; Support</h3>
-                        <p class="support-subtitle">We typically reply within 2-4 business hours</p>
+                    <div class="support-tabs" id="support-modal-tabs" style="display:none; gap:.5rem; margin-right:1.5rem">
+                        <button class="btn btn-secondary btn-sm active" id="tab-support-submit" style="padding:4px 12px; border-radius:6px; font-size:.8rem; border:1px solid var(--border)">New Query</button>
+                        <button class="btn btn-secondary btn-sm" id="tab-support-history" style="padding:4px 12px; border-radius:6px; font-size:.8rem; border:1px solid var(--border)">My Tickets</button>
                     </div>
                 </div>
                 <button class="modal-close-btn legal-close-btn" data-target="support-modal"><i data-lucide="x"></i></button>
@@ -2399,7 +2405,7 @@
 
             <div class="support-body">
                 <!-- Left: Form -->
-                <div class="support-form-col">
+                <div class="support-form-col" id="support-form-col">
                     <div class="support-field">
                         <label for="support-name">Your Name</label>
                         <input type="text" id="support-name" class="support-input" placeholder="Rahul Sharma" />
@@ -2443,6 +2449,10 @@
                         <span>Send Query</span>
                     </button>
                     <p class="support-privacy-note"><i data-lucide="lock"></i> Your query is sent securely. We never share your information.</p>
+                </div>
+
+                <!-- Support History List -->
+                <div class="support-history-col" id="support-history-col" style="display:none; flex:1; flex-direction:column; gap:1rem; overflow-y:auto; max-height:420px; padding-right:5px">
                 </div>
 
                 <!-- Right: Contact Info -->
