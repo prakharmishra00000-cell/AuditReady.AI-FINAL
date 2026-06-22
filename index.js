@@ -449,6 +449,97 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
     const SHADOW_SOURCES = ["slack","jira","notion","s3","gdrive","local"];
     const SHADOW_FLAGS   = { slack:"flagged", jira:"flagged", s3:"flagged", notion:"flagged", gdrive:"done", local:"done" };
 
+    function sendOutboundAlerts(message) {
+        let creds = {};
+        try { creds = JSON.parse(localStorage.getItem('ar_credentials') || '{}'); } catch {}
+
+        if (creds.SLACK_WEBHOOK_URL) {
+            fetch(creds.SLACK_WEBHOOK_URL, {
+                method: 'POST',
+                body: JSON.stringify({ text: "🚨 AuditReady.AI Alert:\n" + message })
+            }).catch(e=>console.log('Slack alert failed:', e));
+        }
+
+        if (creds.TEAMS_WEBHOOK_URL) {
+            fetch(creds.TEAMS_WEBHOOK_URL, {
+                method: 'POST',
+                body: JSON.stringify({ text: "🚨 AuditReady.AI Alert:\n" + message })
+            }).catch(e=>console.log('Teams alert failed:', e));
+        }
+
+        if (creds.PAGERDUTY_INTEGRATION_KEY) {
+            fetch('https://events.pagerduty.com/v2/enqueue', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    routing_key: creds.PAGERDUTY_INTEGRATION_KEY,
+                    event_action: 'trigger',
+                    payload: { summary: message, source: 'AuditReady.AI', severity: 'critical' }
+                })
+            }).catch(e=>console.log('PagerDuty alert failed:', e));
+        }
+    }
+
+    async function fetchRealIntegrationData(src) {
+        let creds = {};
+        try { creds = JSON.parse(localStorage.getItem('ar_credentials') || '{}'); } catch {}
+
+        const proxyUrl = 'http://localhost:8080/api/proxy';
+
+        if (src === 'slack' && creds.SLACK_BOT_TOKEN) {
+            try {
+                const res = await fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        url: 'https://slack.com/api/conversations.list?limit=5',
+                        headers: { 'Authorization': `Bearer ${creds.SLACK_BOT_TOKEN}` }
+                    })
+                });
+                const data = await res.json();
+                return `Slack API Response: ${JSON.stringify(data.channels ? data.channels.map(c=>c.name) : data).substring(0,500)}`;
+            } catch(e) { return `Failed to fetch Slack: ${e.message}`; }
+        }
+        
+        if (src === 'jira' && creds.JIRA_BASE_URL && creds.JIRA_USER_EMAIL && creds.JIRA_API_TOKEN) {
+            try {
+                const auth = btoa(creds.JIRA_USER_EMAIL + ':' + creds.JIRA_API_TOKEN);
+                const res = await fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        url: `${creds.JIRA_BASE_URL.replace(/\/$/, '')}/rest/api/3/search?jql=order+by+created+DESC&maxResults=3`,
+                        headers: { 'Authorization': `Basic ${auth}`, 'Accept': 'application/json' }
+                    })
+                });
+                const data = await res.json();
+                return `Jira API Response: ${JSON.stringify(data.issues ? data.issues.map(i=>i.key) : data).substring(0,500)}`;
+            } catch(e) { return `Failed to fetch Jira: ${e.message}`; }
+        }
+
+        if (src === 'notion' && creds.NOTION_API_KEY) {
+            try {
+                const res = await fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        method: 'POST',
+                        url: 'https://api.notion.com/v1/search',
+                        headers: { 
+                            'Authorization': `Bearer ${creds.NOTION_API_KEY}`,
+                            'Notion-Version': '2022-06-28'
+                        },
+                        body: { page_size: 3 }
+                    })
+                });
+                const data = await res.json();
+                return `Notion API Response: ${JSON.stringify(data.results ? data.results.map(r=>r.id) : data).substring(0,500)}`;
+            } catch(e) { return `Failed to fetch Notion: ${e.message}`; }
+        }
+
+        return `Simulated shadow data log for ${src}.`;
+    }
+
     if (shadowScanBtn) {
         shadowScanBtn.addEventListener("click", () => {
             if (shadowScanBtn.disabled) return;
@@ -478,13 +569,15 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                     const flag = SHADOW_FLAGS[src];
                     // REAL GEMINI CALL FOR SHADOW DATA SCAN
                     const gemKey = window.AR_getActiveGeminiKey ? window.AR_getActiveGeminiKey() : "AIzaSy_YOUR_API_KEY_HERE";
-                    const prompt = `Analyze this simulated shadow data log for ${src}. Determine if there are compliance risks. Reply strictly in JSON: {"status": "Clean" | "Issues Found", "details": "short explanation"}`;
                     
-                    fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${gemKey}`, {
-                        method: 'POST',
-                        headers: {'Content-Type':'application/json'},
-                        body: JSON.stringify({contents:[{parts:[{text: prompt}]}]})
-                    }).then(res => res.json()).then(data => {
+                    fetchRealIntegrationData(src).then(realData => {
+                        const prompt = `Analyze this data log for ${src}: "${realData}". Determine if there are compliance risks. Reply strictly in JSON: {"status": "Clean" | "Issues Found", "details": "short explanation"}`;
+                        
+                        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${gemKey}`, {
+                            method: 'POST',
+                            headers: {'Content-Type':'application/json'},
+                            body: JSON.stringify({contents:[{parts:[{text: prompt}]}]})
+                        }).then(res => res.json()).then(data => {
                         const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || '{"status": "Issues Found"}';
                         const isFlagged = answer.includes("Issues Found") || answer.includes("flagged");
                         
@@ -517,11 +610,13 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                                         row.style.opacity = "0.4";
                                         row.style.transition = "opacity 0.5s";
                                     }
-                                    showToast(`${action} action initiated  - Security team notified via Slack & Email.`);
+                                    showToast(`${action} action initiated  - Security team notified via configured integrations.`);
+                                    sendOutboundAlerts(`${action} initiated for shadow data risk.`);
                                 });
                             });
                         }
                     });
+                }); // close fetchRealIntegrationData.then()
                 }, delay * (idx + 1));
             });
         });
@@ -761,7 +856,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                 const snippet = await readFileSnippet(file, 2000);
                 if (!snippet || snippet.trim().length < 50) continue;
                 const prompt = `You are a compliance document classifier. Given the first part of a document, determine if it is relevant for a compliance audit (e.g. contracts, policies, IAM configs, privacy policies, security reports, vendor agreements, HR records, data processing agreements). Reply with exactly one word: RELEVANT or IRRELEVANT.\n\nDocument name: ${file.name}\nContent snippet:\n${snippet}`;
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: {'Content-Type':'application/json'},
                     body: JSON.stringify({contents:[{parts:[{text: prompt}]}]})
@@ -924,7 +1019,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                 const snippet = await readFileSnippet(file._fileRef, 4000);
                 const prompt = buildGeminiScanPrompt(file.name, snippet, currentFramework);
 
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
@@ -1173,7 +1268,7 @@ Rules:
         const prompt = `Write a short description (max 10 words) of the remediation applied to fix this issue: "${activeRemediationRow.issue}".`;
         
         try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${gemKey}`, {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${gemKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })

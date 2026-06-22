@@ -827,7 +827,7 @@ function buildApiKeyGrid() {
         ${i===activeKeyIndex?'<span class="slot-active-badge">ACTIVE</span>':""}
       </div>
       <div class="slot-input-wrap">
-        <input type="password" class="slot-input" id="slot-input-${i}" placeholder="AIzaSy... (Gemini API key)" value="${keys[i]||""}">
+        <input type="password" class="slot-input" id="slot-input-${i}" placeholder="AIzaSy... / AQ... (Gemini API key)" value="${keys[i]||""}">
       </div>
       <div class="slot-usage"><span>Usage today</span><span>${usage ? usage*15+" / 1500" : "0 / 1500"} req</span></div>
       <div class="usage-bar-wrap"><div class="usage-bar-fill ${level}" style="width:${usage}%"></div></div>
@@ -882,7 +882,7 @@ function buildGeminiKeySlots() {
         <span class="gem-label">KEY #${i+1}</span>
         ${i===activeKeyIndex?'<span class="gem-active">&#9679; ACTIVE</span>':""}
       </div>
-      <input type="password" class="admin-input" id="gem-key-${i}" placeholder="AIzaSy..." value="${keys[i]|| ""}">
+      <input type="password" class="admin-input" id="gem-key-${i}" placeholder="AIzaSy... / AQ..." value="${keys[i]|| ""}">
     </div>`).join("");
 }
 
@@ -1136,16 +1136,22 @@ function testAllConnections() {
     return;
   }
   showToast('Testing Gemini API connection...', 'info');
-  fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${gemKey}`, {
+  fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${gemKey}`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({contents:[{parts:[{text:'Reply with exactly: OK'}]}]})
   }).then(r => r.json()).then(d => {
+    if (d.error) {
+      showToast('⚠️ API Error: ' + d.error.message, 'error');
+      console.error('Gemini API Error:', d.error);
+      return;
+    }
     const reply = d?.candidates?.[0]?.content?.parts?.[0]?.text || '';
     if (reply.includes('OK') || reply.length > 0) {
-      showToast('✅ Gemini API connected and working!', 'success');
+      showToast('✓ Gemini API connected and working!', 'success');
     } else {
-      showToast('⚠️ Gemini responded but unexpectedly. Check API key.', 'info');
+      showToast('⚠️ Gemini responded but unexpectedly. Check console.', 'info');
+      console.log('Unexpected Gemini response:', d);
     }
   }).catch(() => showToast('❌ Gemini API connection failed. Check your key.', 'error'));
   // Check Worker URL

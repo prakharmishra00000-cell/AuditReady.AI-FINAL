@@ -668,13 +668,206 @@
     <p id="confirm-msg"></p>
     <div class="confirm-btns">
       <button class="btn-modal-secondary close-modal-btn" data-target="confirm-modal">Cancel</button>
+              <tbody>
+                <tr><td><span class="badge-red">Critical</span></td><td><label class="toggle sm"><input type="checkbox" checked><span class="slider"></span></label></td><td><label class="toggle sm"><input type="checkbox" checked><span class="slider"></span></label></td><td><label class="toggle sm"><input type="checkbox" checked><span class="slider"></span></label></td><td><label class="toggle sm"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+                <tr><td><span class="badge-orange">High</span></td><td><label class="toggle sm"><input type="checkbox" checked><span class="slider"></span></label></td><td><label class="toggle sm"><input type="checkbox"><span class="slider"></span></label></td><td><label class="toggle sm"><input type="checkbox" checked><span class="slider"></span></label></td><td><label class="toggle sm"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+                <tr><td><span class="badge-yellow">Medium</span></td><td><label class="toggle sm"><input type="checkbox"><span class="slider"></span></label></td><td><label class="toggle sm"><input type="checkbox"><span class="slider"></span></label></td><td><label class="toggle sm"><input type="checkbox"><span class="slider"></span></label></td><td><label class="toggle sm"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+                <tr><td><span class="badge-grey">Low</span></td><td><label class="toggle sm"><input type="checkbox"><span class="slider"></span></label></td><td><label class="toggle sm"><input type="checkbox"><span class="slider"></span></label></td><td><label class="toggle sm"><input type="checkbox"><span class="slider"></span></label></td><td><label class="toggle sm"><input type="checkbox" checked><span class="slider"></span></label></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="settings-card">
+            <h4 class="settings-group-title">Notification Settings</h4>
+            <div class="form-group"><label>Slack Channel</label><input type="text" value="#compliance-alerts" class="admin-input"></div>
+            <div class="form-group"><label>PagerDuty Service</label><input type="text" value="AuditReady Compliance Alerts" class="admin-input"></div>
+            <div class="form-group"><label>Email Notification To</label><input type="email" value="prakharmishra00000@gmail.com" class="admin-input"></div>
+            <div class="form-group"><label>Cron Schedule</label><input type="text" value="0 2 * * * (Daily 2AM)" class="admin-input" readonly></div>
+            <button class="btn-action cyan" style="margin-top:.5rem" onclick="showToast('Test notification sent to all channels.','success')"><i data-lucide="send"></i> Send Test Notification</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ PANEL 12: AUDIT LOG ══════════════════ -->
+      <div class="panel hidden" id="panel-audit-log">
+        <div class="panel-header">
+          <div><h2 class="panel-title">Audit Log</h2><p class="panel-sub">All admin actions are logged with timestamps.</p></div>
+          <div class="panel-actions">
+            <input type="text" class="search-input" placeholder="Search logs..." id="log-search">
+            <button class="btn-action cyan" onclick="exportLog()"><i data-lucide="download"></i> Export</button>
+          </div>
+        </div>
+        <div class="table-card">
+          <table class="admin-table">
+            <thead><tr><th>Action</th><th>Admin</th><th>Target</th><th>IP</th><th>Timestamp</th></tr></thead>
+            <tbody id="audit-log-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════════════ PANEL 13: REPORTS ══════════════════ -->
+      <div class="panel hidden" id="panel-reports">
+        <div class="panel-header">
+          <div><h2 class="panel-title">Reports</h2><p class="panel-sub">Export platform data as CSV or JSON.</p></div>
+        </div>
+        <div class="reports-grid">
+          <div class="report-card"><div class="report-icon cyan"><i data-lucide="users"></i></div><h4>User Report</h4><p>All users with plan, join date, and status.</p><div class="form-group"><label>Date Range</label><select class="admin-input"><option>Last 30 days</option><option>Last 90 days</option><option>All time</option></select></div><button class="btn-action cyan" onclick="exportCSV('users')"><i data-lucide="download"></i> Download CSV</button></div>
+          <div class="report-card"><div class="report-icon green"><i data-lucide="indian-rupee"></i></div><h4>Payment Report</h4><p>All transactions with amounts and status.</p><div class="form-group"><label>Date Range</label><select class="admin-input"><option>Last 30 days</option><option>Last 90 days</option><option>All time</option></select></div><button class="btn-action green" onclick="exportCSV('payments')"><i data-lucide="download"></i> Download CSV</button></div>
+          <div class="report-card"><div class="report-icon orange"><i data-lucide="inbox"></i></div><h4>Support Report</h4><p>All support queries with status and response times.</p><div class="form-group"><label>Status</label><select class="admin-input"><option>All</option><option>Open</option><option>Resolved</option></select></div><button class="btn-action orange" onclick="exportCSV('support')"><i data-lucide="download"></i> Download CSV</button></div>
+          <div class="report-card"><div class="report-icon indigo"><i data-lucide="bar-chart-2"></i></div><h4>Scan Analytics</h4><p>AI scan usage by framework and user tier.</p><div class="form-group"><label>Framework</label><select class="admin-input"><option>All</option><option>SOC 2</option><option>GDPR</option><option>ISO 27001</option></select></div><button class="btn-action indigo" onclick="exportCSV('scans')"><i data-lucide="download"></i> Download JSON</button></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════ PANEL 14: SYSTEM SETUP ══════════════════ -->
+      <div class="panel hidden" id="panel-system-setup">
+        <div class="panel-header">
+          <div><h2 class="panel-title">&#9881; System Setup</h2><p class="panel-sub">Configure all credentials. Click "Save &amp; Initialize System" to apply to the backend.</p></div>
+          <div class="panel-actions">
+            <button class="btn-action red" onclick="clearAllCredentials()"><i data-lucide="trash-2"></i> Clear All</button>
+            <button class="btn-action cyan" onclick="testAllConnections()"><i data-lucide="zap"></i> Test All</button>
+            <button class="btn-action setup-init-btn" id="init-system-btn"><i data-lucide="rocket"></i> Save &amp; Initialize System</button>
+          </div>
+        </div>
+
+        <div class="setup-status-bar" id="setup-status-bar">
+          <i data-lucide="info"></i> Fill in your credentials and click <strong>Save &amp; Initialize System</strong> to activate the website.
+        </div>
+
+        <!-- 9 Gemini API Keys -->
+        <div class="setup-section">
+          <div class="setup-section-header"><i data-lucide="brain"></i><div><h4>Gemini AI API Keys &mdash; Rotation Pool (9 Slots)</h4><p>Keys rotate automatically when daily limit (1,500 req/day) is reached. Users never see the switch.</p></div></div>
+          <div class="gemini-keys-grid" id="gemini-keys-grid">
+            <!-- Injected by JS (9 slots) -->
+          </div>
+        </div>
+
+        <!-- Brevo Email -->
+        <div class="setup-section">
+          <div class="setup-section-header"><i data-lucide="mail"></i><div><h4>Email &mdash; Brevo SMTP</h4><p>300 emails/day free. Used for Help &amp; Support form.</p></div><span class="cred-badge">Free &middot; 300/day</span></div>
+          <div class="cred-grid">
+            <div class="form-group"><label>SMTP Host</label><input type="text" class="admin-input cred-input" data-key="BREVO_SMTP_HOST" placeholder="smtp-relay.brevo.com"></div>
+            <div class="form-group"><label>SMTP Port</label><input type="text" class="admin-input cred-input" data-key="BREVO_SMTP_PORT" placeholder="587"></div>
+            <div class="form-group"><label>SMTP User (email)</label><input type="text" class="admin-input cred-input" data-key="BREVO_SMTP_USER" placeholder="prakharmishra00000@gmail.com"></div>
+            <div class="form-group"><label>SMTP Password</label><input type="password" class="admin-input cred-input" data-key="BREVO_SMTP_PASS" placeholder="xsmtpsib-xxxx..."></div>
+            <div class="form-group span-2"><label>Brevo API Key</label><input type="password" class="admin-input cred-input" data-key="BREVO_API_KEY" placeholder="xkeysib-xxxx..."></div>
+          </div>
+        </div>
+
+        <!-- Firebase -->
+        <div class="setup-section">
+          <div class="setup-section-header"><i data-lucide="database"></i><div><h4>Database + Auth &mdash; Firebase</h4><p>50,000 reads/day + 20,000 writes/day free. Replaces Supabase.</p></div><span class="cred-badge">Free &middot; 50k reads/day</span></div>
+          <div class="cred-grid">
+            <div class="form-group"><label>API Key</label><input type="password" class="admin-input cred-input" data-key="FIREBASE_API_KEY" placeholder="AIzaSy..."></div>
+            <div class="form-group"><label>Auth Domain</label><input type="text" class="admin-input cred-input" data-key="FIREBASE_AUTH_DOMAIN" placeholder="project.firebaseapp.com"></div>
+            <div class="form-group"><label>Project ID</label><input type="text" class="admin-input cred-input" data-key="FIREBASE_PROJECT_ID" placeholder="auditready-ai"></div>
+            <div class="form-group"><label>Storage Bucket</label><input type="text" class="admin-input cred-input" data-key="FIREBASE_STORAGE_BUCKET" placeholder="project.appspot.com"></div>
+            <div class="form-group"><label>Messaging Sender ID</label><input type="text" class="admin-input cred-input" data-key="FIREBASE_MESSAGING_SENDER_ID" placeholder="123456789012"></div>
+            <div class="form-group"><label>App ID</label><input type="text" class="admin-input cred-input" data-key="FIREBASE_APP_ID" placeholder="1:xxx:web:xxx"></div>
+            <div class="form-group"><label>Client Email (Service Account)</label><input type="text" class="admin-input cred-input" data-key="FIREBASE_CLIENT_EMAIL" placeholder="firebase-adminsdk@..."></div>
+            <div class="form-group"><label>Private Key</label><input type="password" class="admin-input cred-input" data-key="FIREBASE_PRIVATE_KEY" placeholder="-----BEGIN PRIVATE KEY-----"></div>
+          </div>
+        </div>
+
+        <!-- Cloudflare -->
+        <div class="setup-section">
+          <div class="setup-section-header"><i data-lucide="cloud"></i><div><h4>Hosting + Serverless – Cloudflare</h4><p>Pages: Unlimited/day. Workers: 100,000 req/day free.</p></div><span class="cred-badge">Free &middot; Unlimited/day</span></div>
+          <div class="cred-grid">
+            <div class="form-group"><label>Account ID</label><input type="text" class="admin-input cred-input" data-key="CLOUDFLARE_ACCOUNT_ID" placeholder="xxxxxxxxxxxxxxxx"></div>
+            <div class="form-group"><label>Worker URL (Support)</label><input type="text" class="admin-input cred-input" data-key="CLOUDFLARE_WORKER_URL" placeholder="https://auditready-support.xxx.workers.dev"></div>
+            <div class="form-group"><label>R2 Access Key</label><input type="password" class="admin-input cred-input" data-key="CLOUDFLARE_R2_ACCESS_KEY" placeholder="xxxx..."></div>
+            <div class="form-group"><label>R2 Secret Key</label><input type="password" class="admin-input cred-input" data-key="CLOUDFLARE_R2_SECRET_KEY" placeholder="xxxx..."></div>
+            <div class="form-group"><label>R2 Bucket Name</label><input type="text" class="admin-input cred-input" data-key="CLOUDFLARE_R2_BUCKET" placeholder="auditready-documents"></div>
+            <div class="form-group"><label>R2 Endpoint</label><input type="text" class="admin-input cred-input" data-key="CLOUDFLARE_R2_ENDPOINT" placeholder="https://ACCOUNT_ID.r2.cloudflarestorage.com"></div>
+          </div>
+        </div>
+
+        <!-- Razorpay -->
+        <div class="setup-section">
+          <div class="setup-section-header"><i data-lucide="credit-card"></i><div><h4>Payments – Razorpay</h4><p>No monthly limit. 2% per transaction. UPI: 6372843175@kotakbank</p></div><span class="cred-badge">2% / txn</span></div>
+          <div class="cred-grid">
+            <div class="form-group"><label>Key ID</label><input type="text" class="admin-input cred-input" data-key="RAZORPAY_KEY_ID" placeholder="rzp_live_xxxx..."></div>
+            <div class="form-group"><label>Key Secret</label><input type="password" class="admin-input cred-input" data-key="RAZORPAY_KEY_SECRET" placeholder="xxxx..."></div>
+            <div class="form-group"><label>Webhook Secret</label><input type="password" class="admin-input cred-input" data-key="RAZORPAY_WEBHOOK_SECRET" placeholder="xxxx..."></div>
+            <div class="form-group"><label>UPI ID</label><input type="text" class="admin-input cred-input" data-key="UPI_ID" placeholder="6372843175@kotakbank" value="6372843175@kotakbank"></div>
+            <div class="form-group"><label>UPI Account Name</label><input type="text" class="admin-input cred-input" data-key="UPI_NAME" placeholder="AuditReady.AI" value="AuditReady.AI"></div>
+          </div>
+        </div>
+
+        <!-- Authentication & SSO -->
+        <div class="setup-section">
+          <div class="setup-section-header"><i data-lucide="shield-check"></i><div><h4>Authentication &amp; Single Sign-On (SSO)</h4><p>Enable Google "Continue with Google" Login and Admin notifications.</p></div></div>
+          <div class="cred-grid">
+            <div class="form-group"><label>Google Client ID</label><input type="text" class="admin-input cred-input" data-key="GOOGLE_CLIENT_ID" placeholder="123456...apps.googleusercontent.com"></div>
+            <div class="form-group"><label>Admin Notification Email</label><input type="text" class="admin-input cred-input" data-key="ADMIN_EMAIL" placeholder="admin@yourdomain.com"></div>
+          </div>
+        </div>
+
+        <!-- Cloud Storage -->
+        <div class="setup-section">
+          <div class="setup-section-header"><i data-lucide="hard-drive"></i><div><h4>Cloud Storage – OneDrive + AWS</h4><p>OAuth credentials for user document ingestion.</p></div></div>
+          <div class="cred-grid">
+            <div class="form-group"><label>Google Client Secret</label><input type="password" class="admin-input cred-input" data-key="GOOGLE_CLIENT_SECRET" placeholder="GOCSPX-xxxx..."></div>
+            <div class="form-group"><label>Azure Client ID</label><input type="text" class="admin-input cred-input" data-key="AZURE_CLIENT_ID" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+            <div class="form-group"><label>Azure Client Secret</label><input type="password" class="admin-input cred-input" data-key="AZURE_CLIENT_SECRET" placeholder="xxxxxxx~xxxx..."></div>
+            <div class="form-group"><label>Azure Tenant ID</label><input type="text" class="admin-input cred-input" data-key="AZURE_TENANT_ID" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+            <div class="form-group"><label>AWS Access Key ID</label><input type="text" class="admin-input cred-input" data-key="AWS_ACCESS_KEY_ID" placeholder="AKIAXXXX..."></div>
+            <div class="form-group"><label>AWS Secret Access Key</label><input type="password" class="admin-input cred-input" data-key="AWS_SECRET_ACCESS_KEY" placeholder="xxxx..."></div>
+            <div class="form-group"><label>AWS Region</label><input type="text" class="admin-input cred-input" data-key="AWS_REGION" placeholder="ap-south-1"></div>
+            <div class="form-group"><label>Notion API Key</label><input type="password" class="admin-input cred-input" data-key="NOTION_API_KEY" placeholder="secret_xxxx..."></div>
+          </div>
+        </div>
+
+        <!-- Enterprise Channels -->
+        <div class="setup-section">
+          <div class="setup-section-header"><i data-lucide="bell"></i><div><h4>Alert Channels + Enterprise</h4><p>Slack, Teams, PagerDuty, Jira, DocuSign.</p></div></div>
+          <div class="cred-grid">
+            <div class="form-group"><label>Slack Webhook URL (CCM alerts)</label><input type="text" class="admin-input cred-input" data-key="SLACK_WEBHOOK_URL" placeholder="https://hooks.slack.com/services/..."></div>
+            <div class="form-group"><label>Slack Bot Token (Shadow Data)</label><input type="password" class="admin-input cred-input" data-key="SLACK_BOT_TOKEN" placeholder="xoxb-xxxx..."></div>
+            <div class="form-group"><label>Teams Webhook URL</label><input type="text" class="admin-input cred-input" data-key="TEAMS_WEBHOOK_URL" placeholder="https://xxxxx.webhook.office.com/..."></div>
+            <div class="form-group"><label>PagerDuty Integration Key</label><input type="password" class="admin-input cred-input" data-key="PAGERDUTY_INTEGRATION_KEY" placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"></div>
+            <div class="form-group"><label>Jira Base URL</label><input type="text" class="admin-input cred-input" data-key="JIRA_BASE_URL" placeholder="https://yourcompany.atlassian.net"></div>
+            <div class="form-group"><label>Jira User Email</label><input type="text" class="admin-input cred-input" data-key="JIRA_USER_EMAIL" placeholder="prakharmishra00000@gmail.com"></div>
+            <div class="form-group"><label>Jira API Token</label><input type="password" class="admin-input cred-input" data-key="JIRA_API_TOKEN" placeholder="ATATT..."></div>
+            <div class="form-group"><label>DocuSign Integration Key</label><input type="text" class="admin-input cred-input" data-key="DOCUSIGN_INTEGRATION_KEY" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+            <div class="form-group"><label>DocuSign User ID</label><input type="text" class="admin-input cred-input" data-key="DOCUSIGN_USER_ID" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+            <div class="form-group"><label>DocuSign Account ID</label><input type="text" class="admin-input cred-input" data-key="DOCUSIGN_ACCOUNT_ID" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
+            <div class="form-group span-2"><label>DocuSign Base URL</label><input type="text" class="admin-input cred-input" data-key="DOCUSIGN_BASE_URL" placeholder="https://demo.docusign.net/restapi" value="https://demo.docusign.net/restapi"></div>
+          </div>
+        </div>
+
+        <!-- JWT / Security -->
+        <div class="setup-section">
+          <div class="setup-section-header"><i data-lucide="lock"></i><div><h4>Security</h4><p>JWT secret for session tokens.</p></div></div>
+          <div class="cred-grid">
+            <div class="form-group span-2"><label>JWT Secret (64-byte hex)</label><div class="input-with-gen"><input type="password" class="admin-input cred-input" data-key="JWT_SECRET" placeholder="Generate below..." id="jwt-secret-input"><button class="btn-gen" onclick="generateJWT()"><i data-lucide="refresh-cw"></i> Generate</button></div></div>
+          </div>
+        </div>
+
+        <!-- Initialize Button -->
+        <div class="init-footer">
+          <div class="init-footer-info"><i data-lucide="info"></i><p>Clicking <strong>Save &amp; Initialize System</strong> encrypts and stores all credentials to localStorage and applies them to the AuditReady.AI backend. The main site will use these credentials immediately on next load.</p></div>
+          <button class="btn-init-big" id="init-big-btn"><i data-lucide="rocket"></i> Save &amp; Initialize System</button>
+        </div>
+      </div><!-- end system-setup panel -->
+
+    </main><!-- end admin-main -->
+  </div><!-- end admin-layout -->
+</div><!-- end admin-app -->
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal-box sm">
+    <h3 id="confirm-title">Confirm Action</h3>
+    <p id="confirm-msg"></p>
+    <div class="confirm-btns">
+      <button class="btn-modal-secondary close-modal-btn" data-target="confirm-modal">Cancel</button>
       <button class="btn-modal-primary" id="confirm-ok-btn">Confirm</button>
     </div>
   </div>
 </div>
 
-<script src="admin.js"></script>
+<script src="admin.js?v=3"></script>
 </body>
 </html>
-
-
