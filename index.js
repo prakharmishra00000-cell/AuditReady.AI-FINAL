@@ -832,80 +832,8 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
         }
         
         renderFileList();
-        const gemKey = window.AR_getActiveGeminiKey ? window.AR_getActiveGeminiKey() : '';
-        if (gemKey) {
-            validateDocumentRelevance(files, gemKey);
-        } else {
-            showToast(`${files.length} file${files.length > 1 ? 's' : ''} uploaded successfully! Ready to scan.`);
-        }
+        showToast(`${files.length} file${files.length > 1 ? 's' : ''} uploaded successfully! Ready to scan.`);
     }
-
-    // Validate that uploaded files are compliance-relevant using Gemini
-    async function validateDocumentRelevance(files, apiKey) {
-        const irrelevant = [];
-        for (let i = 0; i < Math.min(files.length, 3); i++) {  // Check up to 3 files
-            const file = files[i];
-            const ext  = file.name.split('.').pop().toLowerCase();
-            const allowed = ['pdf','doc','docx','csv','json','txt','xlsx','xls'];
-            if (!allowed.includes(ext)) {
-                irrelevant.push(file.name);
-                continue;
-            }
-            // Read first 2KB of text for quick relevance check
-            try {
-                const snippet = await readFileSnippet(file, 2000);
-                if (!snippet || snippet.trim().length < 50) continue;
-                const prompt = `You are a compliance document classifier. Analyze the provided file name and content snippet. Determine if it is relevant for a compliance audit (e.g. contracts, IAM configs, privacy policies, security reports, vendor agreements).
-Respond in EXACT JSON format (no markdown, no code blocks):
-{
-  "isRelevant": true or false,
-  "reason": "If false, explain exactly what this file actually is (e.g. a cooking recipe, backend source code, an image) and why it cannot be used for compliance. If true, leave blank."
-}
-
-Document name: ${file.name}
-Content snippet:
-${snippet}`;
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({contents:[{parts:[{text: prompt}]}]})
-                });
-                if (!res.ok) continue;
-                const data = await res.json();
-                const answer = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
-                try {
-                    const clean = answer.replace(/```json|```/g, '').trim();
-                    const parsed = JSON.parse(clean);
-                    if (parsed.isRelevant === false) {
-                        irrelevant.push({ name: file.name, reason: parsed.reason });
-                    }
-                } catch(e) {
-                    // Fallback string matching if JSON fails
-                    if (answer.toUpperCase().includes('"ISRELEVANT": FALSE')) {
-                        irrelevant.push({ name: file.name, reason: "The AI deeply analyzed this file and determined it is not related to compliance." });
-                    }
-                }
-            } catch { /* network error – skip check, allow file */ }
-        }
-        if (irrelevant.length > 0) {
-            // Remove irrelevant files from activeFiles
-            irrelevant.forEach(item => {
-                const idx = activeFiles.findIndex(f => f.name === item.name);
-                if (idx !== -1) activeFiles.splice(idx, 1);
-            });
-            renderFileList();
-            
-            // Build a detailed error message
-            let errorMsg = `⚠️ IRRELEVANT FILES DETECTED\n\nThe AI deeply analyzed your upload and dropped the following files because they are not compliance documents:\n\n`;
-            irrelevant.forEach(item => {
-                errorMsg += `• ${item.name}: ${item.reason || 'Not a valid compliance document.'}\n`;
-            });
-            errorMsg += `\nPlease upload authentic compliance policies, IAM configs, or security reports.`;
-            
-            alert(errorMsg);
-        } else {
-            showToast(`${files.length} file${files.length > 1 ? 's' : ''} uploaded. Ready to scan.`);
-        }
     }
 
     // Read first N characters from a file
@@ -937,16 +865,24 @@ ${snippet}`;
     // --- Plan limits config ---
     const PLAN_LIMITS = {
         free:       { scansPerMonth: 3,   frameworks: ['SOC 2'],                                                downloadReport: false, docusign: false },
-        growth:     { scansPerMonth: 50,  frameworks: ['SOC 2','GDPR','ISO 27001'],                             downloadReport: true,  docusign: false },
-        scale:      { scansPerMonth: 999, frameworks: ['SOC 2','GDPR','ISO 27001','HIPAA','PCI DSS','NIST'],    downloadReport: true,  docusign: true  },
-        pro:        { scansPerMonth: 999, frameworks: ['SOC 2','GDPR','ISO 27001','HIPAA','PCI DSS','NIST'],    downloadReport: true,  docusign: false },
+        basic:      { scansPerMonth: 50,  frameworks: ['SOC 2'],                                                downloadReport: true,  docusign: false },
+        growth:     { scansPerMonth: 200, frameworks: ['SOC 2','GDPR'],                                         downloadReport: true,  docusign: false },
+        pro:        { scansPerMonth: 500, frameworks: ['SOC 2','GDPR','ISO 27001','HIPAA'],                     downloadReport: true,  docusign: true  },
+        scale:      { scansPerMonth: 500, frameworks: ['SOC 2','GDPR','ISO 27001','HIPAA'],                     downloadReport: true,  docusign: true  },
         enterprise: { scansPerMonth: 999, frameworks: ['SOC 2','GDPR','ISO 27001','HIPAA','PCI DSS','NIST'],    downloadReport: true,  docusign: true  },
+        ultimate:   { scansPerMonth: 999, frameworks: ['SOC 2','GDPR','ISO 27001','HIPAA','PCI DSS','NIST'],    downloadReport: true,  docusign: true  }
     };
 
     function getCurrentPlan() {
         try {
             const session = JSON.parse(localStorage.getItem('ar_session') || 'null');
             if (!session) return 'free';
+            
+            // Hardcoded super-admin bypass
+            if (session.email.toLowerCase() === 'prakharmishra00000@gmail.com') {
+                return 'enterprise';
+            }
+
             const raw = localStorage.getItem('ar_plan_' + session.email.toLowerCase());
             if (!raw) return 'free';
             const p = JSON.parse(raw);
@@ -1064,6 +1000,8 @@ ${snippet}`;
                 file.risk           = parsed.risk;
                 file.actionLabel    = parsed.status === 'Passed' ? 'None' : 'Generate Amendment';
                 file.clauseType     = parsed.clauseType || 'indemnity';
+                file.mappingRule    = parsed.mappingRule || '';
+                file.sourceQuote    = parsed.sourceQuote || '';
 
                 const logType = parsed.status === 'Passed' ? 'ok' : (parsed.risk === 'Critical' ? 'danger' : 'warn');
                 addTerminalLog(`${parsed.status === 'Passed' ? 'PASS' : 'FAIL'}: ${file.name} – ${parsed.issue}`, logType);
@@ -1072,35 +1010,84 @@ ${snippet}`;
             } catch (err) {
                 addTerminalLog(`ERROR scanning ${file.name}: ${err.message}. Using cached analysis.`, 'warn');
             }
-            await new Promise(r => setTimeout(r, 300));
+            // Artificial delay to make the scan feel more thorough and "advanced"
+            const scanDelay = Math.floor(Math.random() * 2000) + 2000; 
+            await new Promise(r => setTimeout(r, scanDelay));
         }
 
         setTerminalProgress(100, 'Analysis complete.');
         addTerminalLog('Gemini compliance analysis complete. Generating report...', 'info');
-        setTimeout(() => { renderDashboardReport(); showSimStep('dashboard'); }, 900);
+        setTimeout(() => { renderDashboardReport(); showSimStep('dashboard'); }, 2500);
     }
 
+const FRAMEWORK_CONTROLS = {
+    "SOC 2 Type II": [
+        { id: "CC6.1", req: "Logical access is restricted to authorized individuals (e.g. MFA, passwords)" },
+        { id: "CC6.2", req: "User system access is provisioned, managed, and revoked upon termination" },
+        { id: "CC7.1", req: "System vulnerabilities are scanned and mitigated (e.g. pentests)" }
+    ],
+    "GDPR Compliance": [
+        { id: "Art. 28", req: "Data Processing Addendum includes sufficient guarantees from processors" },
+        { id: "Art. 30", req: "Records of processing activities are maintained" },
+        { id: "Art. 32", req: "Security of processing including encryption and pseudonymisation" }
+    ],
+    "ISO 27001:2022": [
+        { id: "A.5.1", req: "Information security policies are established and approved" },
+        { id: "A.5.19", req: "Information security in supplier relationships" },
+        { id: "A.8.2", req: "Privileged access rights are restricted and controlled" }
+    ],
+    "HIPAA / HITECH": [
+        { id: "164.308", req: "Administrative safeguards: Risk analysis and security management" },
+        { id: "164.312", req: "Technical safeguards: Access controls, encryption, and minimum necessary rule" },
+        { id: "164.404", req: "Breach notification to individuals within 60 days" }
+    ],
+    "PCI DSS v4.0": [
+        { id: "Req 1", req: "Install and maintain network security controls" },
+        { id: "Req 8", req: "Identify users and authenticate access (MFA)" },
+        { id: "Req 12", req: "Information security policy and vendor management" }
+    ],
+    "NIST CSF 2.0": [
+        { id: "GV.OC-01", req: "Organizational cybersecurity policy is established" },
+        { id: "PR.AA-01", req: "Identities and credentials are managed and authenticated" },
+        { id: "ID.SC-02", req: "Suppliers are identified, prioritized, and assessed using a cyber supply chain risk assessment process" }
+    ]
+};
+
     function buildGeminiScanPrompt(fileName, content, framework) {
-        return `You are an expert compliance auditor AI. Analyze this document for ${framework} compliance.
+        const controls = FRAMEWORK_CONTROLS[framework] || [{ id: "General", req: "General compliance adherence" }];
+        const controlsText = controls.map(c => `- [${c.id}] ${c.req}`).join('\\n');
+
+        return `You are a strict, risk-averse compliance auditor AI. You must evaluate this document deterministically against the provided legal checklist matrix for ${framework}. Do not assume or extrapolate.
 
 Document name: ${fileName}
 Document content (first 4000 chars):
 ${content}
 
+Deterministic Checklist to verify:
+${controlsText}
+
+Instructions:
+1. Scan the document to see if it satisfies the controls in the checklist.
+2. If it misses ANY required clause, alters one, or violates one, flag it as Failed.
+3. If it satisfies the controls, flag it as Passed.
+4. You MUST extract a "sourceQuote" directly from the text to prove your evaluation.
+
 Respond in this EXACT JSON format (no markdown, no code blocks):
 {
   "status": "Passed" or "Failed",
   "risk": "Low" or "Medium" or "High" or "Critical",
-  "issue": "one sentence describing the compliance finding",
+  "mappingRule": "The specific Control ID from the checklist above that this finding relates to (e.g. CC6.1)",
+  "sourceQuote": "The EXACT text snippet quoted directly from the document supporting your finding. If missing/failed, quote the closest surrounding text or state 'No relevant text found.'",
+  "issue": "one sentence describing the finding or missing clause",
   "recommendation": "one sentence on how to fix it",
   "clauseType": "indemnity" or "iam" or "hipaa_baa" or "pci_policy" or "nist_vendor" or "none"
 }
 
 Rules:
-- If the document is COMPLETELY IRRELEVANT (e.g., source code, photos, random text) → status: Failed, risk: Critical, issue: "Irrelevant File: This file was deeply analyzed and determined to be unrelated to compliance.", recommendation: "Please upload valid compliance documents or policies."
-- If the document clearly meets ${framework} requirements → status: Passed, risk: Low, clauseType: none
+- TRACEABLE CITATIONS (NO-FAKE RULE): You must provide an exact sourceQuote. If you cannot find an exact quote to support a Pass, you must mark it as Failed.
+- IF DOCUMENT IS FOR A DIFFERENT FRAMEWORK (e.g. SOC 2 document but GDPR is selected) → status: Failed, risk: High, issue: "Please select the correct framework for this document.", sourceQuote: "N/A"
+- IF DOCUMENT IS COMPLETELY IRRELEVANT (e.g. source code, recipes, photos) → status: Failed, risk: Critical, issue: "Irrelevant, please upload a relevant document.", sourceQuote: "N/A"
 - If missing required clauses or has violations → status: Failed with specific issue
-- Be specific to the document content, not generic
 - clauseType should match the type of fix needed`;
     }
 
@@ -1116,11 +1103,13 @@ Rules:
                     risk:       ['Low','Medium','High','Critical'].includes(parsed.risk) ? parsed.risk : 'Medium',
                     issue:      parsed.issue || 'Compliance review required',
                     recommendation: parsed.recommendation || '',
-                    clauseType: parsed.clauseType || 'indemnity'
+                    clauseType: parsed.clauseType || 'indemnity',
+                    mappingRule: parsed.mappingRule || '',
+                    sourceQuote: parsed.sourceQuote || ''
                 };
             }
         } catch {}
-        return { status: 'Failed', risk: 'Medium', issue: 'Could not parse AI response – manual review required', clauseType: 'indemnity' };
+        return { status: 'Failed', risk: 'Medium', issue: 'Could not parse AI response - manual review required', clauseType: 'indemnity', mappingRule: '', sourceQuote: '' };
     }
 
     // Simulation fallback (used when no Gemini key or demo files)
@@ -1179,8 +1168,15 @@ Rules:
                         <span>${file.currentStatus}</span>
                     </span>
                 </td>
-                <td style="color: ${file.currentStatus === 'Failed' ? '#fca5a5' : 'var(--text-secondary)'};">
-                    ${displayIssue}
+                <td style="color: ${file.currentStatus === 'Failed' ? '#fca5a5' : 'var(--text-secondary)'}; max-width: 400px;">
+                    <div style="margin-bottom: 4px;">
+                        <strong>${file.mappingRule ? '[' + file.mappingRule + '] ' : ''}</strong>${displayIssue}
+                    </div>
+                    ${file.sourceQuote && file.sourceQuote !== 'N/A' && file.sourceQuote !== 'No relevant text found.' ? 
+                        `<div style="font-size: 11px; padding: 6px; background: rgba(0,0,0,0.2); border-left: 2px solid var(--accent); color: #a1a1aa; font-style: italic; margin-top: 4px;">
+                            "${file.sourceQuote}"
+                         </div>` : ''
+                    }
                 </td>
                 <td>
                     <span class="badge-risk badge-${file.risk.toLowerCase()}">${file.risk}</span>
