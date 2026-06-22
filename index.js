@@ -1,3 +1,6 @@
+window.AR_CONFIG = { UPI_ID: '6372843175@kotakbank', UPI_NAME: 'AuditReady.AI' };
+fetch('/api/config').then(r => r.json()).then(data => { window.AR_CONFIG = data; if(window.AR_CONFIG.FIREBASE_CONFIG && typeof window.AR_CONFIG.FIREBASE_CONFIG === 'string') { try { window.AR_CONFIG.FIREBASE_CONFIG = JSON.parse(window.AR_CONFIG.FIREBASE_CONFIG); } catch(e){} } }).catch(console.error);
+
 /* ==========================================================================
    AUDITREADY.AI - INTERACTIVE STATE & APP ENGINE
    ========================================================================== */
@@ -451,7 +454,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
 
     function sendOutboundAlerts(message) {
         let creds = {};
-        try { creds = JSON.parse(localStorage.getItem('ar_credentials') || '{}'); } catch {}
+        try { creds = (window.AR_CONFIG || {}); } catch {}
 
         if (creds.SLACK_WEBHOOK_URL) {
             fetch(creds.SLACK_WEBHOOK_URL, {
@@ -482,7 +485,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
 
     async function fetchRealIntegrationData(src) {
         let creds = {};
-        try { creds = JSON.parse(localStorage.getItem('ar_credentials') || '{}'); } catch {}
+        try { creds = (window.AR_CONFIG || {}); } catch {}
 
         const proxyUrl = 'http://localhost:8080/api/proxy';
 
@@ -1543,7 +1546,7 @@ Rules:
 window.addEventListener("load", function initSupportForm() {
     // Worker URL reads from Admin → System Setup → ar_credentials (key: CLOUDFLARE_WORKER_URL)
     let _creds = {};
-    try { _creds = JSON.parse(localStorage.getItem('ar_credentials') || '{}'); } catch {}
+    try { _creds = (window.AR_CONFIG || {}); } catch {}
     const WORKER_URL  = _creds.CLOUDFLARE_WORKER_URL || _creds.WORKER_URL || '';  // Both keys supported
     const ADMIN_EMAIL = _creds.ADMIN_EMAIL || 'prakharmishra00000@gmail.com';
 
@@ -2048,7 +2051,7 @@ window.addEventListener("load", function initSupportForm() {
     -------------------------------------------------- */
     function doGoogleAuth() {
         const creds = {};
-        try { Object.assign(creds, JSON.parse(localStorage.getItem('ar_credentials') || '{}')); } catch {}
+        try { Object.assign(creds, (window.AR_CONFIG || {})); } catch {}
 
         if (creds.GOOGLE_CLIENT_ID && typeof google !== 'undefined' && google.accounts) {
             // Official Google Identity Services - OAuth2 Custom Button Flow
@@ -2077,11 +2080,11 @@ window.addEventListener("load", function initSupportForm() {
                 }
             });
             client.requestAccessToken();
-        } else if (typeof firebase !== 'undefined' && firebase.apps && firebase.auth && creds.FIREBASE_API_KEY) {
+        } else if (typeof firebase !== 'undefined' && firebase.apps && firebase.auth && (creds.FIREBASE_CONFIG && creds.FIREBASE_CONFIG.apiKey)) {
             // Real Firebase Google Auth
             if (!firebase.apps.length) {
                 firebase.initializeApp({
-                    apiKey:        creds.FIREBASE_API_KEY,
+                    apiKey:        (creds.FIREBASE_CONFIG && creds.FIREBASE_CONFIG.apiKey),
                     authDomain:    creds.FIREBASE_AUTH_DOMAIN,
                     projectId:     creds.FIREBASE_PROJECT_ID,
                     storageBucket: creds.FIREBASE_STORAGE_BUCKET,
@@ -2569,7 +2572,7 @@ window.addEventListener("load", function initSupportForm() {
         if (pill)   pill.textContent   = d.planName + ' Plan \u00b7 Monthly \u00b7 ' + (d.userEmail || '');
 
         var creds = {};
-        try { creds = JSON.parse(localStorage.getItem('ar_credentials') || '{}'); } catch {}
+        try { creds = (window.AR_CONFIG || {}); } catch {}
         var upiId   = creds.UPI_ID   || '6372843175@kotakbank';
         var upiName = creds.UPI_NAME || 'AuditReady.AI';
         var upiLink = 'upi://pay?pa=' + upiId + '&pn=' + encodeURIComponent(upiName) +

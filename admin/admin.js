@@ -1,3 +1,6 @@
+window.AR_CONFIG = { UPI_ID: '6372843175@kotakbank', UPI_NAME: 'AuditReady.AI' };
+fetch('/api/config').then(r => r.json()).then(data => window.AR_CONFIG = data).catch(console.error);
+
 /* ***********************************************************
    AuditReady.AI  - Admin Portal JS
    Auth &middot; Navigation &middot; Plan Editor &middot; System Setup &middot; API Keys
@@ -1118,15 +1121,6 @@ function initializeSystem() {
   showToast(`System initialized! ${Object.keys(creds).length} credentials saved and applied.`, "success");
 }
 
-function clearAllCredentials() {
-  confirmAction("Clear All Credentials", "This will remove all stored credentials. Are you sure?", () => {
-    localStorage.removeItem(LS_CREDS);
-    localStorage.removeItem(LS_KEYS);
-    document.querySelectorAll(".cred-input").forEach(i => { if (!i.dataset.key?.includes("UPI") && !i.dataset.key?.includes("DOCUSIGN_BASE_URL")) i.value =""; });
-    buildGeminiKeySlots();
-    showToast("All credentials cleared.", "error");
-  });
-}
 
 function testAllConnections() {
   const creds = JSON.parse(localStorage.getItem(LS_CREDS) || '{}');
