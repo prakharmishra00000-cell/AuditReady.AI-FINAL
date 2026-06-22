@@ -855,7 +855,16 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
             try {
                 const snippet = await readFileSnippet(file, 2000);
                 if (!snippet || snippet.trim().length < 50) continue;
-                const prompt = `You are a compliance document classifier. Given the first part of a document, determine if it is relevant for a compliance audit (e.g. contracts, policies, IAM configs, privacy policies, security reports, vendor agreements, HR records, data processing agreements). Reply with exactly one word: RELEVANT or IRRELEVANT.\n\nDocument name: ${file.name}\nContent snippet:\n${snippet}`;
+                const prompt = `You are a compliance document classifier. Analyze the provided file name and content snippet. Determine if it is relevant for a compliance audit (e.g. contracts, IAM configs, privacy policies, security reports, vendor agreements).
+Respond in EXACT JSON format (no markdown, no code blocks):
+{
+  "isRelevant": true or false,
+  "reason": "If false, explain exactly what this file actually is (e.g. a cooking recipe, backend source code, an image) and why it cannot be used for compliance. If true, leave blank."
+}
+
+Document name: ${file.name}
+Content snippet:
+${snippet}`;
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: {'Content-Type':'application/json'},
@@ -863,19 +872,37 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                 });
                 if (!res.ok) continue;
                 const data = await res.json();
-                const answer = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim().toUpperCase();
-                if (answer.includes('IRRELEVANT')) irrelevant.push(file.name);
+                const answer = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+                try {
+                    const clean = answer.replace(/```json|```/g, '').trim();
+                    const parsed = JSON.parse(clean);
+                    if (parsed.isRelevant === false) {
+                        irrelevant.push({ name: file.name, reason: parsed.reason });
+                    }
+                } catch(e) {
+                    // Fallback string matching if JSON fails
+                    if (answer.toUpperCase().includes('"ISRELEVANT": FALSE')) {
+                        irrelevant.push({ name: file.name, reason: "The AI deeply analyzed this file and determined it is not related to compliance." });
+                    }
+                }
             } catch { /* network error – skip check, allow file */ }
         }
         if (irrelevant.length > 0) {
             // Remove irrelevant files from activeFiles
-            irrelevant.forEach(name => {
-                const idx = activeFiles.findIndex(f => f.name === name);
+            irrelevant.forEach(item => {
+                const idx = activeFiles.findIndex(f => f.name === item.name);
                 if (idx !== -1) activeFiles.splice(idx, 1);
             });
             renderFileList();
-            const names = irrelevant.join(', ');
-            showToast(`⚠️ Please upload relevant compliance documents. Not accepted: ${names}`, true);
+            
+            // Build a detailed error message
+            let errorMsg = `⚠️ IRRELEVANT FILES DETECTED\n\nThe AI deeply analyzed your upload and dropped the following files because they are not compliance documents:\n\n`;
+            irrelevant.forEach(item => {
+                errorMsg += `• ${item.name}: ${item.reason || 'Not a valid compliance document.'}\n`;
+            });
+            errorMsg += `\nPlease upload authentic compliance policies, IAM configs, or security reports.`;
+            
+            alert(errorMsg);
         } else {
             showToast(`${files.length} file${files.length > 1 ? 's' : ''} uploaded. Ready to scan.`);
         }
@@ -1070,6 +1097,7 @@ Respond in this EXACT JSON format (no markdown, no code blocks):
 }
 
 Rules:
+- If the document is COMPLETELY IRRELEVANT (e.g., source code, photos, random text) → status: Failed, risk: Critical, issue: "Irrelevant File: This file was deeply analyzed and determined to be unrelated to compliance.", recommendation: "Please upload valid compliance documents or policies."
 - If the document clearly meets ${framework} requirements → status: Passed, risk: Low, clauseType: none
 - If missing required clauses or has violations → status: Failed with specific issue
 - Be specific to the document content, not generic
