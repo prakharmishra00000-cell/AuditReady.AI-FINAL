@@ -38,6 +38,30 @@ app.post('/api/proxy', async (req, res) => {
     }
 });
 
+// Secure Gemini API Backend Proxy
+app.post('/api/gemini/scan', async (req, res) => {
+    const { prompt } = req.body;
+    const apiKey = process.env.GEMINI_API_KEY;
+    
+    if (!apiKey) {
+        return res.status(500).json({ 
+            error: 'GEMINI_API_KEY environment variable is not set on the server. Please add it to your Render dashboard.' 
+        });
+    }
+    
+    try {
+        const response = await axios.post(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
+            { contents: [{ parts: [{ text: prompt }] }] },
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+        res.status(200).json(response.data);
+    } catch (error) {
+        console.error("Gemini API Error:", error.response?.data || error.message);
+        res.status(error.response?.status || 500).json(error.response?.data || { error: error.message });
+    }
+});
+
 // For any other GET request, send the index.html (SPA fallback)
 app.use((req, res, next) => {
     if (req.method === 'GET') {

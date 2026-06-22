@@ -568,15 +568,13 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                     const statusEl = card.querySelector(".source-status");
                     const flag = SHADOW_FLAGS[src];
                     // REAL GEMINI CALL FOR SHADOW DATA SCAN
-                    const gemKey = window.AR_getActiveGeminiKey ? window.AR_getActiveGeminiKey() : "AIzaSy_YOUR_API_KEY_HERE";
-                    
                     fetchRealIntegrationData(src).then(realData => {
                         const prompt = `Analyze this data log for ${src}: "${realData}". Determine if there are compliance risks. Reply strictly in JSON: {"status": "Clean" | "Issues Found", "details": "short explanation"}`;
                         
-                        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${gemKey}`, {
+                        fetch('/api/gemini/scan', {
                             method: 'POST',
                             headers: {'Content-Type':'application/json'},
-                            body: JSON.stringify({contents:[{parts:[{text: prompt}]}]})
+                            body: JSON.stringify({ prompt: prompt })
                         }).then(res => res.json()).then(data => {
                         const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || '{"status": "Issues Found"}';
                         const isFlagged = answer.includes("Issues Found") || answer.includes("flagged");
@@ -804,16 +802,45 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
         handleMockFiles(e.dataTransfer.files);
     });
 
-    function handleMockFiles(files) {
+    async function handleMockFiles(files) {
         if (!files.length) return;
+        
+        showToast("Deeply analyzing document relevance...", "info");
         
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
             const extension = file.name.split('.').pop().toLowerCase();
             const mockSize = (file.size / (1024 * 1024)).toFixed(1);
             
-            // Randomize pass/fail on newly uploaded file
-            const randPassed = Math.random() > 0.4;
+            // Deep Analysis on Drop via backend
+            let preScannedResult = null;
+            try {
+                const snippet = await readFileSnippet(file, 4000);
+                const prompt = buildGeminiScanPrompt(file.name, snippet, currentFramework);
+                
+                const res = await fetch('/api/gemini/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    const raw  = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                    preScannedResult = parseGeminiResult(raw);
+                    
+                    if (preScannedResult.issue.includes("Irrelevant") || preScannedResult.issue.includes("correct framework")) {
+                        // Throw alert pop up!
+                        alert(`DEEP ANALYSIS ERROR: ${preScannedResult.issue}`);
+                        continue; // Reject file, do not add to activeFiles
+                    }
+                } else {
+                    console.error("Deep analysis API error", await res.text());
+                }
+            } catch (err) {
+                console.warn("Deep analysis drop check failed: ", err);
+            }
+            
             const newFile = {
                 id: Date.now() + i,
                 name: file.name,
@@ -825,7 +852,8 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                 risk: 'Unknown',
                 actionLabel: 'None',
                 clauseType: 'indemnity',
-                _fileRef: file  // keep reference for real AI scan
+                _fileRef: file,  // keep reference for real AI scan
+                _preScannedResult: preScannedResult // cache the result
             };
             
             activeFiles.push(newFile);
@@ -981,10 +1009,27 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                 const snippet = await readFileSnippet(file._fileRef, 4000);
                 const prompt = buildGeminiScanPrompt(file.name, snippet, currentFramework);
 
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`, {
+                // If we pre-scanned on drop, use that result!
+                if (file._preScannedResult) {
+                    const parsed = file._preScannedResult;
+                    file.currentStatus  = parsed.status;
+                    file.originalStatus = parsed.status;
+                    file.issue          = parsed.issue;
+                    file.risk           = parsed.risk;
+                    file.actionLabel    = parsed.status === 'Passed' ? 'None' : 'Generate Amendment';
+                    file.clauseType     = parsed.clauseType || 'indemnity';
+                    file.mappingRule    = parsed.mappingRule || '';
+                    file.sourceQuote    = parsed.sourceQuote || '';
+
+                    const logType = parsed.status === 'Passed' ? 'ok' : (parsed.risk === 'Critical' ? 'danger' : 'warn');
+                    addTerminalLog(`${parsed.status === 'Passed' ? 'PASS' : 'FAIL'}: ${file.name} - ${parsed.issue}`, logType);
+                    continue; // Skip the rest of the loop since we already scanned it!
+                }
+
+                const res = await fetch('/api/gemini/scan', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    body: JSON.stringify({ prompt: prompt })
                 });
 
                 if (!res.ok) throw new Error('API error ' + res.status);
@@ -1289,14 +1334,13 @@ Rules:
         applyRemediationBtn.disabled = true;
         applyRemediationBtn.innerHTML = '<span class="pulse-dot"></span> Generating Fix...';
         
-        const gemKey = window.AR_getActiveGeminiKey ? window.AR_getActiveGeminiKey() : "AIzaSy_YOUR_API_KEY_HERE";
         const prompt = `Write a short description (max 10 words) of the remediation applied to fix this issue: "${activeRemediationRow.issue}".`;
         
         try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${gemKey}`, {
+            const res = await fetch('/api/gemini/scan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                body: JSON.stringify({ prompt: prompt })
             });
             const data = await res.json();
             const fixText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Compliance requirement fulfilled and clauses injected.";
