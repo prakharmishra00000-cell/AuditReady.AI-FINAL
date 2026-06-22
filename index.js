@@ -834,7 +834,6 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
         renderFileList();
         showToast(`${files.length} file${files.length > 1 ? 's' : ''} uploaded successfully! Ready to scan.`);
     }
-    }
 
     // Read first N characters from a file
     function readFileSnippet(file, maxChars) {
