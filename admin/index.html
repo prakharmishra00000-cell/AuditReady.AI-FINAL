@@ -597,11 +597,19 @@
           </div>
         </div>
 
-        <!-- Google Drive -->
+        <!-- Authentication & SSO -->
         <div class="setup-section">
-          <div class="setup-section-header"><i data-lucide="hard-drive"></i><div><h4>Cloud Storage – Google Drive + OneDrive + AWS</h4><p>OAuth credentials for user document ingestion.</p></div></div>
+          <div class="setup-section-header"><i data-lucide="shield-check"></i><div><h4>Authentication &amp; Single Sign-On (SSO)</h4><p>Enable Google "Continue with Google" Login and Admin notifications.</p></div></div>
           <div class="cred-grid">
             <div class="form-group"><label>Google Client ID</label><input type="text" class="admin-input cred-input" data-key="GOOGLE_CLIENT_ID" placeholder="123456...apps.googleusercontent.com"></div>
+            <div class="form-group"><label>Admin Notification Email</label><input type="text" class="admin-input cred-input" data-key="ADMIN_EMAIL" placeholder="admin@yourdomain.com"></div>
+          </div>
+        </div>
+
+        <!-- Cloud Storage -->
+        <div class="setup-section">
+          <div class="setup-section-header"><i data-lucide="hard-drive"></i><div><h4>Cloud Storage – OneDrive + AWS</h4><p>OAuth credentials for user document ingestion.</p></div></div>
+          <div class="cred-grid">
             <div class="form-group"><label>Google Client Secret</label><input type="password" class="admin-input cred-input" data-key="GOOGLE_CLIENT_SECRET" placeholder="GOCSPX-xxxx..."></div>
             <div class="form-group"><label>Azure Client ID</label><input type="text" class="admin-input cred-input" data-key="AZURE_CLIENT_ID" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></div>
             <div class="form-group"><label>Azure Client Secret</label><input type="password" class="admin-input cred-input" data-key="AZURE_CLIENT_SECRET" placeholder="xxxxxxx~xxxx..."></div>

@@ -1882,7 +1882,34 @@ window.addEventListener("load", function initSupportForm() {
         const creds = {};
         try { Object.assign(creds, JSON.parse(localStorage.getItem('ar_credentials') || '{}')); } catch {}
 
-        if (typeof firebase !== 'undefined' && firebase.apps && firebase.auth && creds.FIREBASE_API_KEY) {
+        if (creds.GOOGLE_CLIENT_ID && typeof google !== 'undefined' && google.accounts) {
+            // Official Google Identity Services - OAuth2 Custom Button Flow
+            const client = google.accounts.oauth2.initTokenClient({
+                client_id: creds.GOOGLE_CLIENT_ID,
+                scope: 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+                callback: (response) => {
+                    if (response && response.access_token) {
+                        fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                            headers: { Authorization: `Bearer ${response.access_token}` }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (!data.email) throw new Error("Email not found");
+                            let accounts = getAccounts();
+                            if (!accounts.find(a => a.email.toLowerCase() === data.email.toLowerCase())) {
+                                accounts.push({ email: data.email, pwHash: null, name: data.name, created: Date.now(), google: true });
+                                saveAccounts(accounts);
+                            }
+                            loginSuccess({ email: data.email, name: data.name || data.email.split('@')[0], isGoogle: true });
+                        })
+                        .catch(err => {
+                            showError('si-error', 'Google profile fetch failed: ' + err.message);
+                        });
+                    }
+                }
+            });
+            client.requestAccessToken();
+        } else if (typeof firebase !== 'undefined' && firebase.apps && firebase.auth && creds.FIREBASE_API_KEY) {
             // Real Firebase Google Auth
             if (!firebase.apps.length) {
                 firebase.initializeApp({
