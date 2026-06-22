@@ -1160,19 +1160,19 @@ Rules:
                 tr.style.backgroundColor = "rgba(255, 50, 50, 0.05)";
                 tr.style.border = "1px solid rgba(255, 50, 50, 0.4)";
                 
-                tr.innerHTML = \`
-                    <td><div class="file-name-cell"><i data-lucide="alert-triangle" style="color:#ef4444"></i> <strong style="color:#ef4444">\${file.name}</strong></div></td>
+                tr.innerHTML = `
+                    <td><div class="file-name-cell"><i data-lucide="alert-triangle" style="color:#ef4444"></i> <strong style="color:#ef4444">${file.name}</strong></div></td>
                     <td><span class="badge" style="background:#ef4444;color:white;animation: pulse 2s infinite">ERROR</span></td>
                     <td colspan="4" style="color: #ef4444; font-family: monospace; font-size: 0.95rem; font-weight: bold; letter-spacing: 0.5px;">
-                        [ SYSTEM ALERT ] \${displayIssue.toUpperCase()}
+                        [ SYSTEM ALERT ] ${displayIssue.toUpperCase()}
                     </td>
-                \`;
+                `;
                 reportTableBody.appendChild(tr);
                 return; // Skip standard rendering
             }
             // -------------------------------------------------------------
 
-            tr.innerHTML = \`
+            tr.innerHTML = `
                 <td>
                     <div class="file-item-left">
                         <i data-lucide="file-${file.type === 'pdf' ? 'text' : (file.type === 'csv' ? 'table' : 'code')}"></i>
