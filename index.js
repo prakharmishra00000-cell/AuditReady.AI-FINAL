@@ -3137,3 +3137,48 @@ if(shadowEvidenceBtn) {
         }, 3000);
     });
 }
+
+
+/* =========================================================
+   CROSS REFERENCE LOGIC
+   ========================================================= */
+const crossRefScanBtn = document.getElementById("cross-ref-scan-btn");
+const crossRefResults = document.getElementById("cross-ref-results");
+const crossRefContent = document.getElementById("cross-ref-content");
+
+if(crossRefScanBtn) {
+    crossRefScanBtn.addEventListener("click", async () => {
+        const p = getCurrentPlan();
+        const lims = PLAN_LIMITS[p] || PLAN_LIMITS.free;
+        if(!lims.downloadReport) return showToast("Multi-Doc Cross Reference is a Pro feature. Upgrade to access.", true);
+        
+        if(uploadedFiles.length < 2) return showToast("Please upload at least TWO documents in the Audit Risk Scan tab to cross-reference.", true);
+        
+        crossRefScanBtn.disabled = true;
+        crossRefScanBtn.innerHTML = '<i class="lucide-loader animate-spin"></i> Cross-Referencing...';
+        crossRefResults.style.display = "block";
+        crossRefContent.innerHTML = '<div class="pulse-dot"></div> Scanning documents for contradictions...';
+        
+        let combinedText = uploadedFiles.map(f => `--- DOCUMENT: ${f.name} ---\n${f.text.substring(0, 1500)}`).join("\n\n");
+        
+        const prompt = `Analyze the following compliance documents for contradictions. \n\nDocuments:\n${combinedText}\n\nIdentify any conflicting statements between the documents (e.g., Document A says passwords expire 90 days, Document B says 60 days). Explain the contradiction clearly.`;
+        
+        try {
+            const res = await fetch('/api/gemini/scan', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ prompt })
+            });
+            const data = await res.json();
+            const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Cross-reference failed.";
+            
+            crossRefContent.innerHTML = reply.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        } catch(e) {
+            crossRefContent.innerHTML = "Error: " + e.message;
+        }
+        
+        crossRefScanBtn.disabled = false;
+        crossRefScanBtn.innerHTML = '<i data-lucide="play"></i> Run Cross-Reference';
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+    });
+}

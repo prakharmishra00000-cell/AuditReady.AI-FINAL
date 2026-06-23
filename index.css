@@ -1070,6 +1070,21 @@ input:checked + .slider:before {
     flex-direction: column;
     gap: 0.5rem;
     flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 5px;
+}
+
+/* Custom scrollbar for sidebar */
+.sim-nav::-webkit-scrollbar {
+    width: 4px;
+}
+.sim-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+.sim-nav::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .sim-nav-item {
