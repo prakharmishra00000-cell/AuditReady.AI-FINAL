@@ -260,7 +260,11 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
     function showSimStep(stepName) {
         [simStepConnect, simStepScan, simStepDashboard,
          simStepFrameworks, simStepSettings,
-         simStepShadow, simStepAuditor, simStepCCM
+         simStepShadow, simStepAuditor, simStepCCM,
+         document.getElementById('sim-step-mock-audit'),
+         document.getElementById('sim-step-cross-ref'),
+         document.getElementById('sim-step-qa'),
+         document.getElementById('sim-step-radar')
         ].forEach(el => el && el.classList.remove("active"));
 
         if (stepName === "connect") {
@@ -289,6 +293,29 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
         } else if (stepName === "ccm") {
             simStepCCM.classList.add("active");
             setActiveNavItem("sim-menu-ccm");
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+        } else if (stepName === "mock-audit") {
+            const el = document.getElementById('sim-step-mock-audit');
+            if(el) el.classList.add("active");
+            setActiveNavItem("sim-menu-mock-audit");
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+            if (typeof checkMockAuditState === "function") checkMockAuditState();
+        } else if (stepName === "cross-ref") {
+            const el = document.getElementById('sim-step-cross-ref');
+            if(el) el.classList.add("active");
+            setActiveNavItem("sim-menu-cross-ref");
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+            if (typeof checkCrossRefState === "function") checkCrossRefState();
+        } else if (stepName === "qa") {
+            const el = document.getElementById('sim-step-qa');
+            if(el) el.classList.add("active");
+            setActiveNavItem("sim-menu-qa");
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+            if (typeof checkQAState === "function") checkQAState();
+        } else if (stepName === "radar") {
+            const el = document.getElementById('sim-step-radar');
+            if(el) el.classList.add("active");
+            setActiveNavItem("sim-menu-radar");
             (typeof lucide!=='undefined'&&lucide.createIcons());
         }
     }
@@ -442,6 +469,22 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
         e.preventDefault();
         showSimStep("ccm");
     });
+    const mockMnu = document.getElementById("sim-menu-mock-audit");
+    if (mockMnu) {
+        mockMnu.addEventListener("click", (e) => { e.preventDefault(); showSimStep("mock-audit"); });
+    }
+    const crossMnu = document.getElementById("sim-menu-cross-ref");
+    if (crossMnu) {
+        crossMnu.addEventListener("click", (e) => { e.preventDefault(); showSimStep("cross-ref"); });
+    }
+    const qaMnu = document.getElementById("sim-menu-qa");
+    if (qaMnu) {
+        qaMnu.addEventListener("click", (e) => { e.preventDefault(); showSimStep("qa"); });
+    }
+    const radarMnu = document.getElementById("sim-menu-radar");
+    if (radarMnu) {
+        radarMnu.addEventListener("click", (e) => { e.preventDefault(); showSimStep("radar"); });
+    }
 
     // ───────────────────────────────────────
     // SHADOW DATA  - Animated Scan
