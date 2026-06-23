@@ -858,6 +858,84 @@
                     
 
                     <!-- GLOBAL GOVERNANCE: HARMONIZATION ENGINE -->
+                    
+                    <!-- DEVSECOPS: AI PENTEST AGENT -->
+                    <div id="sim-step-pentest" class="sim-card-wrapper" style="display:none;">
+                        <div class="sim-header-title-bar">
+                            <h2>Automated AI Pentesting Agent</h2>
+                            <p>Launch live, ethical zero-day exploitation simulations against your staging endpoints. Find SQLi, XSS, and misconfigurations before attackers do.</p>
+                        </div>
+                        <div class="enterprise-badge-row">
+                            <span class="ent-badge"><i data-lucide="shield"></i> DevSecOps Tier</span>
+                            <span class="ent-desc">Continuous Fuzzing &middot; Auto-Patching via Jira &middot; CVE-2024 Context Aware</span>
+                        </div>
+                        
+                        <div class="sim-card" style="margin-top: 2rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                                <div>
+                                    <h3 style="margin-bottom:0.3rem">Target: staging-api.acme.corp</h3>
+                                    <p style="color:var(--text-muted); font-size:0.9rem;">Simulated Environment: Active</p>
+                                </div>
+                                <button id="btn-start-pentest" class="btn btn-danger btn-glow">
+                                    <i data-lucide="play"></i> Launch Simulation
+                                </button>
+                            </div>
+                            
+                            <div style="background:#000; border-radius:8px; padding:1.5rem; font-family:monospace; min-height:300px; color:#10b981; overflow-y:auto; border:1px solid #333; position:relative;">
+                                <div style="position:absolute; top:10px; right:15px; color:#555; font-size:0.8rem;">root@auditready-agent:~#</div>
+                                <div id="pentest-terminal-out" style="display:flex; flex-direction:column; gap:8px;">
+                                    <div style="color:#666;">Waiting for target lock...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DEVSECOPS: IAC GUARDRAILS -->
+                    <div id="sim-step-iac" class="sim-card-wrapper" style="display:none;">
+                        <div class="sim-header-title-bar">
+                            <h2>IaC Guardrails (DevSecOps)</h2>
+                            <p>Block non-compliant infrastructure code (Terraform, AWS CloudFormation) directly in GitHub before it gets deployed.</p>
+                        </div>
+                        <div class="enterprise-badge-row">
+                            <span class="ent-badge"><i data-lucide="github"></i> Native Integration</span>
+                            <span class="ent-desc">Scans tf, yaml, json &middot; PR Auto-Blocking &middot; SOC 2 / GDPR Mapped</span>
+                        </div>
+                        
+                        <div class="sim-card" style="margin-top:2rem;">
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:1rem; margin-bottom:1rem;">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" style="width:30px; filter:invert(1) opacity(0.8);" alt="GitHub">
+                                    <div>
+                                        <h3 style="font-size:1.1rem;">Pull Request #402: Deploy new RDS database</h3>
+                                        <p style="color:var(--text-muted); font-size:0.85rem;">opened by dev-ops-prakhar 5 minutes ago</p>
+                                    </div>
+                                </div>
+                                <button id="btn-scan-pr" class="btn btn-secondary">Run AuditReady Check</button>
+                            </div>
+                            
+                            <div style="background:#1e1e1e; color:#d4d4d4; padding:1.5rem; border-radius:8px; font-family:monospace; margin-bottom:1rem; overflow-x:auto;">
+<pre style="margin:0;"><code><span style="color:#569cd6;">resource</span> <span style="color:#ce9178;">"aws_db_instance"</span> <span style="color:#ce9178;">"main"</span> {
+  allocated_storage    = <span style="color:#b5cea8;">20</span>
+  engine               = <span style="color:#ce9178;">"postgres"</span>
+  instance_class       = <span style="color:#ce9178;">"db.t3.micro"</span>
+  
+  <span style="color:#6a9955;">// Security configurations</span>
+  publicly_accessible  = <span style="color:#569cd6;">true</span>
+  storage_encrypted    = <span style="color:#569cd6;">false</span>
+}</code></pre>
+                            </div>
+                            
+                            <div id="iac-result" style="display:none; background:rgba(239, 68, 68, 0.1); border:1px solid #ef4444; padding:1.5rem; border-radius:8px;">
+                                <h3 style="color:#ef4444; display:flex; align-items:center; gap:10px; margin-bottom:0.5rem;"><i data-lucide="x-circle"></i> PR Blocked by AuditReady.AI</h3>
+                                <p style="color:var(--text-color); margin-bottom:1rem;">2 Critical Compliance Violations Detected in Terraform blueprint:</p>
+                                <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
+                                    <li style="display:flex; gap:10px;"><strong style="color:#ef4444;">[SOC 2 CC6.1]</strong> <code>publicly_accessible = true</code> allows unauthorized perimeter access.</li>
+                                    <li style="display:flex; gap:10px;"><strong style="color:#ef4444;">[GDPR Art 32]</strong> <code>storage_encrypted = false</code> violates encryption-at-rest mandates for PII databases.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="sim-step-harmonize" class="sim-card-wrapper" style="display:none;">
                         <div class="sim-header-title-bar">
                             <h2>Universal Harmonization Engine</h2>
