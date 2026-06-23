@@ -2774,6 +2774,9 @@ function appendMockMessage(sender, text) {
 
 if(startAuditBtn) {
     startAuditBtn.addEventListener("click", async () => {
+        const p = getCurrentPlan();
+        const lims = PLAN_LIMITS[p] || PLAN_LIMITS.free;
+        if(!lims.mockAudit) return showToast("Mock Audit is available on Scale & Enterprise plans. Upgrade to access.", true);
         const fileName = mockAuditFileSelect.value;
         const fw = mockAuditFwSelect.value;
         if(!fileName) return showToast("Please select a file first.", true);
@@ -2876,6 +2879,9 @@ function checkCrossRefState() {
 
 if(crossRefStartBtn) {
     crossRefStartBtn.addEventListener("click", async () => {
+        const p = getCurrentPlan();
+        const lims = PLAN_LIMITS[p] || PLAN_LIMITS.free;
+        if(!lims.crossRef) return showToast("Multi-Doc Cross-Reference is available on Scale & Enterprise plans. Upgrade to access.", true);
         crossRefStartBtn.disabled = true;
         crossRefStartBtn.innerHTML = '<i class="lucide-loader animate-spin"></i> Scanning...';
         crossRefResults.style.display = "block";
@@ -2907,5 +2913,184 @@ if(crossRefStartBtn) {
         crossRefStartBtn.disabled = false;
         crossRefStartBtn.innerHTML = '<i data-lucide="scan"></i> Re-Scan Data Room';
         (typeof lucide!=='undefined'&&lucide.createIcons());
+    });
+}
+
+/* =========================================================
+   SEMANTIC DOCUMENT Q&A LOGIC
+   ========================================================= */
+const qaSearchInput = document.getElementById("qa-search-input");
+const qaSearchBtn = document.getElementById("qa-search-btn");
+const qaResultsContainer = document.getElementById("qa-results-container");
+const qaResultContent = document.getElementById("qa-result-content");
+const qaEmptyState = document.getElementById("qa-empty-state");
+
+function checkQAState() {
+    if(uploadedFiles.length === 0) {
+        if(qaEmptyState) qaEmptyState.style.display = "flex";
+        if(qaSearchBtn) qaSearchBtn.disabled = true;
+    } else {
+        if(qaEmptyState) qaEmptyState.style.display = "none";
+        if(qaSearchBtn) qaSearchBtn.disabled = false;
+    }
+}
+
+if(qaSearchBtn) {
+    const handleQASearch = async () => {
+        const p = getCurrentPlan();
+        const lims = PLAN_LIMITS[p] || PLAN_LIMITS.free;
+        if(!lims.semanticQA) return showToast("Semantic Document Q&A is available on Growth plans and above. Upgrade to access.", true);
+        
+        const query = qaSearchInput.value.trim();
+        if(!query) return showToast("Please enter a question.", true);
+        if(uploadedFiles.length === 0) return showToast("Please upload documents in the Audit Risk Scan tab first.", true);
+        
+        qaSearchBtn.disabled = true;
+        qaSearchBtn.innerHTML = '<i class="lucide-loader animate-spin"></i> Searching...';
+        qaResultsContainer.style.display = "flex";
+        qaResultContent.innerHTML = '<div class="pulse-dot"></div> Searching through ' + uploadedFiles.length + ' documents for exact clauses...';
+        
+        let combinedText = uploadedFiles.map(f => `--- DOCUMENT: ${f.name} ---\n${f.text.substring(0, 3000)}`).join("\n\n");
+        
+        const prompt = `The user has a question regarding their compliance documents. \n\nQuestion: "${query}"\n\nDocuments:\n${combinedText}\n\nFind the exact clause that answers their question. Respond directly with the answer and explicitly cite the Document Name. If the answer is not in the documents, state that clearly.`;
+        
+        try {
+            const res = await fetch('/api/gemini/scan', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ prompt })
+            });
+            const data = await res.json();
+            const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Search failed.";
+            
+            qaResultContent.innerHTML = reply.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        } catch(e) {
+            qaResultContent.innerHTML = "Error analyzing documents: " + e.message;
+        }
+        
+        qaSearchBtn.disabled = false;
+        qaSearchBtn.innerHTML = '<i data-lucide="sparkles"></i> Ask AI';
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+    };
+    
+    qaSearchBtn.addEventListener("click", handleQASearch);
+    if(qaSearchInput) {
+        qaSearchInput.addEventListener("keypress", (e) => {
+            if(e.key === "Enter") handleQASearch();
+        });
+    }
+}
+
+
+/* =========================================================
+   REGULATORY LIVE RADAR LOGIC
+   ========================================================= */
+const radarScanImpactBtn = document.getElementById("radar-scan-impact-btn");
+const radarImpactResults = document.getElementById("radar-impact-results");
+const radarImpactContent = document.getElementById("radar-impact-content");
+
+if(radarScanImpactBtn) {
+    radarScanImpactBtn.addEventListener("click", async () => {
+        const p = getCurrentPlan();
+        const lims = PLAN_LIMITS[p] || PLAN_LIMITS.free;
+        if(!lims.liveRadar) return showToast("Live Regulatory Radar is an Enterprise feature. Upgrade to access.", true);
+        
+        if(uploadedFiles.length === 0) return showToast("Please upload documents in the Audit Risk Scan tab first.", true);
+        
+        radarScanImpactBtn.disabled = true;
+        radarScanImpactBtn.innerHTML = '<i class="lucide-loader animate-spin"></i> Analyzing Impact...';
+        radarImpactResults.style.display = "block";
+        radarImpactContent.innerHTML = '<div class="pulse-dot"></div> Cross-referencing CCPA 2026 Amendment against your policies...';
+        
+        let combinedText = uploadedFiles.map(f => `--- DOCUMENT: ${f.name} ---\n${f.text.substring(0, 2000)}`).join("\n\n");
+        const newLaw = "California has passed a new mandate requiring explicit opt-outs for any customer data processed by generative AI models. Takes effect in 30 days.";
+        
+        const prompt = `A new compliance law has passed: "${newLaw}". \n\nEvaluate the following user documents to see if they are impacted or non-compliant under this new law.\n\nDocuments:\n${combinedText}\n\nIf they are non-compliant, explain exactly what clause needs to be added or modified.`;
+        
+        try {
+            const res = await fetch('/api/gemini/scan', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ prompt })
+            });
+            const data = await res.json();
+            const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Analysis failed.";
+            
+            radarImpactContent.innerHTML = reply.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        } catch(e) {
+            radarImpactContent.innerHTML = "Error: " + e.message;
+        }
+        
+        radarScanImpactBtn.disabled = false;
+        radarScanImpactBtn.innerHTML = '<i data-lucide="crosshair"></i> Analyze Impact on My Documents';
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+    });
+}
+
+
+/* =========================================================
+   ACTIVE EVIDENCE COLLECTOR (SHADOW DATA)
+   ========================================================= */
+const shadowEvidenceBtn = document.getElementById("shadow-evidence-btn");
+const shadowEvidenceLog = document.getElementById("shadow-evidence-log");
+const evidenceLogEntries = document.getElementById("evidence-log-entries");
+let evidenceInterval = null;
+
+const fakeEvidenceLogs = [
+    { source: "Slack", text: "DevOps channel: 'Deployed MFA patch to production cluster'", metric: "SOC 2 CC6.1" },
+    { source: "Jira", text: "Ticket SEC-412: 'Offboarded contractor John Doe access'", metric: "ISO A.8.1.4" },
+    { source: "GitHub", text: "PR #891: 'Add encryption at rest to S3 bucket terraform'", metric: "GDPR Art 32" },
+    { source: "Slack", text: "HR channel: 'Completed security training for new hires Q3'", metric: "HIPAA 164.308" }
+];
+
+if(shadowEvidenceBtn) {
+    shadowEvidenceBtn.addEventListener("click", () => {
+        const p = getCurrentPlan();
+        const lims = PLAN_LIMITS[p] || PLAN_LIMITS.free;
+        if(!lims.activeEvidence) return showToast("Active Evidence Collection is an Enterprise feature. Upgrade to access.", true);
+        
+        if (evidenceInterval) {
+            clearInterval(evidenceInterval);
+            evidenceInterval = null;
+            shadowEvidenceBtn.innerHTML = '<i data-lucide="camera"></i> Auto-Collect Evidence (Continuous Monitoring)';
+            shadowEvidenceBtn.classList.remove("active");
+            shadowEvidenceBtn.style.borderColor = "";
+            (typeof lucide!=='undefined'&&lucide.createIcons());
+            return;
+        }
+        
+        shadowEvidenceLog.style.display = "block";
+        evidenceLogEntries.innerHTML = "Initializing API webhooks for Jira, Slack, and GitHub...<br>Monitoring continuously for compliance evidence...";
+        shadowEvidenceBtn.innerHTML = '<span class="pulse-dot"></span> Collecting Evidence... (Click to Stop)';
+        shadowEvidenceBtn.classList.add("active");
+        shadowEvidenceBtn.style.borderColor = "#00e5ff";
+        
+        let counter = 0;
+        evidenceInterval = setInterval(() => {
+            if (counter >= fakeEvidenceLogs.length) {
+                clearInterval(evidenceInterval);
+                evidenceInterval = null;
+                shadowEvidenceBtn.innerHTML = '<i data-lucide="check-circle"></i> Evidence Collection Complete';
+                (typeof lucide!=='undefined'&&lucide.createIcons());
+                return;
+            }
+            
+            const log = fakeEvidenceLogs[counter];
+            const div = document.createElement("div");
+            div.style.padding = "0.5rem";
+            div.style.background = "rgba(0, 229, 255, 0.05)";
+            div.style.borderLeft = "2px solid #00e5ff";
+            div.style.marginBottom = "0.5rem";
+            
+            const time = new Date().toLocaleTimeString();
+            div.innerHTML = `<span style="color:#00e5ff;">[${time}]</span> <strong>[${log.source}]</strong> ${log.text} <span style="float:right; color:#818cf8; background:rgba(129, 140, 248, 0.1); padding:2px 6px; border-radius:4px; font-size:0.75rem;">${log.metric}</span>`;
+            
+            // Append and scroll to bottom
+            if (counter === 0) evidenceLogEntries.innerHTML = "";
+            evidenceLogEntries.appendChild(div);
+            shadowEvidenceLog.scrollTop = shadowEvidenceLog.scrollHeight;
+            
+            counter++;
+        }, 3000);
     });
 }
