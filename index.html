@@ -1166,7 +1166,12 @@
                             <div>
                                 <h2>Audit Assessment Report</h2>
                                 <p>Review the automated RAG scanning results for <strong id="report-framework-name">SOC 2 Type II</strong>.</p>
-                            </div>
+                                  <div style="margin-top:0.5rem; display:flex; gap:0.5rem;">
+                                      <span style="font-size:0.65rem; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); color:#3b82f6; padding:2px 6px; border-radius:4px;"><i data-lucide="cpu" style="width:10px; height:10px;"></i> Model A (Ext)</span>
+                                      <span style="font-size:0.65rem; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; padding:2px 6px; border-radius:4px;"><i data-lucide="cpu" style="width:10px; height:10px;"></i> Model B (Adv)</span>
+                                      <span style="font-size:0.65rem; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10b981; padding:2px 6px; border-radius:4px;"><i data-lucide="scale" style="width:10px; height:10px;"></i> Model C (Arbiter) Consensus Reached</span>
+                                  </div>
+                              </div>
                             <div class="dashboard-metrics-row">
                                 <div class="dash-metric-pill">
                                     <span class="metric-num text-red" id="dash-stat-failed">2</span>
@@ -2113,6 +2118,37 @@
                                 </div>
                             </div>
 
+                      <!-- SOVEREIGN GOVERNANCE: VENDOR DILIGENCE -->
+                      <div id="sim-step-vendor" class="sim-card-wrapper" style="display:none;">
+                          <div class="sim-header-title-bar">
+                              <h2>AI Vendor Diligence & Supply Chain Risk</h2>
+                              <p>Scan 3rd-party vendor SOC 2 reports and GitHub repos to detect Shadow AI, algorithmic bias, and supply-chain vulnerabilities.</p>
+                          </div>
+                          <div class="enterprise-badge-row">
+                              <span class="ent-badge" style="background:rgba(255,153,0,0.1); color:#ff9900; border-color:rgba(255,153,0,0.2);"><i data-lucide="shield"></i> Sovereign Enterprise Feature</span>
+                              <span class="ent-desc">Zero-Data Retention API &middot; Continuous Third-Party Scoring</span>
+                          </div>
+                          <div class="vendor-diligence-content" id="vendor-diligence-content">
+                              <!-- React/JS will populate this -->
+                          </div>
+                      </div>
+
+                      <!-- SOVEREIGN GOVERNANCE: GLOBAL DELTA -->
+                      <div id="sim-step-delta" class="sim-card-wrapper" style="display:none;">
+                          <div class="sim-header-title-bar">
+                              <h2>Cross-Border Regulatory Variance (Delta Map)</h2>
+                              <p>Select your base sovereign posture and calculate the exact 15% roadmap to achieve compliance in a foreign jurisdiction.</p>
+                          </div>
+                          <div class="enterprise-badge-row">
+                              <span class="ent-badge" style="background:rgba(255,153,0,0.1); color:#ff9900; border-color:rgba(255,153,0,0.2);"><i data-lucide="shield"></i> Sovereign Enterprise Feature</span>
+                              <span class="ent-desc">India DPDP / RBI &middot; EU GDPR / AI Act &middot; US CCPA</span>
+                          </div>
+                          <div class="global-delta-content" id="global-delta-content">
+                              <!-- React/JS will populate this -->
+                          </div>
+                      </div>
+
+
                             <!-- Alert Routing Config -->
                             <div class="ccm-card">
                                 <h4 class="panel-heading"><i data-lucide="git-merge" class="text-cyan"></i> Alert Routing Configuration</h4>
@@ -2441,34 +2477,30 @@
                 </div>
 
                 <div class="ai-fix-section">
-                    <div class="ai-fix-header">
-                        <h4>AI-Generated Correction Amendment</h4>
-                        <span class="ai-badge"><span class="badge-spark"></span> Dynamic Clause Injected</span>
-                    </div>
-                    <div class="code-block-container">
-                        <pre><code id="modal-remediation-clause">Initializing remediation code...</code></pre>
-                        <button class="btn-copy-code" id="copy-clause-btn" title="Copy to clipboard">
-                            <i data-lucide="copy"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                      <div class="ai-fix-header">
+                          <h4>Sovereign Drafting Assistant (Propose, Don't Enact)</h4>
+                          <span class="ai-badge" style="background:rgba(255,153,0,0.1); color:#ff9900; border-color:rgba(255,153,0,0.3);"><span class="badge-spark"></span> Strict RAG Anchoring</span>
+                      </div>
+                      <div class="git-diff-view" style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.05); color:#a1a1aa; font-family:monospace; font-size:0.75rem; padding:10px; border-radius:6px; margin-top:10px; line-height:1.5;">
+                          <div style="color:#ef4444; background:rgba(239,68,68,0.1); padding:2px 4px;">- [Missing mandatory clause as per DPDP Act Section 8]</div>
+                          <div style="color:#10b981; background:rgba(16,185,129,0.1); padding:2px 4px;">+ <span id="modal-remediation-clause">Initializing remediation code...</span></div>
+                      </div>
+                  </div>
+              </div>
+  
+              <div class="approval-pipeline" style="display:flex; justify-content:space-between; margin:1rem 1.5rem 0 1.5rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:1rem;">
+                  <label style="font-size:0.8rem; color:#a1a1aa; display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" class="approval-chk"> Legal Counsel Sign-off</label>
+                  <label style="font-size:0.8rem; color:#a1a1aa; display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" class="approval-chk"> DPO Sign-off</label>
+                  <label style="font-size:0.8rem; color:#a1a1aa; display:flex; align-items:center; gap:0.5rem; cursor:pointer;"><input type="checkbox" class="approval-chk"> Eng Manager Sign-off</label>
+              </div>
 
-            <div class="modal-footer" style="gap:0.75rem;flex-wrap:wrap;">
-                <button class="btn btn-secondary" id="cancel-remediation-btn">Cancel</button>
-                <button class="btn btn-secondary" id="docusign-send-btn" style="border-color:rgba(0,105,255,0.4);color:#4A90E2;">
-                    <i data-lucide="send"></i>
-                    <span>Send via DocuSign</span>
-                </button>
-                <button class="btn btn-secondary" id="download-patch-btn" style="border-color:rgba(0,255,150,0.4);color:#00e5a0;">
-                    <i data-lucide="download"></i>
-                    <span>Download File Fix</span>
-                </button>
-                <button class="btn btn-primary btn-glow" id="apply-remediation-btn">
-                    <i data-lucide="check-circle"></i>
-                    <span>Apply Fix to Document</span>
-                </button>
-            </div>
+              <div class="modal-footer" style="gap:0.75rem;flex-wrap:wrap; justify-content:space-between;">
+                  <button class="btn btn-secondary" id="cancel-remediation-btn">Reject Proposal</button>
+                  <button class="btn btn-primary btn-glow" id="apply-remediation-btn" style="opacity:0.5;" disabled>
+                      <i data-lucide="fingerprint"></i>
+                      <span>Aadhaar e-Sign & Enact</span>
+                  </button>
+              </div>
         </div>
     </div>
 
@@ -2783,6 +2815,7 @@
             </div>
         </div>
     </div>
+    <script src="enterprise_logic.js"></script>
 </body>
 </html>
 
