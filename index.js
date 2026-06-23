@@ -264,11 +264,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
          document.getElementById('sim-step-mock-audit'),
          document.getElementById('sim-step-cross-ref'),
          document.getElementById('sim-step-qa'),
-         document.getElementById('sim-step-radar'),
-         document.getElementById('sim-step-pentest'),
-         document.getElementById('sim-step-iac'),
-         document.getElementById('sim-step-harmonize'),
-         document.getElementById('sim-step-questionnaire')
+         document.getElementById('sim-step-radar')
         ].forEach(el => el && el.classList.remove("active"));
 
         if (stepName === "connect") {
@@ -492,17 +488,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
 
     // ───────────────────────────────────────
     
-    const pentestMnu = document.getElementById("sim-menu-pentest");
-    if (pentestMnu) pentestMnu.addEventListener("click", (e) => { e.preventDefault(); showSimStep("pentest"); });
     
-    const iacMnu = document.getElementById("sim-menu-iac");
-    if (iacMnu) iacMnu.addEventListener("click", (e) => { e.preventDefault(); showSimStep("iac"); });
-    
-    const harmonizeMnu = document.getElementById("sim-menu-harmonize");
-    if (harmonizeMnu) harmonizeMnu.addEventListener("click", (e) => { e.preventDefault(); showSimStep("harmonize"); });
-    
-    const questMnu = document.getElementById("sim-menu-questionnaire");
-    if (questMnu) questMnu.addEventListener("click", (e) => { e.preventDefault(); showSimStep("questionnaire"); });
 
     // Ensure the main enterprise button links correctly
 
@@ -648,19 +634,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                         if (isFlagged) {
                             statusEl.className = "source-status flagged";
                             statusEl.innerHTML = "⚠ Issues Found";
-                        } else if (stepName === "pentest") {
-            document.getElementById('sim-step-pentest').classList.add("active");
-            setActiveNavItem("sim-menu-pentest");
-        } else if (stepName === "iac") {
-            document.getElementById('sim-step-iac').classList.add("active");
-            setActiveNavItem("sim-menu-iac");
-        } else if (stepName === "harmonize") {
-            document.getElementById('sim-step-harmonize').classList.add("active");
-            setActiveNavItem("sim-menu-harmonize");
-        } else if (stepName === "questionnaire") {
-            document.getElementById('sim-step-questionnaire').classList.add("active");
-            setActiveNavItem("sim-menu-questionnaire");
-        } else {
+                        } else {
                             card.classList.add("done");
                             statusEl.className = "source-status done";
                             statusEl.innerHTML = "✓ Clean";
