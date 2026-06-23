@@ -2722,3 +2722,190 @@ window.addEventListener("load", function initSupportForm() {
     }
 
 })();
+
+
+/* =========================================================
+   MOCK AUDIT SIMULATOR LOGIC
+   ========================================================= */
+let mockAuditHistory = [];
+function populateMockAuditFiles() {
+    const select = document.getElementById("mock-audit-file-select");
+    if(!select) return;
+    select.innerHTML = '<option value="">Select a document to audit...</option>';
+    uploadedFiles.forEach(f => {
+        const opt = document.createElement("option");
+        opt.value = f.name;
+        opt.textContent = f.name;
+        select.appendChild(opt);
+    });
+}
+
+const startAuditBtn = document.getElementById("mock-audit-start-btn");
+const mockAuditChat = document.getElementById("mock-audit-chat-window");
+const mockAuditInput = document.getElementById("mock-audit-input");
+const mockAuditSendBtn = document.getElementById("mock-audit-send-btn");
+const mockAuditFileSelect = document.getElementById("mock-audit-file-select");
+const mockAuditFwSelect = document.getElementById("mock-audit-fw-select");
+
+function appendMockMessage(sender, text) {
+    const div = document.createElement("div");
+    div.style.padding = "0.8rem";
+    div.style.borderRadius = "8px";
+    div.style.maxWidth = "85%";
+    div.style.lineHeight = "1.5";
+    
+    if (sender === "Auditor") {
+        div.style.background = "rgba(6, 182, 212, 0.1)";
+        div.style.border = "1px solid rgba(6, 182, 212, 0.3)";
+        div.style.color = "#fff";
+        div.style.alignSelf = "flex-start";
+        div.innerHTML = `<strong style="color:#06b6d4;"><i data-lucide="shield"></i> Big-4 Auditor:</strong><br>${text.replace(/\n/g, '<br>')}`;
+    } else {
+        div.style.background = "rgba(59, 130, 246, 0.1)";
+        div.style.border = "1px solid rgba(59, 130, 246, 0.3)";
+        div.style.color = "#fff";
+        div.style.alignSelf = "flex-end";
+        div.innerHTML = `<strong style="color:#3b82f6;"><i data-lucide="user"></i> You:</strong><br>${text}`;
+    }
+    mockAuditChat.appendChild(div);
+    mockAuditChat.scrollTop = mockAuditChat.scrollHeight;
+    (typeof lucide!=='undefined'&&lucide.createIcons());
+}
+
+if(startAuditBtn) {
+    startAuditBtn.addEventListener("click", async () => {
+        const fileName = mockAuditFileSelect.value;
+        const fw = mockAuditFwSelect.value;
+        if(!fileName) return showToast("Please select a file first.", true);
+        
+        const fileObj = uploadedFiles.find(f => f.name === fileName);
+        
+        mockAuditFileSelect.disabled = true;
+        mockAuditFwSelect.disabled = true;
+        startAuditBtn.disabled = true;
+        mockAuditChat.innerHTML = "";
+        mockAuditHistory = [];
+        
+        appendMockMessage("Auditor", "Initializing audit... reviewing " + fileName + " against " + fw + " controls...");
+        
+        const prompt = `You are a strict Big-4 auditor conducting a live compliance interview. You have reviewed the document "${fileName}" which contains: "${fileObj.text.substring(0, 3000)}". The framework is ${fw}. Ask the user a tough, specific question about a potential compliance gap or edge case found in (or missing from) this document. Be professional, intimidating, and brief (2-3 sentences max). Do not grade yet. Just ask.`;
+        
+        try {
+            const res = await fetch('/api/gemini/scan', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ prompt })
+            });
+            const data = await res.json();
+            const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Can you explain the access controls in this document?";
+            mockAuditChat.innerHTML = "";
+            mockAuditHistory.push({ role: "Auditor", text: reply });
+            appendMockMessage("Auditor", reply);
+            
+            mockAuditInput.disabled = false;
+            mockAuditSendBtn.disabled = false;
+            mockAuditInput.focus();
+        } catch(e) {
+            mockAuditChat.innerHTML = "Error connecting to AI: " + e.message;
+            startAuditBtn.disabled = false;
+        }
+    });
+}
+
+if(mockAuditSendBtn) {
+    const handleSend = async () => {
+        const text = mockAuditInput.value.trim();
+        if(!text) return;
+        
+        mockAuditInput.value = "";
+        mockAuditInput.disabled = true;
+        mockAuditSendBtn.disabled = true;
+        
+        appendMockMessage("User", text);
+        mockAuditHistory.push({ role: "User", text: text });
+        
+        let histStr = mockAuditHistory.map(m => m.role + ": " + m.text).join("\n");
+        const prompt = `You are a strict Big-4 auditor conducting a compliance interview. \nHistory:\n${histStr}\n\nAnalyze the user's last response. \nIf they are wrong but their file has the correct policy, tell them what to say instead.\nIf their file is missing the policy and they give an excuse, reject it and tell them the file is flawed and must be fixed.\nIf they are correct, praise them and ask a new, harder question.\nKeep it under 4 sentences.`;
+        
+        try {
+            const res = await fetch('/api/gemini/scan', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ prompt })
+            });
+            const data = await res.json();
+            const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Network error. Please try again.";
+            
+            mockAuditHistory.push({ role: "Auditor", text: reply });
+            appendMockMessage("Auditor", reply);
+            
+        } catch(e) {
+            appendMockMessage("Auditor", "Connection lost.");
+        }
+        
+        mockAuditInput.disabled = false;
+        mockAuditSendBtn.disabled = false;
+        mockAuditInput.focus();
+    };
+    
+    mockAuditSendBtn.addEventListener("click", handleSend);
+    mockAuditInput.addEventListener("keypress", (e) => {
+        if(e.key === "Enter") handleSend();
+    });
+}
+
+
+/* =========================================================
+   CROSS-REFERENCE CONTRADICTION FINDER
+   ========================================================= */
+const crossRefEmpty = document.getElementById("cross-ref-empty");
+const crossRefResults = document.getElementById("cross-ref-results");
+const crossRefStartBtn = document.getElementById("cross-ref-start-btn");
+const crossRefContent = document.getElementById("cross-ref-content");
+
+function checkCrossRefState() {
+    if(uploadedFiles.length < 2) {
+        if(crossRefEmpty) crossRefEmpty.style.display = "block";
+        if(crossRefStartBtn) crossRefStartBtn.style.display = "none";
+        if(crossRefResults) crossRefResults.style.display = "none";
+    } else {
+        if(crossRefEmpty) crossRefEmpty.style.display = "none";
+        if(crossRefStartBtn) crossRefStartBtn.style.display = "flex";
+    }
+}
+
+if(crossRefStartBtn) {
+    crossRefStartBtn.addEventListener("click", async () => {
+        crossRefStartBtn.disabled = true;
+        crossRefStartBtn.innerHTML = '<i class="lucide-loader animate-spin"></i> Scanning...';
+        crossRefResults.style.display = "block";
+        crossRefContent.innerHTML = '<div class="pulse-dot"></div> Cross-referencing ' + uploadedFiles.length + ' documents. This may take a moment...';
+        
+        // Combine texts
+        let combinedText = uploadedFiles.map(f => `--- DOCUMENT: ${f.name} ---\n${f.text.substring(0, 2000)}`).join("\n\n");
+        
+        const prompt = `Analyze the following documents and cross-reference them against each other. Find ANY logical contradictions, conflicting policies, or overlapping compliance gaps between them (e.g. Doc A says passwords expire 90 days, Doc B says 60 days). \n\nDocuments:\n${combinedText}\n\nIf you find contradictions, list them clearly with citations to the document names. If there are no contradictions, explicitly state that the documents are logically consistent.`;
+        
+        try {
+            const res = await fetch('/api/gemini/scan', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ prompt })
+            });
+            const data = await res.json();
+            const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Failed to analyze data room.";
+            
+            // Format markdown to HTML simply
+            let htmlReply = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                 .replace(/\n/g, '<br>');
+            crossRefContent.innerHTML = htmlReply;
+            
+        } catch(e) {
+            crossRefContent.innerHTML = "Error analyzing documents: " + e.message;
+        }
+        
+        crossRefStartBtn.disabled = false;
+        crossRefStartBtn.innerHTML = '<i data-lucide="scan"></i> Re-Scan Data Room';
+        (typeof lucide!=='undefined'&&lucide.createIcons());
+    });
+}
