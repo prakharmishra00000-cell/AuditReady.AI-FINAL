@@ -1073,6 +1073,7 @@ input:checked + .slider:before {
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: 5px;
+    min-height: 0;
 }
 
 /* Custom scrollbar for sidebar */
