@@ -21,7 +21,7 @@
         console.warn('Lucide icons CDN failed to load — icons hidden, functionality intact.');
       }
     </script>
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="index.css?v=1782254519675">
 </head>
 <body>
     <!-- HEADER / NAVIGATION -->
@@ -853,181 +853,6 @@
                             </button>
                         </div>
                     </div>
-                
-
-                    
-
-                    <!-- GLOBAL GOVERNANCE: HARMONIZATION ENGINE -->
-                    
-                    <!-- DEVSECOPS: AI PENTEST AGENT -->
-                    <div id="sim-step-pentest" class="sim-card-wrapper">
-                        <div class="sim-header-title-bar">
-                            <h2>Automated AI Pentesting Agent</h2>
-                            <p>Launch live, ethical zero-day exploitation simulations against your staging endpoints. Find SQLi, XSS, and misconfigurations before attackers do.</p>
-                        </div>
-                        <div class="enterprise-badge-row">
-                            <span class="ent-badge"><i data-lucide="shield"></i> DevSecOps Tier</span>
-                            <span class="ent-desc">Continuous Fuzzing &middot; Auto-Patching via Jira &middot; CVE-2024 Context Aware</span>
-                        </div>
-                        
-                        <div class="sim-card" style="margin-top: 2rem;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                                <div>
-                                    <h3 style="margin-bottom:0.3rem">Target: staging-api.acme.corp</h3>
-                                    <p style="color:var(--text-muted); font-size:0.9rem;">Simulated Environment: Active</p>
-                                </div>
-                                <button id="btn-start-pentest" class="btn btn-danger btn-glow">
-                                    <i data-lucide="play"></i> Launch Simulation
-                                </button>
-                            </div>
-                            
-                            <div style="background:#000; border-radius:8px; padding:1.5rem; font-family:monospace; min-height:300px; color:#10b981; overflow-y:auto; border:1px solid #333; position:relative;">
-                                <div style="position:absolute; top:10px; right:15px; color:#555; font-size:0.8rem;">root@auditready-agent:~#</div>
-                                <div id="pentest-terminal-out" style="display:flex; flex-direction:column; gap:8px;">
-                                    <div style="color:#666;">Waiting for target lock...</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- DEVSECOPS: IAC GUARDRAILS -->
-                    <div id="sim-step-iac" class="sim-card-wrapper">
-                        <div class="sim-header-title-bar">
-                            <h2>IaC Guardrails (DevSecOps)</h2>
-                            <p>Block non-compliant infrastructure code (Terraform, AWS CloudFormation) directly in GitHub before it gets deployed.</p>
-                        </div>
-                        <div class="enterprise-badge-row">
-                            <span class="ent-badge"><i data-lucide="github"></i> Native Integration</span>
-                            <span class="ent-desc">Scans tf, yaml, json &middot; PR Auto-Blocking &middot; SOC 2 / GDPR Mapped</span>
-                        </div>
-                        
-                        <div class="sim-card" style="margin-top:2rem;">
-                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:1rem; margin-bottom:1rem;">
-                                <div style="display:flex; align-items:center; gap:10px;">
-                                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" style="width:30px; filter:invert(1) opacity(0.8);" alt="GitHub">
-                                    <div>
-                                        <h3 style="font-size:1.1rem;">Pull Request #402: Deploy new RDS database</h3>
-                                        <p style="color:var(--text-muted); font-size:0.85rem;">opened by dev-ops-prakhar 5 minutes ago</p>
-                                    </div>
-                                </div>
-                                <button id="btn-scan-pr" class="btn btn-secondary">Run AuditReady Check</button>
-                            </div>
-                            
-                            <div style="background:#1e1e1e; color:#d4d4d4; padding:1.5rem; border-radius:8px; font-family:monospace; margin-bottom:1rem; overflow-x:auto;">
-<pre style="margin:0;"><code><span style="color:#569cd6;">resource</span> <span style="color:#ce9178;">"aws_db_instance"</span> <span style="color:#ce9178;">"main"</span> {
-  allocated_storage    = <span style="color:#b5cea8;">20</span>
-  engine               = <span style="color:#ce9178;">"postgres"</span>
-  instance_class       = <span style="color:#ce9178;">"db.t3.micro"</span>
-  
-  <span style="color:#6a9955;">// Security configurations</span>
-  publicly_accessible  = <span style="color:#569cd6;">true</span>
-  storage_encrypted    = <span style="color:#569cd6;">false</span>
-}</code></pre>
-                            </div>
-                            
-                            <div id="iac-result" style="display:none; background:rgba(239, 68, 68, 0.1); border:1px solid #ef4444; padding:1.5rem; border-radius:8px;">
-                                <h3 style="color:#ef4444; display:flex; align-items:center; gap:10px; margin-bottom:0.5rem;"><i data-lucide="x-circle"></i> PR Blocked by AuditReady.AI</h3>
-                                <p style="color:var(--text-color); margin-bottom:1rem;">2 Critical Compliance Violations Detected in Terraform blueprint:</p>
-                                <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
-                                    <li style="display:flex; gap:10px;"><strong style="color:#ef4444;">[SOC 2 CC6.1]</strong> <code>publicly_accessible = true</code> allows unauthorized perimeter access.</li>
-                                    <li style="display:flex; gap:10px;"><strong style="color:#ef4444;">[GDPR Art 32]</strong> <code>storage_encrypted = false</code> violates encryption-at-rest mandates for PII databases.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="sim-step-harmonize" class="sim-card-wrapper">
-                        <div class="sim-header-title-bar">
-                            <h2>Universal Harmonization Engine</h2>
-                            <p>Deduplicate overlapping rules automatically. Map a single piece of evidence to satisfy 30+ global frameworks simultaneously.</p>
-                        </div>
-                        <div class="enterprise-badge-row">
-                            <span class="ent-badge"><i data-lucide="layers"></i> Global Governance</span>
-                            <span class="ent-desc">Cross-Framework Deduplication &middot; Evidence Inheritance</span>
-                        </div>
-                        
-                        <div style="margin-top:2rem; display:flex; gap:2rem; align-items:center;">
-                            <!-- Root Evidence -->
-                            <div style="flex:1; background:var(--bg-card); padding:1.5rem; border-radius:12px; border:1px solid var(--border-color); text-align:center;">
-                                <i data-lucide="file-check-2" style="width:48px; height:48px; color:var(--primary); margin-bottom:1rem;"></i>
-                                <h3 style="margin-bottom:0.5rem;">Root Evidence Detected</h3>
-                                <p style="color:var(--text-muted); font-size:0.9rem;">Okta MFA Enforcement Policy (Verified)</p>
-                                <button class="btn btn-primary btn-sm" id="btn-harmonize" style="margin-top:1rem; width:100%;">Map Across Frameworks <i data-lucide="arrow-right"></i></button>
-                            </div>
-                            
-                            <!-- Connecting Lines -->
-                            <div style="color:var(--text-muted); display:flex; flex-direction:column; gap:2rem; opacity:0.5;" id="harmonize-lines">
-                                <i data-lucide="git-commit"></i>
-                                <i data-lucide="git-commit"></i>
-                                <i data-lucide="git-commit"></i>
-                            </div>
-                            
-                            <!-- Satisfied Frameworks -->
-                            <div style="flex:1; display:flex; flex-direction:column; gap:1rem;" id="harmonize-results">
-                                <div class="harm-box" style="background:var(--bg-card); padding:1rem; border-radius:8px; border:1px solid var(--border-color); opacity:0.3; transition:all 0.5s;">
-                                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                                        <strong>SOC 2 (CC6.1)</strong>
-                                        <i data-lucide="check-circle" class="text-green" style="display:none;"></i>
-                                    </div>
-                                    <div style="font-size:0.8rem; color:var(--text-muted);">Logical Access Security</div>
-                                </div>
-                                <div class="harm-box" style="background:var(--bg-card); padding:1rem; border-radius:8px; border:1px solid var(--border-color); opacity:0.3; transition:all 0.5s;">
-                                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                                        <strong>ISO 27001 (A.9.4.2)</strong>
-                                        <i data-lucide="check-circle" class="text-green" style="display:none;"></i>
-                                    </div>
-                                    <div style="font-size:0.8rem; color:var(--text-muted);">Secure Log-on Procedures</div>
-                                </div>
-                                <div class="harm-box" style="background:var(--bg-card); padding:1rem; border-radius:8px; border:1px solid var(--border-color); opacity:0.3; transition:all 0.5s;">
-                                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                                        <strong>HIPAA (§ 164.312)</strong>
-                                        <i data-lucide="check-circle" class="text-green" style="display:none;"></i>
-                                    </div>
-                                    <div style="font-size:0.8rem; color:var(--text-muted);">Access Control / Authentication</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- DEVSECOPS: TRUST CENTER RESPONDER -->
-                    <div id="sim-step-questionnaire" class="sim-card-wrapper">
-                        <div class="sim-header-title-bar">
-                            <h2>AI Trust Center Responder</h2>
-                            <p>Upload massive 300+ question security spreadsheets from enterprise prospects. The AI reads your live evidence and fills out the entire questionnaire in 60 seconds.</p>
-                        </div>
-                        <div class="enterprise-badge-row">
-                            <span class="ent-badge"><i data-lucide="file-question"></i> Sales Enablement</span>
-                            <span class="ent-desc">Auto-Fill Security Questionnaires &middot; RAG Evidence Linking</span>
-                        </div>
-                        
-                        <div style="margin-top:2rem; background:var(--bg-card); border-radius:12px; border:1px dashed var(--primary); padding:3rem; text-align:center;" id="q-upload-zone">
-                            <i data-lucide="file-spreadsheet" style="width:64px; height:64px; color:var(--primary); margin-bottom:1rem; opacity:0.8;"></i>
-                            <h3>Drop Security Questionnaire (Excel/CSV)</h3>
-                            <p style="color:var(--text-muted); margin-bottom:1.5rem;">Automatically map your security posture to client questions.</p>
-                            <button class="btn btn-primary" id="btn-process-questionnaire">Upload & Auto-Fill Spreadsheet</button>
-                        </div>
-                        
-                        <div id="q-progress-zone" style="display:none; margin-top:2rem; background:var(--bg-card); border-radius:12px; border:1px solid var(--border-color); padding:2rem;">
-                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
-                                <strong id="q-status-text">Parsing questions...</strong>
-                                <span id="q-pct">0%</span>
-                            </div>
-                            <div style="width:100%; height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
-                                <div id="q-bar" style="width:0%; height:100%; background:var(--primary); transition:width 0.1s;"></div>
-                            </div>
-                            <div id="q-log" style="margin-top:1rem; font-family:monospace; font-size:0.85rem; color:#94a3b8; height:100px; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end;">
-                            </div>
-                        </div>
-                        
-                        <div id="q-done-zone" style="display:none; margin-top:2rem; text-align:center;">
-                            <i data-lucide="check-circle" style="width:48px; height:48px; color:var(--success); margin-bottom:1rem;"></i>
-                            <h3>Questionnaire Completed</h3>
-                            <p style="color:var(--text-muted);">Answered 312 questions using 45 validated evidence sources.</p>
-                            <button class="btn btn-secondary" style="margin-top:1rem;"><i data-lucide="download"></i> Download Completed Excel</button>
-                        </div>
-                    </div>
-
-</div>
             </section>
 
             <!-- ════════════════ PAYMENT MODAL ════════════════ -->
@@ -1305,6 +1130,176 @@
                     </div>
 
                     <!-- STEP 2: SCANNING INTERFACE -->
+                    <!-- GLOBAL GOVERNANCE: HARMONIZATION ENGINE -->
+                    
+                    <!-- DEVSECOPS: AI PENTEST AGENT -->
+                    <div id="sim-step-pentest" class="sim-card-wrapper">
+                        <div class="sim-header-title-bar">
+                            <h2>Automated AI Pentesting Agent</h2>
+                            <p>Launch live, ethical zero-day exploitation simulations against your staging endpoints. Find SQLi, XSS, and misconfigurations before attackers do.</p>
+                        </div>
+                        <div class="enterprise-badge-row">
+                            <span class="ent-badge"><i data-lucide="shield"></i> DevSecOps Tier</span>
+                            <span class="ent-desc">Continuous Fuzzing &middot; Auto-Patching via Jira &middot; CVE-2024 Context Aware</span>
+                        </div>
+                        
+                        <div class="sim-card" style="margin-top: 2rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                                <div>
+                                    <h3 style="margin-bottom:0.3rem">Target: staging-api.acme.corp</h3>
+                                    <p style="color:var(--text-muted); font-size:0.9rem;">Simulated Environment: Active</p>
+                                </div>
+                                <button id="btn-start-pentest" class="btn btn-danger btn-glow">
+                                    <i data-lucide="play"></i> Launch Simulation
+                                </button>
+                            </div>
+                            
+                            <div style="background:#000; border-radius:8px; padding:1.5rem; font-family:monospace; min-height:300px; color:#10b981; overflow-y:auto; border:1px solid #333; position:relative;">
+                                <div style="position:absolute; top:10px; right:15px; color:#555; font-size:0.8rem;">root@auditready-agent:~#</div>
+                                <div id="pentest-terminal-out" style="display:flex; flex-direction:column; gap:8px;">
+                                    <div style="color:#666;">Waiting for target lock...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DEVSECOPS: IAC GUARDRAILS -->
+                    <div id="sim-step-iac" class="sim-card-wrapper">
+                        <div class="sim-header-title-bar">
+                            <h2>IaC Guardrails (DevSecOps)</h2>
+                            <p>Block non-compliant infrastructure code (Terraform, AWS CloudFormation) directly in GitHub before it gets deployed.</p>
+                        </div>
+                        <div class="enterprise-badge-row">
+                            <span class="ent-badge"><i data-lucide="github"></i> Native Integration</span>
+                            <span class="ent-desc">Scans tf, yaml, json &middot; PR Auto-Blocking &middot; SOC 2 / GDPR Mapped</span>
+                        </div>
+                        
+                        <div class="sim-card" style="margin-top:2rem;">
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:1rem; margin-bottom:1rem;">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" style="width:30px; filter:invert(1) opacity(0.8);" alt="GitHub">
+                                    <div>
+                                        <h3 style="font-size:1.1rem;">Pull Request #402: Deploy new RDS database</h3>
+                                        <p style="color:var(--text-muted); font-size:0.85rem;">opened by dev-ops-prakhar 5 minutes ago</p>
+                                    </div>
+                                </div>
+                                <button id="btn-scan-pr" class="btn btn-secondary">Run AuditReady Check</button>
+                            </div>
+                            
+                            <div style="background:#1e1e1e; color:#d4d4d4; padding:1.5rem; border-radius:8px; font-family:monospace; margin-bottom:1rem; overflow-x:auto;">
+<pre style="margin:0;"><code><span style="color:#569cd6;">resource</span> <span style="color:#ce9178;">"aws_db_instance"</span> <span style="color:#ce9178;">"main"</span> {
+  allocated_storage    = <span style="color:#b5cea8;">20</span>
+  engine               = <span style="color:#ce9178;">"postgres"</span>
+  instance_class       = <span style="color:#ce9178;">"db.t3.micro"</span>
+  
+  <span style="color:#6a9955;">// Security configurations</span>
+  publicly_accessible  = <span style="color:#569cd6;">true</span>
+  storage_encrypted    = <span style="color:#569cd6;">false</span>
+}</code></pre>
+                            </div>
+                            
+                            <div id="iac-result" style="display:none; background:rgba(239, 68, 68, 0.1); border:1px solid #ef4444; padding:1.5rem; border-radius:8px;">
+                                <h3 style="color:#ef4444; display:flex; align-items:center; gap:10px; margin-bottom:0.5rem;"><i data-lucide="x-circle"></i> PR Blocked by AuditReady.AI</h3>
+                                <p style="color:var(--text-color); margin-bottom:1rem;">2 Critical Compliance Violations Detected in Terraform blueprint:</p>
+                                <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;">
+                                    <li style="display:flex; gap:10px;"><strong style="color:#ef4444;">[SOC 2 CC6.1]</strong> <code>publicly_accessible = true</code> allows unauthorized perimeter access.</li>
+                                    <li style="display:flex; gap:10px;"><strong style="color:#ef4444;">[GDPR Art 32]</strong> <code>storage_encrypted = false</code> violates encryption-at-rest mandates for PII databases.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="sim-step-harmonize" class="sim-card-wrapper">
+                        <div class="sim-header-title-bar">
+                            <h2>Universal Harmonization Engine</h2>
+                            <p>Deduplicate overlapping rules automatically. Map a single piece of evidence to satisfy 30+ global frameworks simultaneously.</p>
+                        </div>
+                        <div class="enterprise-badge-row">
+                            <span class="ent-badge"><i data-lucide="layers"></i> Global Governance</span>
+                            <span class="ent-desc">Cross-Framework Deduplication &middot; Evidence Inheritance</span>
+                        </div>
+                        
+                        <div style="margin-top:2rem; display:flex; gap:2rem; align-items:center;">
+                            <!-- Root Evidence -->
+                            <div style="flex:1; background:var(--bg-card); padding:1.5rem; border-radius:12px; border:1px solid var(--border-color); text-align:center;">
+                                <i data-lucide="file-check-2" style="width:48px; height:48px; color:var(--primary); margin-bottom:1rem;"></i>
+                                <h3 style="margin-bottom:0.5rem;">Root Evidence Detected</h3>
+                                <p style="color:var(--text-muted); font-size:0.9rem;">Okta MFA Enforcement Policy (Verified)</p>
+                                <button class="btn btn-primary btn-sm" id="btn-harmonize" style="margin-top:1rem; width:100%;">Map Across Frameworks <i data-lucide="arrow-right"></i></button>
+                            </div>
+                            
+                            <!-- Connecting Lines -->
+                            <div style="color:var(--text-muted); display:flex; flex-direction:column; gap:2rem; opacity:0.5;" id="harmonize-lines">
+                                <i data-lucide="git-commit"></i>
+                                <i data-lucide="git-commit"></i>
+                                <i data-lucide="git-commit"></i>
+                            </div>
+                            
+                            <!-- Satisfied Frameworks -->
+                            <div style="flex:1; display:flex; flex-direction:column; gap:1rem;" id="harmonize-results">
+                                <div class="harm-box" style="background:var(--bg-card); padding:1rem; border-radius:8px; border:1px solid var(--border-color); opacity:0.3; transition:all 0.5s;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <strong>SOC 2 (CC6.1)</strong>
+                                        <i data-lucide="check-circle" class="text-green" style="display:none;"></i>
+                                    </div>
+                                    <div style="font-size:0.8rem; color:var(--text-muted);">Logical Access Security</div>
+                                </div>
+                                <div class="harm-box" style="background:var(--bg-card); padding:1rem; border-radius:8px; border:1px solid var(--border-color); opacity:0.3; transition:all 0.5s;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <strong>ISO 27001 (A.9.4.2)</strong>
+                                        <i data-lucide="check-circle" class="text-green" style="display:none;"></i>
+                                    </div>
+                                    <div style="font-size:0.8rem; color:var(--text-muted);">Secure Log-on Procedures</div>
+                                </div>
+                                <div class="harm-box" style="background:var(--bg-card); padding:1rem; border-radius:8px; border:1px solid var(--border-color); opacity:0.3; transition:all 0.5s;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <strong>HIPAA (§ 164.312)</strong>
+                                        <i data-lucide="check-circle" class="text-green" style="display:none;"></i>
+                                    </div>
+                                    <div style="font-size:0.8rem; color:var(--text-muted);">Access Control / Authentication</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DEVSECOPS: TRUST CENTER RESPONDER -->
+                    <div id="sim-step-questionnaire" class="sim-card-wrapper">
+                        <div class="sim-header-title-bar">
+                            <h2>AI Trust Center Responder</h2>
+                            <p>Upload massive 300+ question security spreadsheets from enterprise prospects. The AI reads your live evidence and fills out the entire questionnaire in 60 seconds.</p>
+                        </div>
+                        <div class="enterprise-badge-row">
+                            <span class="ent-badge"><i data-lucide="file-question"></i> Sales Enablement</span>
+                            <span class="ent-desc">Auto-Fill Security Questionnaires &middot; RAG Evidence Linking</span>
+                        </div>
+                        
+                        <div style="margin-top:2rem; background:var(--bg-card); border-radius:12px; border:1px dashed var(--primary); padding:3rem; text-align:center;" id="q-upload-zone">
+                            <i data-lucide="file-spreadsheet" style="width:64px; height:64px; color:var(--primary); margin-bottom:1rem; opacity:0.8;"></i>
+                            <h3>Drop Security Questionnaire (Excel/CSV)</h3>
+                            <p style="color:var(--text-muted); margin-bottom:1.5rem;">Automatically map your security posture to client questions.</p>
+                            <button class="btn btn-primary" id="btn-process-questionnaire">Upload & Auto-Fill Spreadsheet</button>
+                        </div>
+                        
+                        <div id="q-progress-zone" style="display:none; margin-top:2rem; background:var(--bg-card); border-radius:12px; border:1px solid var(--border-color); padding:2rem;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                                <strong id="q-status-text">Parsing questions...</strong>
+                                <span id="q-pct">0%</span>
+                            </div>
+                            <div style="width:100%; height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
+                                <div id="q-bar" style="width:0%; height:100%; background:var(--primary); transition:width 0.1s;"></div>
+                            </div>
+                            <div id="q-log" style="margin-top:1rem; font-family:monospace; font-size:0.85rem; color:#94a3b8; height:100px; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end;">
+                            </div>
+                        </div>
+                        
+                        <div id="q-done-zone" style="display:none; margin-top:2rem; text-align:center;">
+                            <i data-lucide="check-circle" style="width:48px; height:48px; color:var(--success); margin-bottom:1rem;"></i>
+                            <h3>Questionnaire Completed</h3>
+                            <p style="color:var(--text-muted);">Answered 312 questions using 45 validated evidence sources.</p>
+                            <button class="btn btn-secondary" style="margin-top:1rem;"><i data-lucide="download"></i> Download Completed Excel</button>
+                        </div>
+                    </div>
+
                     <div id="sim-step-scan" class="sim-card-wrapper">
                         <div class="terminal-container">
                             <div class="terminal-header">
@@ -2869,7 +2864,7 @@
     <!-- QR Code library for UPI payment QR generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Main JavaScript file -->
-    <script src="index.js?v=2"></script>
+    <script src="index.js?v=1782254519675"></script>
 
     <!-- FLOATING HELP BUTTON -->
     <button class="help-float-btn" id="open-support-btn" title="Help &amp; Support">
@@ -2988,7 +2983,7 @@
             </div>
         </div>
     </div>
-    <script src="enterprise_logic.js"></script>
+    <script src="enterprise_logic.js?v=1782254519675"></script>
 </body>
 </html>
 
