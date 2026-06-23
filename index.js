@@ -264,7 +264,11 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
          document.getElementById('sim-step-mock-audit'),
          document.getElementById('sim-step-cross-ref'),
          document.getElementById('sim-step-qa'),
-         document.getElementById('sim-step-radar')
+         document.getElementById('sim-step-radar'),
+         document.getElementById('sim-step-pentest'),
+         document.getElementById('sim-step-iac'),
+         document.getElementById('sim-step-harmonize'),
+         document.getElementById('sim-step-questionnaire')
         ].forEach(el => el && el.classList.remove("active"));
 
         if (stepName === "connect") {
@@ -437,35 +441,35 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
         showSimulator();
     }));
 
-    backToLandingBtn.addEventListener("click", showLandingPage);
-    logoLink.addEventListener("click", showLandingPage);
+    if(backToLandingBtn) backToLandingBtn.addEventListener("click", showLandingPage);
+    if(logoLink) logoLink.addEventListener("click", showLandingPage);
 
     // Sidebar nav clicks
-    document.getElementById("sim-menu-scan").addEventListener("click", (e) => {
+    var el_sim_menu_scan = document.getElementById("sim-menu-scan"); if(el_sim_menu_scan) el_sim_menu_scan.addEventListener("click", (e) => {
         e.preventDefault();
         showSimStep("connect");
     });
-    document.getElementById("sim-menu-frameworks").addEventListener("click", (e) => {
+    var el_sim_menu_frameworks = document.getElementById("sim-menu-frameworks"); if(el_sim_menu_frameworks) el_sim_menu_frameworks.addEventListener("click", (e) => {
         e.preventDefault();
         showSimStep("frameworks");
         (typeof lucide!=='undefined'&&lucide.createIcons());
     });
-    document.getElementById("sim-menu-settings").addEventListener("click", (e) => {
+    var el_sim_menu_settings = document.getElementById("sim-menu-settings"); if(el_sim_menu_settings) el_sim_menu_settings.addEventListener("click", (e) => {
         e.preventDefault();
         showSimStep("settings");
         (typeof lucide!=='undefined'&&lucide.createIcons());
     });
 
     // Enterprise nav bindings
-    document.getElementById("sim-menu-shadow").addEventListener("click", (e) => {
+    var el_sim_menu_shadow = document.getElementById("sim-menu-shadow"); if(el_sim_menu_shadow) el_sim_menu_shadow.addEventListener("click", (e) => {
         e.preventDefault();
         showSimStep("shadow");
     });
-    document.getElementById("sim-menu-auditor").addEventListener("click", (e) => {
+    var el_sim_menu_auditor = document.getElementById("sim-menu-auditor"); if(el_sim_menu_auditor) el_sim_menu_auditor.addEventListener("click", (e) => {
         e.preventDefault();
         showSimStep("auditor");
     });
-    document.getElementById("sim-menu-ccm").addEventListener("click", (e) => {
+    var el_sim_menu_ccm = document.getElementById("sim-menu-ccm"); if(el_sim_menu_ccm) el_sim_menu_ccm.addEventListener("click", (e) => {
         e.preventDefault();
         showSimStep("ccm");
     });
@@ -487,6 +491,21 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
     }
 
     // ───────────────────────────────────────
+    
+    const pentestMnu = document.getElementById("sim-menu-pentest");
+    if (pentestMnu) pentestMnu.addEventListener("click", (e) => { e.preventDefault(); showSimStep("pentest"); });
+    
+    const iacMnu = document.getElementById("sim-menu-iac");
+    if (iacMnu) iacMnu.addEventListener("click", (e) => { e.preventDefault(); showSimStep("iac"); });
+    
+    const harmonizeMnu = document.getElementById("sim-menu-harmonize");
+    if (harmonizeMnu) harmonizeMnu.addEventListener("click", (e) => { e.preventDefault(); showSimStep("harmonize"); });
+    
+    const questMnu = document.getElementById("sim-menu-questionnaire");
+    if (questMnu) questMnu.addEventListener("click", (e) => { e.preventDefault(); showSimStep("questionnaire"); });
+
+    // Ensure the main enterprise button links correctly
+
     // SHADOW DATA  - Animated Scan
     // ───────────────────────────────────────
     const shadowScanBtn    = document.getElementById("shadow-scan-btn");
@@ -588,7 +607,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
     }
 
     if (shadowScanBtn) {
-        shadowScanBtn.addEventListener("click", () => {
+        if(shadowScanBtn) shadowScanBtn.addEventListener("click", () => {
             if (shadowScanBtn.disabled) return;
             shadowScanBtn.disabled = true;
             shadowScanBtn.querySelector("span").textContent = "Scanning...";
@@ -629,7 +648,19 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                         if (isFlagged) {
                             statusEl.className = "source-status flagged";
                             statusEl.innerHTML = "⚠ Issues Found";
-                        } else {
+                        } else if (stepName === "pentest") {
+            document.getElementById('sim-step-pentest').classList.add("active");
+            setActiveNavItem("sim-menu-pentest");
+        } else if (stepName === "iac") {
+            document.getElementById('sim-step-iac').classList.add("active");
+            setActiveNavItem("sim-menu-iac");
+        } else if (stepName === "harmonize") {
+            document.getElementById('sim-step-harmonize').classList.add("active");
+            setActiveNavItem("sim-menu-harmonize");
+        } else if (stepName === "questionnaire") {
+            document.getElementById('sim-step-questionnaire').classList.add("active");
+            setActiveNavItem("sim-menu-questionnaire");
+        } else {
                             card.classList.add("done");
                             statusEl.className = "source-status done";
                             statusEl.innerHTML = "✓ Clean";
@@ -733,7 +764,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
     const ccmTimeline   = document.getElementById("ccm-timeline");
 
     if (ccmTriggerBtn) {
-        ccmTriggerBtn.addEventListener("click", () => {
+        if(ccmTriggerBtn) ccmTriggerBtn.addEventListener("click", () => {
             ccmTriggerBtn.disabled = true;
             ccmTriggerBtn.querySelector("span").textContent = "Running scan...";
 
@@ -761,7 +792,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
     }
 
 
-    pricingToggle.addEventListener("change", () => {
+    if(pricingToggle) pricingToggle.addEventListener("change", () => {
         isAnnualBilling = pricingToggle.checked;
         if (isAnnualBilling) {
             billingMonthlyLabel.classList.remove("active");
@@ -828,22 +859,22 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
     }
 
     // File Drag & Drop Simulation
-    dropZone.addEventListener("click", () => fileInput.click());
+    if(dropZone) dropZone.addEventListener("click", () => fileInput.click());
     
-    fileInput.addEventListener("change", () => {
+    if(fileInput) fileInput.addEventListener("change", () => {
         handleMockFiles(fileInput.files);
     });
 
-    dropZone.addEventListener("dragover", (e) => {
+    if(dropZone) dropZone.addEventListener("dragover", (e) => {
         e.preventDefault();
         dropZone.classList.add("drag-over");
     });
 
-    dropZone.addEventListener("dragleave", () => {
+    if(dropZone) dropZone.addEventListener("dragleave", () => {
         dropZone.classList.remove("drag-over");
     });
 
-    dropZone.addEventListener("drop", (e) => {
+    if(dropZone) dropZone.addEventListener("drop", (e) => {
         e.preventDefault();
         dropZone.classList.remove("drag-over");
         handleMockFiles(e.dataTransfer.files);
@@ -929,7 +960,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
         });
     }
 
-    resetFilesBtn.addEventListener("click", () => {
+    if(resetFilesBtn) resetFilesBtn.addEventListener("click", () => {
         // Deep clone defaults
         activeFiles = defaultFiles.map(f => ({ ...f }));
         renderFileList();
@@ -1001,7 +1032,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
     }
 
     // --- Scanning Console --- Real AI + Simulation fallback ---
-    startAuditScanBtn.addEventListener('click', async () => {
+    if(startAuditScanBtn) startAuditScanBtn.addEventListener('click', async () => {
         if (activeFiles.length === 0) { showToast('Please add at least one document to audit.', true); return; }
 
         // --- Plan gate: check framework access ---
@@ -1392,8 +1423,8 @@ Rules:
         activeRemediationRow = null;
     }
 
-    closeModalBtn.addEventListener("click", closeRemediationModal);
-    cancelRemediationBtn.addEventListener("click", closeRemediationModal);
+    if(closeModalBtn) closeModalBtn.addEventListener("click", closeRemediationModal);
+    if(cancelRemediationBtn) cancelRemediationBtn.addEventListener("click", closeRemediationModal);
 
     // Apply Remediation Fix
     
@@ -1432,7 +1463,7 @@ Rules:
         });
     }
 
-    applyRemediationBtn.addEventListener("click", async () => {
+    if(applyRemediationBtn) applyRemediationBtn.addEventListener("click", async () => {
         if (!activeRemediationRow) return;
         
         applyRemediationBtn.disabled = true;
@@ -1466,7 +1497,7 @@ Rules:
     });
 
     // Copy to clipboard simulation
-    copyClauseBtn.addEventListener("click", () => {
+    if(copyClauseBtn) copyClauseBtn.addEventListener("click", () => {
         const textToCopy = modalRemediationClause.textContent;
         navigator.clipboard.writeText(textToCopy).then(() => {
             showToast("AI clause copied to clipboard!");
@@ -1502,14 +1533,14 @@ Rules:
     }
 
     // --- Action Button footers in dashboard ---
-    restartAuditBtn.addEventListener("click", () => {
+    if(restartAuditBtn) restartAuditBtn.addEventListener("click", () => {
         // Reset file statuses back to original so they can run scans again
         activeFiles.forEach(f => f.currentStatus = f.originalStatus);
         showSimStep("connect");
         showToast("Audit simulator reset successfully.");
     });
 
-    downloadReportBtn.addEventListener("click", function() {
+    if(downloadReportBtn) downloadReportBtn.addEventListener("click", function() {
         var plan   = getCurrentPlan();
         var limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
         if (!limits.downloadReport) {
@@ -1788,7 +1819,7 @@ window.addEventListener("load", function initSupportForm() {
             fileInput.click();
         });
 
-        fileInput.addEventListener("change", () => {
+        if(fileInput) fileInput.addEventListener("change", () => {
             const newFiles = Array.from(fileInput.files);
             for (const f of newFiles) {
                 if (supportFiles.length >= 5) break;
@@ -2837,7 +2868,7 @@ function appendMockMessage(sender, text) {
 }
 
 if(startAuditBtn) {
-    startAuditBtn.addEventListener("click", async () => {
+    if(startAuditBtn) startAuditBtn.addEventListener("click", async () => {
         const p = getCurrentPlan();
         const lims = PLAN_LIMITS[p] || PLAN_LIMITS.free;
         if(!lims.mockAudit) return showToast("Mock Audit is available on Scale & Enterprise plans. Upgrade to access.", true);
@@ -2915,8 +2946,8 @@ if(mockAuditSendBtn) {
         mockAuditInput.focus();
     };
     
-    mockAuditSendBtn.addEventListener("click", handleSend);
-    mockAuditInput.addEventListener("keypress", (e) => {
+    if(mockAuditSendBtn) mockAuditSendBtn.addEventListener("click", handleSend);
+    if(mockAuditInput) mockAuditInput.addEventListener("keypress", (e) => {
         if(e.key === "Enter") handleSend();
     });
 }
@@ -2942,7 +2973,7 @@ function checkCrossRefState() {
 }
 
 if(crossRefStartBtn) {
-    crossRefStartBtn.addEventListener("click", async () => {
+    if(crossRefStartBtn) crossRefStartBtn.addEventListener("click", async () => {
         const p = getCurrentPlan();
         const lims = PLAN_LIMITS[p] || PLAN_LIMITS.free;
         if(!lims.crossRef) return showToast("Multi-Doc Cross-Reference is available on Scale & Enterprise plans. Upgrade to access.", true);
@@ -3037,7 +3068,7 @@ if(qaSearchBtn) {
         (typeof lucide!=='undefined'&&lucide.createIcons());
     };
     
-    qaSearchBtn.addEventListener("click", handleQASearch);
+    if(qaSearchBtn) qaSearchBtn.addEventListener("click", handleQASearch);
     if(qaSearchInput) {
         qaSearchInput.addEventListener("keypress", (e) => {
             if(e.key === "Enter") handleQASearch();
@@ -3054,7 +3085,7 @@ const radarImpactResults = document.getElementById("radar-impact-results");
 const radarImpactContent = document.getElementById("radar-impact-content");
 
 if(radarScanImpactBtn) {
-    radarScanImpactBtn.addEventListener("click", async () => {
+    if(radarScanImpactBtn) radarScanImpactBtn.addEventListener("click", async () => {
         const p = getCurrentPlan();
         const lims = PLAN_LIMITS[p] || PLAN_LIMITS.free;
         if(!lims.liveRadar) return showToast("Live Regulatory Radar is an Enterprise feature. Upgrade to access.", true);
@@ -3108,7 +3139,7 @@ const fakeEvidenceLogs = [
 ];
 
 if(shadowEvidenceBtn) {
-    shadowEvidenceBtn.addEventListener("click", () => {
+    if(shadowEvidenceBtn) shadowEvidenceBtn.addEventListener("click", () => {
         const p = getCurrentPlan();
         const lims = PLAN_LIMITS[p] || PLAN_LIMITS.free;
         if(!lims.activeEvidence) return showToast("Active Evidence Collection is an Enterprise feature. Upgrade to access.", true);

@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('vendor-diligence-content');
         if (!container) return;
 
-        container.innerHTML = \`
+        container.innerHTML = `
             <div style="display:flex; gap: 2rem; margin-top: 2rem;">
                 <div style="flex:1;">
                     <h4 class="panel-heading"><i data-lucide="cloud" class="text-cyan"></i> Monitored Vendors & Integrations</h4>
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             </div>
-        \`;
+        `;
 
         // Re-init lucide icons for newly injected HTML
         if (window.lucide) {
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('global-delta-content');
         if (!container) return;
 
-        container.innerHTML = \`
+        container.innerHTML = `
             <div style="display:flex; gap: 2rem; margin-top: 2rem;">
                 <!-- Setup -->
                 <div style="flex:1;">
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             </div>
-        \`;
+        `;
 
         if (window.lucide) {
             window.lucide.createIcons();
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.disabled = false;
                     
                     const resContainer = document.getElementById('delta-results-container');
-                    resContainer.innerHTML = \`
+                    resContainer.innerHTML = `
                         <h4 class="panel-heading"><i data-lucide="pie-chart" class="text-cyan"></i> Gap Analysis: India DPDP -> EU GDPR</h4>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
                             <div style="text-align:center;">
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </li>
                         </ul>
                         <button class="btn btn-secondary btn-sm" style="margin-top:1rem; width:100%; border-color:#cyan; color:#cyan;">Generate Delta Remediation Plan</button>
-                    \`;
+                    `;
                 }, 2000);
             });
         }
@@ -223,14 +223,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (logContainer) {
             const time = new Date().toISOString().substring(11, 19); // HH:MM:SS
             const el = document.createElement('div');
-            el.innerHTML = \`<span style="color:var(--text-muted);">[\${time}]</span> \${msg}\`;
+            el.innerHTML = `<span style="color:var(--text-muted);">[\${time}]</span> \${msg}`;
             // Add signature hash for "immutable" feel
             const hash = Math.random().toString(36).substring(2, 10).toUpperCase();
             const elHash = document.createElement('span');
             elHash.style.color = 'rgba(255,255,255,0.1)';
             elHash.style.float = 'right';
             elHash.style.fontSize = '0.65rem';
-            elHash.textContent = \`sig_\${hash}\`;
+            elHash.textContent = `sig_\${hash}`;
             el.appendChild(elHash);
             
             logContainer.appendChild(el);
@@ -254,5 +254,207 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }, 4000);
+
+});
+
+
+// ----------------------------------------------------
+// PHASE 5: BEST-IN-CLASS ENTERPRISE CAPABILITIES
+// ----------------------------------------------------
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    function showAdvancedStep(stepId, menuId) {
+        // Hide all steps
+        document.querySelectorAll('.sim-card-wrapper').forEach(el => {
+            el.classList.remove('active');
+            el.style.display = 'none';
+        });
+        
+        // Remove active class from all nav items
+        document.querySelectorAll('.sim-nav-item').forEach(el => {
+            el.classList.remove('active');
+        });
+        
+        // Show target step
+        const step = document.getElementById(stepId);
+        if (step) {
+            step.style.display = 'block';
+            step.classList.add('active');
+        }
+        
+        // Highlight menu
+        const menu = document.getElementById(menuId);
+        if (menu) menu.classList.add('active');
+    }
+
+    // Navigation Wiring
+    const menuItems = [
+        { id: 'sim-menu-harmonize', step: 'sim-step-harmonize' },
+        { id: 'sim-menu-pentest', step: 'sim-step-pentest' },
+        { id: 'sim-menu-iac', step: 'sim-step-iac' },
+        { id: 'sim-menu-questionnaire', step: 'sim-step-questionnaire' }
+    ];
+
+    menuItems.forEach(item => {
+        const el = document.getElementById(item.id);
+        if (el) {
+            el.addEventListener('click', (e) => {
+                e.preventDefault();
+                showAdvancedStep(item.step, item.id);
+            });
+        }
+    });
+    
+    // Also override vendor and delta from previous steps if they exist
+    ['vendor', 'delta'].forEach(stepName => {
+        const el = document.getElementById('sim-menu-' + stepName);
+        if (el) {
+            el.addEventListener('click', (e) => {
+                e.preventDefault();
+                showAdvancedStep('sim-step-' + stepName, 'sim-menu-' + stepName);
+            });
+        }
+    });
+
+    // 1. AI Pentest Agent Logic
+    const btnPentest = document.getElementById('btn-start-pentest');
+    const pentestOut = document.getElementById('pentest-terminal-out');
+    if (btnPentest && pentestOut) {
+        btnPentest.addEventListener('click', () => {
+            btnPentest.disabled = true;
+            btnPentest.innerHTML = '<i data-lucide="loader" class="spin"></i> Running Exploit Simulation...';
+            pentestOut.innerHTML = '';
+            
+            const logs = [
+                { time: 500, msg: '> Initializing penetration protocol... target: acme-corp.internal', color: '#64748b' },
+                { time: 1000, msg: '[*] Bypassing WAF heuristics via encoded payloads', color: '#eab308' },
+                { time: 1800, msg: '[*] Fuzzing input endpoints on /api/v2/auth', color: '#94a3b8' },
+                { time: 2600, msg: '[!] SQL Injection detected on login parameter "user_id"', color: '#ef4444' },
+                { time: 3200, msg: '[*] Attempting privilege escalation via blind boolean exploit...', color: '#eab308' },
+                { time: 4000, msg: '[+] Escalation successful. Administrative context achieved.', color: '#ef4444' },
+                { time: 4800, msg: '> Simulation Complete. Generating zero-day patch...', color: '#64748b' },
+                { time: 5500, msg: '[SUCCESS] Patch generated and pushed to Jira (#SEC-4091).', color: '#10b981' }
+            ];
+            
+            logs.forEach(log => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.style.color = log.color;
+                    div.innerText = log.msg;
+                    pentestOut.appendChild(div);
+                }, log.time);
+            });
+            
+            setTimeout(() => {
+                btnPentest.disabled = false;
+                btnPentest.innerHTML = '<i data-lucide="play"></i> Relaunch Simulation';
+            }, 6000);
+        });
+    }
+
+    // 2. IaC Guardrails Logic
+    const btnIaC = document.getElementById('btn-scan-pr');
+    const resIaC = document.getElementById('iac-result');
+    if (btnIaC && resIaC) {
+        btnIaC.addEventListener('click', () => {
+            btnIaC.disabled = true;
+            btnIaC.innerText = 'Scanning Blueprint...';
+            setTimeout(() => {
+                resIaC.style.display = 'block';
+                btnIaC.innerText = 'Blocked by AuditReady';
+                btnIaC.classList.replace('btn-secondary', 'btn-danger');
+                btnIaC.style.background = '#ef4444';
+                btnIaC.style.color = '#fff';
+                btnIaC.style.border = 'none';
+            }, 1200);
+        });
+    }
+
+    // 3. Harmonization Engine Logic
+    const btnHarmonize = document.getElementById('btn-harmonize');
+    const harmBoxes = document.querySelectorAll('.harm-box');
+    const harmLines = document.getElementById('harmonize-lines');
+    if (btnHarmonize && harmBoxes.length > 0) {
+        btnHarmonize.addEventListener('click', () => {
+            btnHarmonize.disabled = true;
+            btnHarmonize.innerText = 'Mapping 137 Framework Controls...';
+            
+            setTimeout(() => {
+                harmLines.style.opacity = '1';
+                harmLines.style.color = '#10b981';
+            }, 500);
+            
+            harmBoxes.forEach((box, i) => {
+                setTimeout(() => {
+                    box.style.opacity = '1';
+                    box.style.borderColor = '#10b981';
+                    box.style.background = 'rgba(16, 185, 129, 0.05)';
+                    const icon = box.querySelector('.text-green');
+                    if (icon) icon.style.display = 'block';
+                }, 1000 + (i * 400));
+            });
+            
+            setTimeout(() => {
+                btnHarmonize.innerHTML = '<i data-lucide="check"></i> Mapped to 30+ Frameworks';
+                btnHarmonize.style.background = '#10b981';
+            }, 2500);
+        });
+    }
+
+    // 4. Trust Center Responder Logic
+    const btnProcessQ = document.getElementById('btn-process-questionnaire');
+    const qUploadZone = document.getElementById('q-upload-zone');
+    const qProgZone = document.getElementById('q-progress-zone');
+    const qDoneZone = document.getElementById('q-done-zone');
+    const qBar = document.getElementById('q-bar');
+    const qPct = document.getElementById('q-pct');
+    const qLog = document.getElementById('q-log');
+    
+    if (btnProcessQ) {
+        btnProcessQ.addEventListener('click', () => {
+            qUploadZone.style.display = 'none';
+            qProgZone.style.display = 'block';
+            
+            let pct = 0;
+            const logMsgs = [
+                "Extracting 312 questions from 'Security_Assessment_Acme.xlsx'...",
+                "Indexing vector database for 'Data Encryption Policies'...",
+                "Mapping question 45: 'Describe DR failover RTO' -> RTO is 4 hours.",
+                "Cross-referencing SOC 2 CC7.1 for Access Management queries...",
+                "Drafting response for question 120: 'Physical Security controls'...",
+                "Resolving ambiguities in questions 200-250...",
+                "Formatting output to target Excel schema...",
+                "Generating final artifact..."
+            ];
+            
+            let logIdx = 0;
+            const logInt = setInterval(() => {
+                if (logIdx < logMsgs.length) {
+                    const div = document.createElement('div');
+                    div.innerText = logMsgs[logIdx];
+                    qLog.appendChild(div);
+                    qLog.scrollTop = qLog.scrollHeight;
+                    logIdx++;
+                }
+            }, 600);
+            
+            const progInt = setInterval(() => {
+                pct += Math.floor(Math.random() * 5) + 2;
+                if (pct > 100) pct = 100;
+                qPct.innerText = pct + '%';
+                qBar.style.width = pct + '%';
+                
+                if (pct === 100) {
+                    clearInterval(progInt);
+                    clearInterval(logInt);
+                    setTimeout(() => {
+                        qProgZone.style.display = 'none';
+                        qDoneZone.style.display = 'block';
+                    }, 500);
+                }
+            }, 200);
+        });
+    }
 
 });
