@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide all steps
         document.querySelectorAll('.sim-card-wrapper').forEach(el => {
             el.classList.remove('active');
-            el.style.display = 'none';
+            el.style.display = '';
         });
         
         // Remove active class from all nav items
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show target step
         const step = document.getElementById(stepId);
         if (step) {
-            step.style.display = 'block';
+            step.style.display = '';
             step.classList.add('active');
         }
         
