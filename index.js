@@ -219,6 +219,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
     const closeModalBtn = document.getElementById("close-modal-btn");
     const cancelRemediationBtn = document.getElementById("cancel-remediation-btn");
     const applyRemediationBtn = document.getElementById("apply-remediation-btn");
+    const downloadPatchBtn = document.getElementById("download-patch-btn");
     const copyClauseBtn = document.getElementById("copy-clause-btn");
 
     // Toast
@@ -1331,6 +1332,42 @@ Rules:
     cancelRemediationBtn.addEventListener("click", closeRemediationModal);
 
     // Apply Remediation Fix
+    
+    if (downloadPatchBtn) {
+        downloadPatchBtn.addEventListener("click", () => {
+            if (!activeRemediationRow) return;
+            const content = document.getElementById("modal-remediation-clause").textContent;
+            let ext = ".patch";
+            let filename = "remediation_fix";
+            
+            const issueStr = (activeRemediationRow.issue || "").toLowerCase();
+            const clauseType = (activeRemediationRow.clauseType || "").toLowerCase();
+            
+            if (issueStr.includes("aws") || issueStr.includes("cloud") || issueStr.includes("infrastructure") || issueStr.includes("bucket")) {
+                ext = ".tf";
+                filename = "aws_compliance_fix";
+            } else if (issueStr.includes("github") || issueStr.includes("action") || issueStr.includes("pipeline")) {
+                ext = ".yml";
+                filename = "pipeline_compliance_fix";
+            } else if (clauseType.includes("policy") || clauseType.includes("agreement") || clauseType.includes("contract")) {
+                ext = ".md";
+                filename = "policy_amendment";
+            }
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename + ext;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast("Remediation file downloaded successfully!", "success");
+        });
+    }
+
     applyRemediationBtn.addEventListener("click", async () => {
         if (!activeRemediationRow) return;
         
