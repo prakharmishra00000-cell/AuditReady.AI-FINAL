@@ -26,7 +26,7 @@ app.get('/api/config', (req, res) => {
     });
 });
 
-/* --- 2. GEMINI API KEY ROTATION --- */
+/* --- 2. GEMINI API KEY ROTATION & BACKGROUND WORKERS --- */
 let geminiKeyIndex = 0;
 function getNextGeminiKey() {
     const rawKeys = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '';
@@ -46,16 +46,16 @@ function rotateGeminiKey() {
     }
 }
 
-app.post('/api/gemini/scan', async (req, res) => {
-    const { prompt } = req.body;
+// In-memory queue for background jobs (Phase 1)
+const jobQueue = new Map();
+
+async function processGeminiJob(jobId, prompt) {
     let apiKey = getNextGeminiKey();
-    
     if (!apiKey) {
-        return res.status(500).json({ 
-            error: 'GEMINI_API_KEY or GEMINI_API_KEYS environment variable is not set.' 
-        });
+        jobQueue.set(jobId, { status: 'FAILED', error: 'GEMINI_API_KEY or GEMINI_API_KEYS environment variable is not set.' });
+        return;
     }
-    
+
     try {
         let response;
         try {
@@ -80,11 +80,36 @@ app.post('/api/gemini/scan', async (req, res) => {
                 throw err;
             }
         }
-        res.status(200).json(response.data);
+        jobQueue.set(jobId, { status: 'COMPLETED', data: response.data });
     } catch (error) {
-        console.error("Gemini API Error:", error.response?.data || error.message);
-        res.status(error.response?.status || 500).json(error.response?.data || { error: error.message });
+        console.error(`Gemini API Error for job ${jobId}:`, error.response?.data || error.message);
+        jobQueue.set(jobId, { status: 'FAILED', error: error.response?.data || error.message });
     }
+}
+
+app.post('/api/gemini/scan', (req, res) => {
+    const { prompt } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
+
+    const jobId = `job_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    jobQueue.set(jobId, { status: 'PROCESSING', createdAt: Date.now() });
+
+    // Start background processing without awaiting
+    processGeminiJob(jobId, prompt);
+
+    // Return jobId immediately to prevent HTTP timeouts
+    res.status(202).json({ jobId, status: 'PROCESSING', message: 'Scan queued successfully' });
+});
+
+app.get('/api/gemini/scan/status/:jobId', (req, res) => {
+    const { jobId } = req.params;
+    const job = jobQueue.get(jobId);
+    
+    if (!job) {
+        return res.status(404).json({ error: 'Job not found or expired' });
+    }
+    
+    res.status(200).json(job);
 });
 
 /* --- 3. SHADOW DATA PROXIES (JIRA, SLACK, NOTION) --- */

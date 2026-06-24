@@ -623,11 +623,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                     fetchRealIntegrationData(src).then(realData => {
                         const prompt = `Analyze this data log for ${src}: "${realData}". Determine if there are compliance risks. Reply strictly in JSON: {"status": "Clean" | "Issues Found", "details": "short explanation"}`;
                         
-                        fetch('/api/gemini/scan', {
-                            method: 'POST',
-                            headers: {'Content-Type':'application/json'},
-                            body: JSON.stringify({ prompt: prompt })
-                        }).then(res => res.json()).then(data => {
+                        executeGeminiPrompt(prompt).then(data => {
                         const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || '{"status": "Issues Found"}';
                         const isFlagged = answer.includes("Issues Found") || answer.includes("flagged");
                         
@@ -870,25 +866,15 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                 const snippet = await readFileSnippet(file, 4000);
                 const prompt = buildGeminiScanPrompt(file.name, snippet, currentFramework);
                 
-                const res = await fetch('/api/gemini/scan', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt })
-                });
-                
-                if (res.ok) {
-                    const data = await res.json();
-                    const raw  = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                    preScannedResult = parseGeminiResult(raw);
-                    
-                    if (preScannedResult.issue.includes("Irrelevant") || preScannedResult.issue.includes("correct framework")) {
-                        // Throw alert pop up!
-                        alert(`DEEP ANALYSIS ERROR: ${preScannedResult.issue}`);
-                        continue; // Reject file, do not add to activeFiles
-                    }
-                } else {
-                    console.error("Deep analysis API error", await res.text());
-                }
+                const data = await executeGeminiPrompt(prompt);
+const raw  = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+preScannedResult = parseGeminiResult(raw);
+
+if (preScannedResult.issue.includes("Irrelevant") || preScannedResult.issue.includes("correct framework")) {
+    // Throw alert pop up!
+    alert(`DEEP ANALYSIS ERROR: ${preScannedResult.issue}`);
+    continue; // Reject file, do not add to activeFiles
+}
             } catch (err) {
                 console.warn("Deep analysis drop check failed: ", err);
             }
@@ -1099,14 +1085,7 @@ In alignment with NIST CSF 2.0 Function ID.SC (Supply Chain Risk Management), th
                     continue; // Skip the rest of the loop since we already scanned it!
                 }
 
-                const res = await fetch('/api/gemini/scan', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt })
-                });
-
-                if (!res.ok) throw new Error('API error ' + res.status);
-                const data = await res.json();
+                const data = await executeGeminiPrompt(prompt);
                 const raw  = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
                 // Parse Gemini JSON response
@@ -1446,12 +1425,7 @@ Rules:
         const prompt = `Write a short description (max 10 words) of the remediation applied to fix this issue: "${activeRemediationRow.issue}".`;
         
         try {
-            const res = await fetch('/api/gemini/scan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: prompt })
-            });
-            const data = await res.json();
+            const data = await executeGeminiPrompt(prompt);
             const fixText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Compliance requirement fulfilled and clauses injected.";
             
             activeRemediationRow.currentStatus = "Passed";
@@ -2863,12 +2837,7 @@ if(startAuditBtn) {
         const prompt = `You are a strict Big-4 auditor conducting a live compliance interview. You have reviewed the document "${fileName}" which contains: "${fileObj.text.substring(0, 3000)}". The framework is ${fw}. Ask the user a tough, specific question about a potential compliance gap or edge case found in (or missing from) this document. Be professional, intimidating, and brief (2-3 sentences max). Do not grade yet. Just ask.`;
         
         try {
-            const res = await fetch('/api/gemini/scan', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ prompt })
-            });
-            const data = await res.json();
+            const data = await executeGeminiPrompt(prompt);
             const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Can you explain the access controls in this document?";
             mockAuditChat.innerHTML = "";
             mockAuditHistory.push({ role: "Auditor", text: reply });
@@ -2900,12 +2869,7 @@ if(mockAuditSendBtn) {
         const prompt = `You are a strict Big-4 auditor conducting a compliance interview. \nHistory:\n${histStr}\n\nAnalyze the user's last response. \nIf they are wrong but their file has the correct policy, tell them what to say instead.\nIf their file is missing the policy and they give an excuse, reject it and tell them the file is flawed and must be fixed.\nIf they are correct, praise them and ask a new, harder question.\nKeep it under 4 sentences.`;
         
         try {
-            const res = await fetch('/api/gemini/scan', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ prompt })
-            });
-            const data = await res.json();
+            const data = await executeGeminiPrompt(prompt);
             const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Network error. Please try again.";
             
             mockAuditHistory.push({ role: "Auditor", text: reply });
@@ -2962,12 +2926,7 @@ if(crossRefStartBtn) {
         const prompt = `Analyze the following documents and cross-reference them against each other. Find ANY logical contradictions, conflicting policies, or overlapping compliance gaps between them (e.g. Doc A says passwords expire 90 days, Doc B says 60 days). \n\nDocuments:\n${combinedText}\n\nIf you find contradictions, list them clearly with citations to the document names. If there are no contradictions, explicitly state that the documents are logically consistent.`;
         
         try {
-            const res = await fetch('/api/gemini/scan', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ prompt })
-            });
-            const data = await res.json();
+            const data = await executeGeminiPrompt(prompt);
             const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Failed to analyze data room.";
             
             // Format markdown to HTML simply
@@ -3024,12 +2983,7 @@ if(qaSearchBtn) {
         const prompt = `The user has a question regarding their compliance documents. \n\nQuestion: "${query}"\n\nDocuments:\n${combinedText}\n\nFind the exact clause that answers their question. Respond directly with the answer and explicitly cite the Document Name. If the answer is not in the documents, state that clearly.`;
         
         try {
-            const res = await fetch('/api/gemini/scan', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ prompt })
-            });
-            const data = await res.json();
+            const data = await executeGeminiPrompt(prompt);
             const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Search failed.";
             
             qaResultContent.innerHTML = reply.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -3077,12 +3031,7 @@ if(radarScanImpactBtn) {
         const prompt = `A new compliance law has passed: "${newLaw}". \n\nEvaluate the following user documents to see if they are impacted or non-compliant under this new law.\n\nDocuments:\n${combinedText}\n\nIf they are non-compliant, explain exactly what clause needs to be added or modified.`;
         
         try {
-            const res = await fetch('/api/gemini/scan', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ prompt })
-            });
-            const data = await res.json();
+            const data = await executeGeminiPrompt(prompt);
             const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Analysis failed.";
             
             radarImpactContent.innerHTML = reply.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
