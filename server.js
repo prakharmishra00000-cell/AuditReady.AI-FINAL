@@ -9,10 +9,24 @@ const PORT = process.env.PORT || 8080;
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
+// Force manual serving of index.html to bypass all CDN caching
+const fs = require('fs');
+app.get(['/', '/index.html'], (req, res) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('Surrogate-Control', 'no-store');
+    res.set('X-Robots-Tag', 'noindex, nofollow'); // Prevent search engine caching
+    res.set('Clear-Site-Data', '"cache"'); // Force browser to clear its cache for this origin
+    
+    const htmlPath = path.join(__dirname, 'index.html');
+    res.sendFile(htmlPath);
+});
+
 // Serve static files from the current directory with strict cache busting
 app.use(express.static(__dirname, {
     setHeaders: (res, path, stat) => {
-        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0');
         res.set('Pragma', 'no-cache');
         res.set('Expires', '0');
         res.set('Surrogate-Control', 'no-store');
