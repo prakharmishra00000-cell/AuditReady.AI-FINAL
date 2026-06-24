@@ -9,8 +9,15 @@ const PORT = process.env.PORT || 8080;
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
-// Serve static files from the current directory
-app.use(express.static(__dirname));
+// Serve static files from the current directory with strict cache busting
+app.use(express.static(__dirname, {
+    setHeaders: (res, path, stat) => {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+        res.set('Surrogate-Control', 'no-store');
+    }
+}));
 
 /* --- 1. CONFIG ENDPOINT --- */
 // Serve public frontend credentials (UPI, Google Client ID, etc.)
